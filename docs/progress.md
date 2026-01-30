@@ -71,6 +71,11 @@
 - [x] Task 4C: Error recovery system (engine/error_recovery.py)
 - [x] Task 4D: CLAUDE.md and rules update
 
-## Phase 3: Build the Tool (Not Started)
-- [ ] Decide on tech stack and user experience
+## Phase 3: Build the Tool (In Progress — Decision Phase)
+- [x] Phase 3 UI framework research (docs/phase3-research.md)
+- [x] Claude Code integration research (docs/claude-code-integration-research.md)
+- [x] Full project architecture audit (docs/project-audit.md)
+- [x] Desktop framework deep research (docs/desktop-framework-research.md)
+- [ ] **DECISION NEEDED**: Choose desktop framework (PySide6 is top recommendation)
+- [ ] Implementation planning
 - [ ] Implementation

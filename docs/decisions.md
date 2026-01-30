@@ -59,3 +59,19 @@ Each progression step delivers a guided experience with three layers:
 - Key changes: MCP Knowledge Graph replaced with NetworkX, bookkeeping system added, SQLite dual-layer added, option generator formalized with divergent-convergent pipeline, backup/test/error recovery systems added
 - Sprint structure changed from 2 sprints (6 tasks) to 3 sprints (15 tasks)
 - Only pip dependencies: jsonschema and networkx — no external APIs or services
+
+## 2026-01-30: Phase 2 Complete — All 4 Sprints Done
+- Sprint 1: 85 templates, user-world structure, reference indexes
+- Sprint 2: Engine layer (7 modules)
+- Sprint 3: Intelligence layer (SQLite sync, consistency checker, 6 hooks, prose generation)
+- Sprint 4: Safety layer (backup manager, 182 tests, error recovery, CLAUDE.md rewrite)
+
+## 2026-01-30: Phase 3 Research — Desktop Framework Decision Pending
+- User requirements: standalone desktop window app (NOT web/browser), no API keys, Claude Code CLI as backend
+- 4 research documents produced: phase3-research.md, claude-code-integration-research.md, project-audit.md, desktop-framework-research.md
+- Claude Agent SDK (pip install claude-agent-sdk) confirmed as backend integration method — wraps Claude Code CLI, supports streaming, no API keys
+- Desktop framework research evaluated 8 frameworks against 12 criteria
+- **Top recommendation: PySide6 (Qt)** — scored 97/weighted, native knowledge graph via QGraphicsView, async via qasync, dark theme via qdarktheme, PyInstaller for .exe distribution
+- Runner-up: Dear PyGui (scored 79) — built-in node editor, GPU-accelerated, but smaller ecosystem
+- Third: NiceGUI native (scored 77) — web-in-window approach, fragile packaging on Windows
+- **AWAITING USER DECISION on framework choice before implementation begins**
