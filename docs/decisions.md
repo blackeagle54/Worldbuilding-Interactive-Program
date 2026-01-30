@@ -46,3 +46,9 @@ Each progression step delivers a guided experience with three layers:
 - The user can: pick one as-is, combine elements from multiple options, request new options, or go fully custom.
 - The chosen option (or hybrid) becomes canon in the user's world and informs all future option generation.
 - **This is the single most important feature of the entire program.** Everything else (templates, hooks, knowledge graph, databases) exists to make this option generation as informed and coherent as possible.
+
+## 2026-01-30: Canon Consistency — Use Claude Code Sub-Agents, Not External API
+- The three-layer consistency system (structural, rule-based, semantic) will NOT use external API calls for the LLM semantic check layer
+- Instead, Claude Code sub-agents handle semantic contradiction detection — no API keys, no external infrastructure
+- Layers 1 and 2 (structural + rule-based) remain as Python scripts in hooks (free, instant)
+- Layer 3 (semantic) is a sub-agent call triggered when layers 1 and 2 pass — uses existing Claude Code tokens
