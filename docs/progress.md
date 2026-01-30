@@ -44,14 +44,20 @@
 - [x] Task B: Set up user-world data structure (user-world/)
 - [x] Task D: Build reference database index (engine/reference_index.json, engine/source_index.json)
 
-### Sprint 2: The Engine Layer (In Progress)
-- [ ] Task 2A: Template registry (engine/template_registry.json)
-- [ ] Task 2B: Data manager (engine/data_manager.py)
-- [ ] Task 2C: Bookkeeping system (engine/bookkeeper.py + bookkeeping/)
-- [ ] Task 2D: In-memory knowledge graph (engine/graph_builder.py)
-- [ ] Task 2E: Chunk puller / three-layer guidance (engine/chunk_puller.py)
-- [ ] Task 2F: Fair representation system (engine/fair_representation.py)
-- [ ] Task 2G: Option generator (engine/option_generator.py + generation/)
+### Sprint 2: The Engine Layer (Complete)
+- [x] Task 2A: Template registry (engine/template_registry.json)
+- [x] Task 2B: Data manager (engine/data_manager.py)
+- [x] Task 2C: Bookkeeping system (engine/bookkeeper.py + bookkeeping/)
+- [x] Task 2D: In-memory knowledge graph (engine/graph_builder.py)
+- [x] Task 2E: Chunk puller / three-layer guidance (engine/chunk_puller.py)
+- [x] Task 2F: Fair representation system (engine/fair_representation.py)
+- [x] Task 2G: Option generator (engine/option_generator.py + generation/)
+
+### Template Faithfulness Audit (Complete)
+- [x] All 85 templates verified against source text chapters
+- [x] All 22 book appendix templates field-matched (130 missing fields added)
+- [x] All 3 volume analyses verified (zero fabrications found)
+- [x] New template created: 85-game-profile.json (from V3 Appendix 12)
 
 ### Sprint 3: The Intelligence Layer (Not Started)
 - [ ] Task 3A: SQLite sync engine (engine/sqlite_sync.py + runtime/)
