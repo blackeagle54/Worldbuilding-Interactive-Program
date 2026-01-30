@@ -30,3 +30,10 @@
 - The goal is informed, guided creativity — not just a blank template, but options and patterns drawn from real mythological and literary traditions
 - This querying will be powered by hooks (UserPromptSubmit) + a knowledge graph (MCP) that auto-inject relevant references based on the current progression step and what the user is discussing
 - Implementation deferred until Phase 2 when templates and data structures are defined
+
+## 2026-01-30: Core Design Decision — Three-Layer Step Guidance
+Each progression step delivers a guided experience with three layers:
+1. **Book Quotes & Teaching**: Direct quotes from Ellefson's source text explaining the concept, why it matters, and what to consider. The book is the authority — quote it, then explain how it applies to the user's world and what needs to be addressed.
+2. **Synthesized Reference Material**: Pull relevant examples from ALL mythology and author databases, synthesized into a coherent picture. Not just "here's what Greek mythology did" — but a cross-referenced synthesis showing patterns, contrasts, and creative options drawn from all sources with fair representation.
+3. **Actionable Output**: What the user needs to decide, create, or fill out for their specific world. Templates, prompts, and guided questions.
+- This three-layer approach is the core user experience of the entire program.
