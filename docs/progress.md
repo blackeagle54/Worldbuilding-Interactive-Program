@@ -65,11 +65,11 @@
 - [x] Task 3C: Hook scripts — 6 scripts (hooks/) + .claude/settings.json
 - [x] Task 3D: Lore sync / prose generation (updates to data_manager.py)
 
-### Sprint 4: The Safety and Polish Layer (Not Started)
-- [ ] Task 4A: Automated backup system (engine/backup_manager.py + backups/)
-- [ ] Task 4B: Test suite (tests/)
-- [ ] Task 4C: Error recovery system (engine/error_recovery.py)
-- [ ] Task 4D: CLAUDE.md and rules update
+### Sprint 4: The Safety and Polish Layer (Complete)
+- [x] Task 4A: Automated backup system (engine/backup_manager.py + backups/)
+- [x] Task 4B: Test suite (tests/) — 182 tests, all passing
+- [x] Task 4C: Error recovery system (engine/error_recovery.py)
+- [x] Task 4D: CLAUDE.md and rules update
 
 ## Phase 3: Build the Tool (Not Started)
 - [ ] Decide on tech stack and user experience

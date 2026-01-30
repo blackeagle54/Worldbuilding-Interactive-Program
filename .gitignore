@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 engine/__pycache__/
 runtime/*.db
+backups/*.zip
