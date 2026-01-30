@@ -33,11 +33,27 @@
 - [x] Orchestration research (orchestration-research.md)
 - [x] Progression map created (52 steps, 12 phases, 84 templates)
 
-## Phase 2: Progression System Design (Not Started)
-- [ ] Create all 84 templates referenced in the analyses
-- [ ] Design the "chunk pulling" system
-- [ ] Set up hooks for progression enforcement
-- [ ] Build knowledge graph / structured data schema
+## Phase 1d: Additional Research
+- [x] Retrieval at scale research (retrieval-research.md)
+- [x] Bookkeeping system research (bookkeeping-research.md)
+- [x] Scale gaps analysis (scale-gaps-research.md)
+
+## Phase 2: Progression System Design
+### Sprint 1 (Complete)
+- [x] Task A: Create all 84 JSON schema templates (templates/)
+- [x] Task B: Set up user-world data structure (user-world/)
+- [x] Task D: Build reference database index (engine/reference_index.json, engine/source_index.json)
+
+### Sprint 2 (Not Started)
+- [ ] Task C: Build chunk-pulling engine (engine/chunk_puller.py)
+- [ ] Build fair representation algorithm (engine/fair_representation.py)
+- [ ] Build cross-reference validator (engine/cross_reference.py)
+
+### Sprint 3 (Not Started)
+- [ ] Task E: Set up hook scripts (hooks/)
+- [ ] Task F: Populate knowledge graph
+- [ ] Set up bookkeeping event log system
+- [ ] Implement canon consistency checking
 
 ## Phase 3: Build the Tool (Not Started)
 - [ ] Decide on tech stack and user experience
