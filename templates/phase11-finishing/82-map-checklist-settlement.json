@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "map-checklist-settlement",
+  "title": "Map Checklist -- Settlement",
+  "description": "Quality checklist for settlement-level maps ensuring urban layout, infrastructure, and defensive elements are present and consistent with the settlement profile.",
+  "step": 50,
+  "phase": 11,
+  "source_chapter": "V2 Ch11 -- Maps",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "map_name": { "type": "string" },
+    "settlement_id": { "type": "string", "x-cross-reference": "settlement-profile" },
+    "water_source_placed": { "type": "boolean", "description": "River, well, aqueduct, or other water source shown" },
+    "old_town_defined": { "type": "boolean", "description": "Original settlement core identified" },
+    "expansion_rings_drawn": { "type": "boolean", "description": "Growth rings showing how the settlement expanded over time" },
+    "walls_drawn": { "type": "boolean", "description": "Defensive walls if applicable" },
+    "gates_placed": { "type": "boolean", "description": "City gates positioned on major roads" },
+    "key_buildings_placed": {
+      "type": "object",
+      "properties": {
+        "palace_government": { "type": "boolean" },
+        "temple_religious": { "type": "boolean" },
+        "market_commercial": { "type": "boolean" },
+        "barracks_military": { "type": "boolean" },
+        "guildhall": { "type": "boolean" },
+        "docks_harbor": { "type": "boolean" },
+        "prison": { "type": "boolean" },
+        "cemetery": { "type": "boolean" }
+      }
+    },
+    "quarters_labeled": { "type": "boolean", "description": "Distinct neighborhoods or quarters identified" },
+    "roads_drawn": { "type": "boolean", "description": "Major and minor roads within the settlement" },
+    "roads_lead_to_gates": { "type": "boolean", "description": "Internal roads connect logically to gates" },
+    "terrain_features": { "type": "boolean", "description": "Hills, rivers, coastlines within the settlement" },
+    "scale_noted": { "type": "boolean" },
+    "legend_included": { "type": "boolean" },
+    "consistency_check": {
+      "type": "object",
+      "properties": {
+        "size_matches_population": { "type": "boolean" },
+        "layout_matches_profile": { "type": "boolean" },
+        "fortifications_match_profile": { "type": "boolean" },
+        "water_access_logical": { "type": "boolean" }
+      },
+      "description": "Cross-checks against the settlement profile"
+    },
+    "issues_found": { "type": "array", "items": { "type": "string" } },
+    "notes": { "type": "string" }
+  },
+  "required": ["map_name", "settlement_id", "water_source_placed", "old_town_defined", "key_buildings_placed", "roads_drawn"],
+  "x-cross-references": {
+    "settlement-profile": "Map depicts this settlement",
+    "sovereign-power-profile": "Settlement belongs to a sovereign power",
+    "religion-profile": "Temples and religious buildings",
+    "organization-profile": "Guildhalls and organizational headquarters"
+  }
+}

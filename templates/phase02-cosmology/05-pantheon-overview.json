@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pantheon-overview",
+  "title": "Pantheon Overview Sheet",
+  "description": "Defines the overall structure and rules of a pantheon -- how gods are organized, what their power hierarchy looks like, and the governing rules that constrain divine behavior. This is the 'constitutional document' of the gods before individual god profiles are created.",
+  "step": 6,
+  "phase": 2,
+  "source_chapter": "V1 Ch2 -- Creating Gods",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this pantheon (auto-generated)"
+    },
+    "pantheon_name": {
+      "type": "string",
+      "description": "The name of this pantheon (e.g., 'The Celestial Court', 'The Old Gods')"
+    },
+    "organization_type": {
+      "type": "string",
+      "enum": ["familial", "trait_based", "elemental", "seasonal", "color_based", "hierarchical", "bureaucratic", "other"],
+      "description": "How gods are organized within this pantheon (family relationships, shared traits, elemental domains, etc.)"
+    },
+    "god_count": {
+      "type": "integer",
+      "description": "Total number of gods in the pantheon"
+    },
+    "power_hierarchy": {
+      "type": "string",
+      "description": "How the power hierarchy works -- who is strongest and why (age, domain, worshippers, parentage)"
+    },
+    "power_source": {
+      "type": "string",
+      "description": "What determines a god's power level (e.g., number of worshippers, innate creation order, domain importance)"
+    },
+    "governing_rules": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Rules that constrain god behavior (e.g., 'gods cannot directly kill mortals', 'gods must not interfere with each other's domains')"
+    },
+    "rule_breaking_consequences": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "What happens when a god breaks the rules (divine prison, punishment, power loss)"
+    },
+    "gods_are_real": {
+      "type": "string",
+      "enum": ["real", "imagined", "ambiguous", "mixed"],
+      "description": "Whether gods truly exist in this world, are merely believed in, are deliberately ambiguous, or vary by deity"
+    },
+    "divine_prison": {
+      "type": "object",
+      "properties": {
+        "exists": { "type": "boolean" },
+        "location": { "type": "string" },
+        "properties": { "type": "string" },
+        "guardians": { "type": "string" },
+        "current_inmates": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "description": "Details of any divine prison or punishment realm"
+    },
+    "key_familial_relationships": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "The most important family relationships (parent/child, siblings, twins, spouses)"
+    },
+    "key_rivalries": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "The most important rivalries or alliances among gods"
+    },
+    "mortal_interaction_policy": {
+      "type": "string",
+      "enum": ["active", "distant", "forbidden", "varies_by_god", "declining"],
+      "description": "How gods generally interact with mortals"
+    },
+    "creation_involvement": {
+      "type": "string",
+      "description": "What role did the gods play in creating the world, species, or other elements?"
+    },
+    "worship_overview": {
+      "type": "string",
+      "description": "General overview of how this pantheon is worshiped (unified religion, separate cults, state religion, etc.)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes about the pantheon"
+    }
+  },
+  "required": ["pantheon_name", "organization_type", "god_count", "power_hierarchy", "governing_rules", "gods_are_real"],
+  "x-cross-references": {
+    "god-profile": "Individual gods in this pantheon are defined using God Profile Templates",
+    "mythology-worksheet": "Myths involving this pantheon's gods are documented in Mythology Worksheets",
+    "religion-profile": "Religions based on this pantheon are defined in Religion Profiles",
+    "species-profile": "Species created by this pantheon's gods are defined in Species Profiles"
+  }
+}

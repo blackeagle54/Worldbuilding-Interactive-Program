@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "history-entry",
+  "title": "History Entry Template",
+  "description": "Records a single historical event as a summary with date, title, category, and cross-file updates. History entries should be summaries, not detailed accounts. 10 minutes of brainstorming produces a wealth of material.",
+  "step": 41,
+  "phase": 8,
+  "source_chapter": "V2 Ch10 -- Creating Time and History",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "date": { "type": "string", "description": "Date in the universal calendar" },
+    "title": { "type": "string", "description": "Event title" },
+    "category": {
+      "type": "string",
+      "enum": ["god_interference", "technological", "supernatural", "rise_fall_power", "war", "group_forming", "artifact", "mission", "natural_disaster", "first_contact", "other"],
+      "description": "Event category -- provides a checklist for brainstorming"
+    },
+    "summary": { "type": "string", "description": "1-2 paragraph description of what happened" },
+    "entities_involved": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entity_id": { "type": "string" },
+          "entity_type": { "type": "string" },
+          "role": { "type": "string" }
+        }
+      },
+      "description": "Gods, species, powers, figures, items involved"
+    },
+    "consequences": { "type": "array", "items": { "type": "string" }, "description": "What changed as a result" },
+    "present_day_impact": { "type": "string", "description": "How this event affects the present" },
+    "known_to_characters": { "type": "string", "enum": ["yes", "no", "partially"], "description": "Whether current characters know about this" },
+    "cross_file_updates": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Which other files need updating because of this event (sovereign power, item, creature, land feature files)"
+    },
+    "war_reasons": { "type": "string", "description": "If a war: resources, territory, ethnic cleansing, pride, or legacy grievances" },
+    "notes": { "type": "string" }
+  },
+  "required": ["date", "title", "category", "summary", "consequences"],
+  "x-cross-references": {
+    "world-history-timeline": "This entry belongs on the World History Timeline",
+    "sovereign-power-profile": "May involve sovereign powers",
+    "world-figure-profile": "May create or involve world figures",
+    "item-profile": "May involve artifacts or items",
+    "god-profile": "May involve divine interference"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "spacecraft-profile",
+  "title": "Spacecraft Profile",
+  "description": "Defines a spacecraft for sci-fi or advanced-tech worlds, including propulsion, FTL capability, crew, armament, and manufacturer.",
+  "step": 48,
+  "phase": 10,
+  "source_chapter": "V2 Ch8 -- Travel by Water",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string" },
+    "class": { "type": "string", "description": "Ship class or designation" },
+    "propulsion_type": { "type": "string", "enum": ["chemical_rocket", "ion_drive", "nuclear_thermal", "fusion", "antimatter", "warp", "hyperspace", "solar_sail", "magic", "other"] },
+    "ftl_capable": { "type": "boolean", "description": "Whether the craft can travel faster than light" },
+    "ftl_method": { "type": "string", "description": "How FTL is achieved (warp drive, jump gates, hyperspace lanes, etc.)" },
+    "crew_size": { "type": "integer" },
+    "passenger_capacity": { "type": "integer" },
+    "armament": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "weapon_type": { "type": "string" },
+          "count": { "type": "integer" },
+          "range": { "type": "string" }
+        }
+      }
+    },
+    "defenses": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Shields, armor plating, countermeasures, etc."
+    },
+    "cargo_capacity": { "type": "string" },
+    "manufacturer": { "type": "string" },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+    "length_meters": { "type": "number" },
+    "notable_features": { "type": "array", "items": { "type": "string" } },
+    "ai_system_id": { "type": "string", "x-cross-reference": "ai-profile", "description": "Onboard AI if applicable" },
+    "captain": { "type": "string" },
+    "mission_purpose": { "type": "string" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "class", "propulsion_type", "ftl_capable", "crew_size"],
+  "x-cross-references": {
+    "sovereign-power-profile": "This spacecraft belongs to a sovereign power",
+    "ai-profile": "Onboard AI systems",
+    "space-travel-reference": "Speed and route information",
+    "technological-item-detail": "Advanced technology aboard"
+  }
+}

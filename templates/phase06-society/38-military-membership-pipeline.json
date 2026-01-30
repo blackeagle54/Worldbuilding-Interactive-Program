@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "military-membership-pipeline",
+  "title": "Military Membership Pipeline",
+  "description": "Documents the path from civilian to soldier: prerequisites, initiation tests, training program, final tests, and washout rate. The joining pipeline creates character backstory opportunities.",
+  "step": 33,
+  "phase": 6,
+  "source_chapter": "V3 Ch3 -- Armed Forces",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "force_id": { "type": "string", "x-cross-reference": "armed-forces-profile", "description": "The armed force" },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["skill", "birth", "character", "education", "species", "physical", "other"] },
+          "requirement": { "type": "string" }
+        }
+      },
+      "description": "Prerequisites for enlistment"
+    },
+    "characteristics_required": {
+      "type": "object",
+      "properties": {
+        "intelligence": { "type": "string" },
+        "strength": { "type": "string" },
+        "dexterity": { "type": "string" },
+        "constitution": { "type": "string" },
+        "morale": { "type": "string" }
+      },
+      "description": "Required characteristic levels"
+    },
+    "initiation_tests": { "type": "array", "items": { "type": "string" }, "description": "Tests to enter training" },
+    "training_program": {
+      "type": "object",
+      "properties": {
+        "duration": { "type": "string" },
+        "location": { "type": "string" },
+        "curriculum": { "type": "array", "items": { "type": "string" } }
+      },
+      "description": "Training details"
+    },
+    "final_tests": { "type": "array", "items": { "type": "string" }, "description": "Tests to graduate training" },
+    "washout_rate": { "type": "string", "description": "What percentage fail" },
+    "failure_consequences": { "type": "string", "description": "What happens to those who fail" },
+    "customs": { "type": "array", "items": { "type": "string" }, "description": "Customs during training and upon completion" },
+    "species_allowed": { "type": "array", "items": { "type": "string" }, "description": "Which species can join and any special roles" },
+    "notes": { "type": "string" }
+  },
+  "required": ["force_id", "prerequisites", "initiation_tests", "training_program", "final_tests", "washout_rate"],
+  "x-cross-references": {
+    "armed-forces-profile": "This belongs to an Armed Forces Profile"
+  }
+}

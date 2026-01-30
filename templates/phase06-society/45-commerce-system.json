@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "commerce-system",
+  "title": "Commerce System Template",
+  "description": "Defines the monetary and trade system of a sovereign power including currency, denominations, pricing references, trade goods, and merchant guilds. Use Earth pricing as a baseline, swap terms, and adjust consistently.",
+  "step": 34,
+  "phase": 6,
+  "source_chapter": "V3 Ch10 -- Other Systems",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile", "description": "The sovereign power" },
+    "currency_type": {
+      "type": "string",
+      "enum": ["trading_barter", "metal_coins", "gemstones", "paper_bills", "credit", "hybrid"],
+      "description": "Type of currency system -- units of weight transcend borders; units of value depend on government stability"
+    },
+    "currency_name": { "type": "string", "description": "Name of the currency" },
+    "denominations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "material": { "type": "string" },
+          "value_relative": { "type": "string" }
+        }
+      },
+      "description": "Currency denominations"
+    },
+    "generic_terms": { "type": "string", "description": "Generic terms for currency (like 'coin' and 'cent')" },
+    "conversion_rates": { "type": "string", "description": "Conversion between denominations and to foreign currencies" },
+    "banking_system": { "type": "boolean", "description": "Whether a banking system exists" },
+    "government_backed": { "type": "boolean", "description": "Whether currency is government-backed" },
+    "price_reference": {
+      "type": "object",
+      "properties": {
+        "cheap_meal": { "type": "string" },
+        "nice_meal": { "type": "string" },
+        "night_lodging": { "type": "string" },
+        "basic_weapon": { "type": "string" },
+        "fine_weapon": { "type": "string" },
+        "horse_or_mount": { "type": "string" },
+        "day_labor_wage": { "type": "string" }
+      },
+      "description": "Reference prices for common items (use Earth values as starting point)"
+    },
+    "trade_goods": { "type": "array", "items": { "type": "string" }, "description": "Major trade goods produced and traded" },
+    "trade_routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "partner": { "type": "string" },
+          "goods_exchanged": { "type": "string" },
+          "route": { "type": "string" }
+        }
+      },
+      "description": "Major trade routes and partners"
+    },
+    "merchant_guilds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "specialty": { "type": "string" },
+          "influence": { "type": "string" }
+        }
+      },
+      "description": "Merchant guilds and trade organizations"
+    },
+    "labor_value": { "type": "string", "description": "Value of common labor types" },
+    "notes": { "type": "string" }
+  },
+  "required": ["sovereign_power_id", "currency_name", "denominations", "price_reference", "trade_goods"],
+  "x-cross-references": {
+    "sovereign-power-profile": "This system belongs to a sovereign power",
+    "settlement-profile": "Settlements produce and trade goods",
+    "products-to-source-mapping": "Trade goods are sourced from plants and animals"
+  }
+}

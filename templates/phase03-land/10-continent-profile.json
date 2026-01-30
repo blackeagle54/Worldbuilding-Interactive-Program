@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "continent-profile",
+  "title": "Continent Profile Template",
+  "description": "Defines a continent's shape, position, plate boundaries, water bodies, and the sovereign powers that occupy it. Even continents not used in detail should have at least a name, hemisphere, and basic sovereign powers documented.",
+  "step": 12,
+  "phase": 3,
+  "source_chapter": "V2 Ch3 -- Creating a Continent",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this continent (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the continent"
+    },
+    "approximate_size": {
+      "type": "string",
+      "description": "Approximate size, ideally compared to an Earth continent (e.g., 'roughly the size of Europe')"
+    },
+    "hemisphere": {
+      "type": "string",
+      "enum": ["northern", "southern", "both", "equatorial"],
+      "description": "Which hemisphere(s) this continent occupies"
+    },
+    "latitude_range": {
+      "type": "string",
+      "description": "Approximate latitude range (distance from equator) affecting climate"
+    },
+    "shape_description": {
+      "type": "string",
+      "description": "Description of the continent's overall shape and coastline"
+    },
+    "plate_boundaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["ocean_continent_convergent", "ocean_ocean_convergent", "continent_continent_convergent", "divergent", "transform"],
+            "description": "Type of plate boundary"
+          },
+          "location": {
+            "type": "string",
+            "description": "Where on the continent this boundary is located"
+          },
+          "resulting_features": {
+            "type": "string",
+            "description": "What geographic features result (coastal mountains with volcanoes, tallest mountains, volcanic islands, earthquakes)"
+          }
+        }
+      },
+      "description": "Tectonic plate boundaries affecting this continent"
+    },
+    "water_bodies": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "water-body-reference"
+      },
+      "description": "Major water bodies (oceans, seas, bays, straits) surrounding or within this continent"
+    },
+    "major_islands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["continental", "oceanic_volcanic"] },
+          "description": { "type": "string" }
+        }
+      },
+      "description": "Major islands associated with this continent"
+    },
+    "sovereign_powers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "sovereign-power-profile"
+      },
+      "description": "Sovereign powers that occupy territory on this continent"
+    },
+    "other_continents": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "continent-profile"
+      },
+      "description": "Other continents with significant relationships to this one"
+    },
+    "reputation": {
+      "type": "string",
+      "description": "What is this continent known for from an outsider's perspective (naval power, slave trade, exotic goods, etc.)"
+    },
+    "tectonic_activity": {
+      "type": "string",
+      "description": "Notes on earthquake and volcanic activity"
+    },
+    "continental_shelf_notes": {
+      "type": "string",
+      "description": "Where the continental shelf is deep or shallow, and implications for sea travel and creatures"
+    },
+    "detail_level": {
+      "type": "string",
+      "enum": ["primary", "secondary", "background"],
+      "description": "How much detail this continent receives: primary (fully developed), secondary (partially developed), background (name and basic notes only)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "hemisphere", "latitude_range", "shape_description"],
+  "x-cross-references": {
+    "planet-profile": "This continent exists on a planet defined in the Planet Profile",
+    "water-body-reference": "Water bodies around this continent are defined in Water Body References",
+    "land-feature-catalog": "Land features on this continent are defined in Land Feature Catalogs",
+    "sovereign-power-profile": "Sovereign powers on this continent are defined in Sovereign Power Profiles",
+    "climate-zone-reference": "Climate zones on this continent are determined by latitude and the Climate Zone Reference"
+  }
+}

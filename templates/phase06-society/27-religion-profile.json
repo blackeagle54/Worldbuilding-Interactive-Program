@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "religion-profile",
+  "title": "Religion Profile Template",
+  "description": "Defines a religion including its gods, founding story, symbols, relics, holy sites, worship practices, afterlife beliefs, and clergy structure. Start with history because the founding story generates most other elements.",
+  "step": 31,
+  "phase": 6,
+  "source_chapter": "V3 Ch4 -- Religions",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string", "description": "Religion name (and its meaning)" },
+    "gods_worshiped": {
+      "type": "array",
+      "items": { "type": "string", "x-cross-reference": "god-profile" },
+      "description": "Gods worshiped by this religion",
+      "minItems": 1
+    },
+    "god_attributes_emphasized": { "type": "string", "description": "Which attributes of the god(s) are emphasized in worship" },
+    "founding_story": { "type": "string", "description": "How this religion was founded (the prophetic event)" },
+    "prophetic_figure": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "original_name": { "type": "string" },
+        "previous_occupation": { "type": "string" },
+        "prophecy_event": { "type": "string" },
+        "death": { "type": "string", "description": "How the prophet died -- martyrdom creates enemies, artifacts, and sites" },
+        "current_status": { "type": "string" }
+      },
+      "description": "The founding prophetic figure"
+    },
+    "symbols": { "type": "array", "items": { "type": "string" }, "description": "Religious symbols derived from the god's attributes or founding events" },
+    "colors": { "type": "string", "description": "Religious colors (mood and state of mind associations)" },
+    "relics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "origin": { "type": "string" },
+          "location": { "type": "string" },
+          "powers": { "type": "string" }
+        }
+      },
+      "description": "Holy relics from the founding story or significant events"
+    },
+    "holy_sites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "location": { "type": "string" },
+          "significance": { "type": "string" }
+        }
+      },
+      "description": "Sacred locations"
+    },
+    "worship_practices": {
+      "type": "object",
+      "properties": {
+        "location": { "type": "string" },
+        "timing": { "type": "string" },
+        "prayer_posture": { "type": "string" },
+        "fasting": { "type": "string" },
+        "holy_texts": { "type": "string" },
+        "hymns": { "type": "string" }
+      },
+      "description": "How worship is conducted"
+    },
+    "afterlife_belief": { "type": "string", "description": "What followers believe about the afterlife" },
+    "afterlife_id": { "type": "string", "x-cross-reference": "afterlife-design", "description": "Linked afterlife design" },
+    "clergy_structure": { "type": "string", "description": "Overview of clergy organization" },
+    "official_language": { "type": "string", "description": "Official religious language" },
+    "legal_influence": { "type": "string", "description": "How this religion influences law (if at all)" },
+    "sovereign_powers_practiced_in": {
+      "type": "array",
+      "items": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+      "description": "Where this religion is practiced"
+    },
+    "notes": { "type": "string", "description": "Freeform notes" }
+  },
+  "required": ["name", "gods_worshiped", "founding_story", "symbols", "worship_practices", "afterlife_belief", "clergy_structure"],
+  "x-cross-references": {
+    "god-profile": "Gods worshiped are defined in God Profiles",
+    "afterlife-design": "Afterlife details are in the Afterlife Design Sheet",
+    "clergy-profile": "Clergy details are in the Clergy Profile",
+    "religion-history": "Historical events are in the Religion History Sheet",
+    "religion-beliefs-practices": "Detailed beliefs in the Religion Beliefs and Practices Template",
+    "religion-membership": "Membership details in the Religion Membership Sheet",
+    "sovereign-power-profile": "Practiced within sovereign powers"
+  }
+}

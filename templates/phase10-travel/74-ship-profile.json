@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ship-profile",
+  "title": "Ship Profile Template",
+  "description": "Defines a ship including type, sovereign power, crew, cargo, speed, and armament. If the world lacks gunpowder, the ballista is the best cannon replacement.",
+  "step": 47,
+  "phase": 10,
+  "source_chapter": "V2 Ch8 -- Travel by Water",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string" },
+    "type": { "type": "string", "enum": ["galley", "galleass", "brig", "frigate", "fire_ship", "galleon", "gunboat", "ship_of_the_line", "sloop", "corvette", "privateer", "longship", "other"] },
+    "rate": { "type": "string", "description": "Ship rate if applicable (first through sixth)" },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+    "mast_count": { "type": "integer" },
+    "rigging_type": { "type": "string", "enum": ["square", "lateen", "mixed"] },
+    "length_feet": { "type": "number" },
+    "crew_size": { "type": "integer" },
+    "cargo_capacity": { "type": "string" },
+    "speed_max_knots": { "type": "number" },
+    "speed_typical_knots": { "type": "number" },
+    "propulsion": { "type": "string", "enum": ["sail", "oar", "sail_and_oar", "steam", "other"] },
+    "armament": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "weapon_type": { "type": "string" },
+          "count": { "type": "integer" },
+          "crew_per_weapon": { "type": "integer" }
+        }
+      },
+      "description": "Weapons (cannons, ballistae, trebuchets)"
+    },
+    "notable_features": { "type": "array", "items": { "type": "string" } },
+    "captain": { "type": "string" },
+    "mission_purpose": { "type": "string" },
+    "personnel_notes": { "type": "string", "description": "Special crew: wizards for wind/navigation, species for climbing/underwater, knights for boarding" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "type", "sovereign_power_id", "crew_size", "speed_typical_knots", "armament"],
+  "x-cross-references": {
+    "sovereign-power-profile": "This ship belongs to a sovereign power",
+    "naval-forces-summary": "This ship is part of a naval force",
+    "sea-travel-calculator": "Ship speed is used in travel calculations",
+    "shipwreck-profile": "This ship may become a shipwreck"
+  }
+}

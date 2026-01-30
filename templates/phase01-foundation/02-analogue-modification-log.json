@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "analogue-modification-log",
+  "title": "Analogue Modification Log",
+  "description": "Tracks how Earth sources are modified using the Rule of Three. Every analogue (culture, creature, concept) borrowed from Earth should be logged here with at least three significant changes documented. This log is used throughout the entire worldbuilding process.",
+  "step": 2,
+  "phase": 1,
+  "source_chapter": "V1 Ch1 -- Why Build A World?",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this log entry (auto-generated)"
+    },
+    "earth_source": {
+      "type": "string",
+      "description": "The Earth source being used as an analogue (e.g., 'Japan', 'Viking culture', 'horse', 'elf')"
+    },
+    "source_category": {
+      "type": "string",
+      "enum": ["culture", "species", "creature", "geography", "religion", "government", "technology", "other"],
+      "description": "What category of thing is being analogized"
+    },
+    "original_traits": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of the most prominent original traits of the Earth source that audiences would recognize"
+    },
+    "change_1": {
+      "type": "object",
+      "properties": {
+        "original_trait": {
+          "type": "string",
+          "description": "The original trait being changed"
+        },
+        "new_version": {
+          "type": "string",
+          "description": "What it has been changed to"
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this change was made"
+        }
+      },
+      "required": ["original_trait", "new_version"],
+      "description": "First significant change from the source"
+    },
+    "change_2": {
+      "type": "object",
+      "properties": {
+        "original_trait": {
+          "type": "string",
+          "description": "The original trait being changed"
+        },
+        "new_version": {
+          "type": "string",
+          "description": "What it has been changed to"
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this change was made"
+        }
+      },
+      "required": ["original_trait", "new_version"],
+      "description": "Second significant change from the source"
+    },
+    "change_3": {
+      "type": "object",
+      "properties": {
+        "original_trait": {
+          "type": "string",
+          "description": "The original trait being changed"
+        },
+        "new_version": {
+          "type": "string",
+          "description": "What it has been changed to"
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this change was made"
+        }
+      },
+      "required": ["original_trait", "new_version"],
+      "description": "Third significant change from the source (minimum required by Rule of Three)"
+    },
+    "additional_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "original_trait": { "type": "string" },
+          "new_version": { "type": "string" },
+          "rationale": { "type": "string" }
+        }
+      },
+      "description": "Any changes beyond the required three"
+    },
+    "new_name": {
+      "type": "string",
+      "description": "The new name assigned to this modified analogue (if a new name is warranted)"
+    },
+    "uses_existing_name": {
+      "type": "boolean",
+      "description": "Whether an existing/known name is being used instead of a new one"
+    },
+    "existing_name_used": {
+      "type": "string",
+      "description": "If using an existing name, which one and why it still fits despite changes"
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Overall rationale for the naming decision -- why a new name or why the existing name still works"
+    },
+    "recognition_risk": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "How likely is it that the audience will recognize the Earth source?"
+    },
+    "target_entity": {
+      "type": "string",
+      "description": "Which worldbuilding entity this analogue feeds into (e.g., a specific species, culture, or settlement)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["earth_source", "original_traits", "change_1", "change_2", "change_3", "rationale"],
+  "x-cross-references": {
+    "world-building-strategy": "The strategy worksheet defines the overall analogue philosophy that governs these modifications",
+    "species-profile": "Species often use analogues from Earth creatures or cultures",
+    "culture-profile": "Cultures frequently draw from Earth cultural analogues",
+    "sovereign-power-profile": "Sovereign powers may be analogues of Earth nations or governments"
+  }
+}

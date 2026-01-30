@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "name-registry",
+  "title": "Name Registry",
+  "description": "Master registry of all invented names in the world -- people, places, things, gods, species. Prevents duplicates, tracks pronunciation, and ensures conflict-free naming.",
+  "step": 44,
+  "phase": 9,
+  "source_chapter": "V3 Ch9 -- Names",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["person", "place", "thing", "god", "species", "organization", "ship", "other"] },
+          "entity_id": { "type": "string", "description": "ID of the entity this name belongs to" },
+          "culture_id": { "type": "string", "x-cross-reference": "culture-profile" },
+          "meaning": { "type": "string" },
+          "pronunciation": { "type": "string" },
+          "syllable_count": { "type": "integer" },
+          "first_letter": { "type": "string", "description": "For checking same-first-letter conflicts" },
+          "googled": { "type": "boolean", "description": "Checked for existing meanings in other languages" },
+          "said_aloud": { "type": "boolean", "description": "Pronounced aloud to check it sounds right" },
+          "conflicts_checked": { "type": "boolean" },
+          "notes": { "type": "string" }
+        }
+      },
+      "description": "All names in the world"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["entries"],
+  "x-cross-references": {
+    "naming-convention": "Names follow conventions defined in Naming Convention Sheets",
+    "culture-profile": "Names belong to cultures"
+  }
+}

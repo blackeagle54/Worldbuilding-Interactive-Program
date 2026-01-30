@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "military-history-lore",
+  "title": "Military History and Lore Log",
+  "description": "Records the formation story, famous deeds, notable battles, legends, traditions, and famous members of a military force. History and lore give the group depth and give characters role models.",
+  "step": 33,
+  "phase": 6,
+  "source_chapter": "V3 Ch3 -- Armed Forces",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "force_id": { "type": "string", "x-cross-reference": "armed-forces-profile", "description": "The armed force" },
+    "formation_date": { "type": "string" },
+    "formation_location": { "type": "string" },
+    "formation_story": { "type": "string" },
+    "spread_pattern": { "type": "string", "description": "How the force expanded geographically" },
+    "notable_battles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "date": { "type": "string" },
+          "role": { "type": "string" },
+          "outcome": { "type": "string" },
+          "significance": { "type": "string" }
+        }
+      },
+      "description": "Key battles and missions"
+    },
+    "legends": { "type": "array", "items": { "type": "string" }, "description": "Myths and legends told within the force" },
+    "traditions": { "type": "array", "items": { "type": "string" }, "description": "Ongoing traditions (toasts, ceremonies, burial rituals)" },
+    "famous_members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "deed": { "type": "string" },
+          "reputation": { "type": "string" },
+          "hero_or_shame": { "type": "string", "enum": ["hero", "shame", "complex"] }
+        }
+      },
+      "description": "Famous members both heroic and shameful"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["force_id", "formation_story", "notable_battles"],
+  "x-cross-references": {
+    "armed-forces-profile": "This belongs to an Armed Forces Profile",
+    "history-entry": "Battles may be formal history entries",
+    "world-figure-profile": "Famous members may be world figures"
+  }
+}

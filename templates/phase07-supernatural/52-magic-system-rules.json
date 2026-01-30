@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "magic-system-rules",
+  "title": "Magic System Rules Sheet",
+  "description": "Implements Ellefson's Seven Laws for a magic system: what is possible/impossible, who can perform, types and interactions, failure consequences, legal status, consistency rules, and learning path.",
+  "step": 37,
+  "phase": 7,
+  "source_chapter": "V3 Ch6 -- Magic Systems",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "system_id": { "type": "string", "x-cross-reference": "magic-system-overview", "description": "The magic system" },
+    "law_1_possible_impossible": { "type": "string", "description": "Law 1: What is possible and what is impossible due to the magic's physics" },
+    "law_2_who_can_perform": { "type": "string", "description": "Law 2: Who can perform this magic and how common they are" },
+    "law_3_types_and_interactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type_name": { "type": "string" },
+          "interaction_rules": { "type": "string" }
+        }
+      },
+      "description": "Law 3: Types of magic and how they interact with each other"
+    },
+    "law_4_failure_consequences": { "type": "string", "description": "Law 4: What happens when magic fails (nothing, accidental result, energy release, catastrophe)" },
+    "law_5_legal_status": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sovereign_power": { "type": "string" },
+          "legal_status": { "type": "string" }
+        }
+      },
+      "description": "Law 5: Legal status of this magic by sovereign power"
+    },
+    "law_6_consistency_notes": { "type": "string", "description": "Law 6: Notes on maintaining consistency -- follow your own rules" },
+    "law_7_learning_path": { "type": "string", "description": "Law 7: How magic is learned (training method, duration, progression)" },
+    "sanderson_law_1": { "type": "string", "description": "Sanderson's Law 1: Magic can solve conflict proportional to how well the audience understands it" },
+    "sanderson_law_2": { "type": "string", "description": "Sanderson's Law 2: Limitations are more interesting than powers" },
+    "sanderson_law_3": { "type": "string", "description": "Sanderson's Law 3: Expand what you already have before adding new magic" },
+    "notes": { "type": "string" }
+  },
+  "required": ["system_id", "law_1_possible_impossible", "law_2_who_can_perform", "law_4_failure_consequences", "law_6_consistency_notes", "law_7_learning_path"],
+  "x-cross-references": {
+    "magic-system-overview": "This rules sheet belongs to a Magic System Overview",
+    "sovereign-power-profile": "Legal status varies by sovereign power"
+  }
+}

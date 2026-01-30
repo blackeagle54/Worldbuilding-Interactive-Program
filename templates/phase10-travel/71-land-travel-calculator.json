@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "land-travel-calculator",
+  "title": "Land Travel Calculator Template",
+  "description": "Calculates realistic land travel times using terrain modifiers. Walking human baseline: 12 miles/day. Terrain modifiers significantly affect travel time (heavy forest cuts speed by 66%).",
+  "step": 46,
+  "phase": 10,
+  "source_chapter": "V2 Ch7 -- Travel Over Land",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "origin": { "type": "string" },
+    "destination": { "type": "string" },
+    "terrain_segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["road", "plains", "light_forest", "heavy_forest", "rolling_hills", "mountains", "sandy_desert", "swamp"] },
+          "distance_miles": { "type": "number" },
+          "modifier_percent": { "type": "number", "description": "Speed reduction: road 0%, light forest 15%, heavy forest 66%, hills 25%, mountains 50%, desert/swamp 33%" }
+        }
+      },
+      "description": "Terrain breakdown between origin and destination"
+    },
+    "travel_mode": { "type": "string", "enum": ["walking", "riding_horse", "wagon", "flying_creature", "airship", "other"] },
+    "base_speed_miles_per_day": { "type": "number", "description": "Walking 12, horse 35, wagon 18, carrier pigeon 700, dragon 360" },
+    "obstacles": { "type": "array", "items": { "type": "string" }, "description": "River crossings, hostile territory, etc." },
+    "total_distance": { "type": "number" },
+    "total_days": { "type": "number" },
+    "map_scale": { "type": "string", "description": "Map scale used for measurement" },
+    "notes": { "type": "string" }
+  },
+  "required": ["origin", "destination", "terrain_segments", "travel_mode", "base_speed_miles_per_day", "total_distance", "total_days"],
+  "x-cross-references": {
+    "settlement-profile": "Origin and destination are settlements",
+    "land-feature-catalog": "Terrain types come from land features",
+    "travel-distance-reference": "Results stored in the Travel Distance Reference"
+  }
+}

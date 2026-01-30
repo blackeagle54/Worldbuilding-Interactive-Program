@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "religion-membership",
+  "title": "Religion Membership Sheet",
+  "description": "Documents how people join, participate in, advance within, and leave a religion. Requirements can range from simple donations to extreme sacrifice.",
+  "step": 31,
+  "phase": 6,
+  "source_chapter": "V3 Ch4 -- Religions",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "religion_id": { "type": "string", "x-cross-reference": "religion-profile", "description": "The religion this belongs to" },
+    "membership_requirements": { "type": "string", "description": "What is required to join (donations, visible adherence, missionary work, sacrifice)" },
+    "initiation_process": { "type": "string", "description": "The process of becoming a formal member" },
+    "ranks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "requirements": { "type": "string" },
+          "privileges": { "type": "string" }
+        }
+      },
+      "description": "Ranks or levels of membership"
+    },
+    "obligations": { "type": "array", "items": { "type": "string" }, "description": "Ongoing obligations of members" },
+    "leaving_process": { "type": "string", "description": "How to leave the religion" },
+    "leaving_consequences": { "type": "string", "description": "Consequences of leaving (social, spiritual, physical)" },
+    "expulsion_grounds": { "type": "array", "items": { "type": "string" }, "description": "What can get a member expelled" },
+    "outreach": { "type": "string", "description": "Missionary work and recruitment methods" },
+    "notes": { "type": "string" }
+  },
+  "required": ["religion_id", "membership_requirements", "initiation_process", "obligations", "leaving_consequences"],
+  "x-cross-references": {
+    "religion-profile": "This belongs to a Religion Profile",
+    "clergy-profile": "Clergy have additional membership requirements"
+  }
+}

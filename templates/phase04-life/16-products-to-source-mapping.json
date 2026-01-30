@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "products-to-source-mapping",
+  "title": "Products-to-Source Mapping Table",
+  "description": "Maps products that characters need (leather, ink, poison, riding animals, spell components) to their biological sources. This ensures every invented plant or animal has a purpose. Start with the product needed, then invent the source.",
+  "step": 19,
+  "phase": 4,
+  "source_chapter": "V1 Ch6 -- Creating Plants and Animals",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this mapping entry (auto-generated)"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "The product needed (e.g., leather, ink, poison, riding mount, spell component, dye, wax)"
+    },
+    "product_category": {
+      "type": "string",
+      "enum": ["food", "medicine", "poison", "spell_component", "building_material", "clothing", "fuel", "tool", "decoration", "transportation", "entertainment", "weapon_material", "other"],
+      "description": "Category of the product"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": ["plant", "animal"],
+      "description": "Whether the source is a plant or animal"
+    },
+    "source_id": {
+      "type": "string",
+      "description": "ID of the plant or animal profile that is the source",
+      "x-cross-reference": "plant-profile"
+    },
+    "source_name": {
+      "type": "string",
+      "description": "Name of the source plant or animal"
+    },
+    "part_used": {
+      "type": "string",
+      "description": "Which part of the plant/animal is used (leaves, roots, hide, bone, secretion, etc.)"
+    },
+    "processing_required": {
+      "type": "string",
+      "description": "How the raw material is processed (crushing, boiling, drying, tanning, fermenting)"
+    },
+    "habitat": {
+      "type": "string",
+      "description": "Where the source is found (climate zone, terrain type)"
+    },
+    "rarity": {
+      "type": "string",
+      "enum": ["common", "uncommon", "rare", "extremely_rare"],
+      "description": "How rare this product is, affecting price and availability"
+    },
+    "sovereign_powers_trading": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "sovereign-power-profile"
+      },
+      "description": "Which sovereign powers produce or trade this product"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["product_name", "product_category", "source_type", "source_name"],
+  "x-cross-references": {
+    "plant-profile": "Plant sources are defined in Plant Profiles",
+    "animal-profile": "Animal sources are defined in Animal Profiles",
+    "settlement-profile": "Settlements produce products listed here",
+    "sovereign-power-profile": "Sovereign powers trade in these products",
+    "commerce-system": "Pricing of these products is tracked in the Commerce System"
+  }
+}

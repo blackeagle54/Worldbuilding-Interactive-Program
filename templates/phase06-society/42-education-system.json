@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "education-system",
+  "title": "Education System Template",
+  "description": "Defines the education system of a sovereign power including basic education availability, special education, apprenticeships, literacy rate, and notable institutions. Every character has been shaped by the education system or lack thereof.",
+  "step": 34,
+  "phase": 6,
+  "source_chapter": "V3 Ch10 -- Other Systems",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile", "description": "The sovereign power" },
+    "basic_education_available": { "type": "boolean", "description": "Whether basic education (reading, writing, math) is available" },
+    "education_required": { "type": "boolean", "description": "Whether education is mandatory" },
+    "who_pays": { "type": "string", "enum": ["public", "private", "church", "guild", "mixed"], "description": "Who funds education" },
+    "school_age_range": { "type": "string", "description": "Age range for formal schooling" },
+    "subjects_taught": { "type": "array", "items": { "type": "string" }, "description": "What is taught" },
+    "special_education_types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "availability": { "type": "string" },
+          "requirements": { "type": "string" }
+        }
+      },
+      "description": "Advanced or specialized education"
+    },
+    "apprenticeship_system": {
+      "type": "object",
+      "properties": {
+        "exists": { "type": "boolean" },
+        "typical_professions": { "type": "array", "items": { "type": "string" } },
+        "typical_duration": { "type": "string" },
+        "master_understudy_dynamics": { "type": "string" }
+      },
+      "description": "The apprenticeship system -- a major character-building tool"
+    },
+    "literacy_rate": { "type": "string", "description": "Estimated literacy rate" },
+    "boarding_schools": { "type": "boolean", "description": "Whether boarding schools exist" },
+    "segregation": { "type": "string", "description": "Whether education is segregated by species, class, or gender" },
+    "notable_institutions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "reputation": { "type": "string" }
+        }
+      },
+      "description": "Notable schools, academies, or universities"
+    },
+    "impact_on_characters": { "type": "string", "description": "How the education system shapes character backstories" },
+    "notes": { "type": "string" }
+  },
+  "required": ["sovereign_power_id", "basic_education_available", "apprenticeship_system", "literacy_rate"],
+  "x-cross-references": {
+    "sovereign-power-profile": "This system belongs to a sovereign power",
+    "culture-profile": "Education shapes and is shaped by culture",
+    "magic-training-society": "Magical education is detailed separately"
+  }
+}

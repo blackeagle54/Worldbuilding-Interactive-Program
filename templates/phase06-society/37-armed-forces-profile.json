@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "armed-forces-profile",
+  "title": "Armed Forces Profile Template",
+  "description": "Defines a military group including its purpose, terrain specialization, transportation, weapons, armor by rank, special sites, and customs. Government type fundamentally shapes the military's character.",
+  "step": 33,
+  "phase": 6,
+  "source_chapter": "V3 Ch3 -- Armed Forces",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string", "description": "Name of the armed force" },
+    "type": { "type": "string", "enum": ["army", "navy", "air_force", "space_force", "specialty_group", "knightly_order", "other"] },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile", "description": "Associated sovereign power" },
+    "purpose": { "type": "string", "description": "Primary purpose and mission" },
+    "government_influence": { "type": "string", "description": "How the government type shapes this force's character" },
+    "terrain_specialization": { "type": "string", "description": "Terrain the force specializes in (mountains, sea, forests, desert, space)" },
+    "typical_locations": { "type": "array", "items": { "type": "string" }, "description": "Where bases and garrisons are located" },
+    "transportation": {
+      "type": "object",
+      "properties": {
+        "walking": { "type": "boolean" },
+        "riding_animals": { "type": "string" },
+        "riding_machinery": { "type": "string" },
+        "ships": { "type": "string" },
+        "aircraft_spacecraft": { "type": "string" }
+      },
+      "description": "Transportation methods"
+    },
+    "weapons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "required_or_preferred": { "type": "string", "enum": ["required", "preferred", "optional"] },
+          "description": { "type": "string" }
+        }
+      },
+      "description": "Weapons used -- distinctive choices characterize the force"
+    },
+    "armor_by_rank": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rank_range": { "type": "string" },
+          "armor_type": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      },
+      "description": "Armor assigned by rank level"
+    },
+    "special_sites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["training_facility", "sacred_place", "storage", "headquarters", "other"] },
+          "description": { "type": "string" }
+        }
+      },
+      "description": "Special sites (training facilities, sacred places, storage)"
+    },
+    "customs": { "type": "array", "items": { "type": "string" }, "description": "Military customs (toasts, greetings, burial rituals)" },
+    "size": { "type": "integer", "description": "Troop count" },
+    "troop_calculation": { "type": "string", "description": "Population * per capita ratio = troop count" },
+    "species_composition": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "species_id": { "type": "string", "x-cross-reference": "species-profile" },
+          "role": { "type": "string" },
+          "percentage": { "type": "number" }
+        }
+      },
+      "description": "Species composition and special roles (elves as healers, dwarves as artillery)"
+    },
+    "skills": { "type": "string", "description": "Hand-to-hand combat, martial arts, special skills" },
+    "identifiers": {
+      "type": "object",
+      "properties": {
+        "colors": { "type": "string" },
+        "symbol": { "type": "string" },
+        "motto": { "type": "string" },
+        "acceptance_symbols": { "type": "string", "description": "Medals, uniforms, special transport" }
+      },
+      "description": "How the force is identified"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "type", "sovereign_power_id", "purpose", "terrain_specialization", "weapons", "armor_by_rank", "size"],
+  "x-cross-references": {
+    "sovereign-power-profile": "This force belongs to a sovereign power",
+    "military-membership-pipeline": "Joining details in the Military Membership Pipeline",
+    "military-rank-structure": "Ranks in the Military Rank Structure",
+    "military-relationships": "Relationships in the Military Relationships Sheet",
+    "military-history-lore": "History in the Military History and Lore Log",
+    "species-profile": "Species serving in this force"
+  }
+}

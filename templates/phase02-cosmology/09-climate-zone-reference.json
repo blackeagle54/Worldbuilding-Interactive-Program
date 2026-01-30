@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "climate-zone-reference",
+  "title": "Climate Zone Reference Sheet",
+  "description": "Defines the climate zones present on the planet, using the Koppen classification as a foundation. Each zone specifies latitude range, temperature, precipitation, vegetation, and which species are found there. This is a reference document used throughout world creation.",
+  "step": 11,
+  "phase": 2,
+  "source_chapter": "V2 Ch2 -- Creating a Planet",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this reference sheet (auto-generated)"
+    },
+    "planet_id": {
+      "type": "string",
+      "x-cross-reference": "planet-profile",
+      "description": "The planet this climate reference applies to"
+    },
+    "zones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Climate zone name (e.g., 'Tropical Rainforest', 'Mediterranean', 'Tundra')"
+          },
+          "koppen_code": {
+            "type": "string",
+            "description": "Koppen classification code (e.g., 'Af', 'Csa', 'ET')"
+          },
+          "latitude_range": {
+            "type": "string",
+            "description": "Approximate latitude range where this zone occurs"
+          },
+          "temperature": {
+            "type": "object",
+            "properties": {
+              "average_high": { "type": "string" },
+              "average_low": { "type": "string" },
+              "seasonal_variation": { "type": "string" }
+            },
+            "description": "Temperature characteristics"
+          },
+          "precipitation": {
+            "type": "object",
+            "properties": {
+              "annual_amount": { "type": "string" },
+              "pattern": { "type": "string", "description": "When rain falls (year-round, seasonal, monsoon, dry)" },
+              "snow": { "type": "boolean" }
+            },
+            "description": "Precipitation characteristics"
+          },
+          "vegetation": {
+            "type": "string",
+            "description": "Typical vegetation (dense forest, savannah, grassland, scrub, tundra, etc.)"
+          },
+          "terrain_types": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Terrain types commonly found in this zone"
+          },
+          "species_found": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-cross-reference": "species-profile"
+            },
+            "description": "Species that inhabit or prefer this climate zone"
+          },
+          "storytelling_notes": {
+            "type": "string",
+            "description": "How this climate affects story: travel difficulty, clothing, shelter needs, combat conditions"
+          }
+        },
+        "required": ["name", "latitude_range", "temperature", "precipitation", "vegetation"]
+      },
+      "description": "All climate zones present on the planet"
+    },
+    "rain_shadow_notes": {
+      "type": "string",
+      "description": "General notes on how rain shadows from mountain ranges modify climate zones"
+    },
+    "ocean_current_effects": {
+      "type": "string",
+      "description": "How ocean currents modify expected climate zones (warm eastern coasts, cold western coasts, etc.)"
+    },
+    "altitude_effects": {
+      "type": "string",
+      "description": "How altitude changes climate regardless of latitude"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["zones"],
+  "x-cross-references": {
+    "planet-profile": "Climate zones are determined by the planet's properties",
+    "continent-profile": "Continents contain these climate zones based on their latitude",
+    "land-feature-catalog": "Land features like mountains modify climate zones via rain shadows",
+    "species-profile": "Species habitats are defined by climate zones",
+    "settlement-profile": "Settlement climate depends on which zone it falls in"
+  }
+}

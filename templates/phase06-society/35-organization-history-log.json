@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "organization-history-log",
+  "title": "Organization History Log",
+  "description": "Records the formation story and historical actions/missions of an organization. History should include a mix of successes and failures to make the organization believable.",
+  "step": 32,
+  "phase": 6,
+  "source_chapter": "V3 Ch2 -- Organizations",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "organization_id": { "type": "string", "x-cross-reference": "organization-profile", "description": "The organization" },
+    "formation_date": { "type": "string" },
+    "formation_location": { "type": "string" },
+    "formation_story": { "type": "string", "description": "Detailed founding narrative" },
+    "founder": { "type": "string", "description": "Who founded it and why" },
+    "historical_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "objective": { "type": "string" },
+          "outcome": { "type": "string", "enum": ["success", "failure", "partial", "ongoing"] },
+          "casualties": { "type": "string" },
+          "reputation_impact": { "type": "string" },
+          "entities_involved": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "description": "Key actions and missions"
+    },
+    "notable_members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "deed": { "type": "string" },
+          "current_status": { "type": "string" }
+        }
+      },
+      "description": "Famous or infamous members"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["organization_id", "formation_story", "historical_actions"],
+  "x-cross-references": {
+    "organization-profile": "This belongs to an Organization Profile",
+    "history-entry": "Actions may be formal history entries",
+    "world-figure-profile": "Notable members may be world figures"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "magic-system-overview",
+  "title": "Magic System Overview Template",
+  "description": "Defines the high-level design of a magic system: type, source, prevalence, who can use it, what it can and cannot do, and its cost. Limitations create better stories than powers.",
+  "step": 37,
+  "phase": 7,
+  "source_chapter": "V3 Ch6 -- Magic Systems",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string", "description": "Name of the magic system" },
+    "type": { "type": "string", "enum": ["wizardry", "alchemy", "witchcraft", "necromancy", "shamanism", "psionics", "elemental", "custom"], "description": "Type of magic" },
+    "hard_soft": { "type": "string", "enum": ["hard", "soft", "hybrid"], "description": "Hard magic (defined rules) vs. soft magic (mysterious) vs. hybrid" },
+    "source": { "type": "string", "description": "Where magic comes from (universe, gods, planet, elements, beings, souls)" },
+    "origin": { "type": "string", "enum": ["universe", "gods", "nature", "other"], "description": "Origin of magic" },
+    "possible_effects": { "type": "array", "items": { "type": "string" }, "description": "What magic CAN do" },
+    "impossible_effects": { "type": "array", "items": { "type": "string" }, "description": "What magic CANNOT do -- equally important" },
+    "who_can_use": { "type": "string", "description": "Who can perform magic (born talent, granted, consumed substance, near-death, training)" },
+    "how_common_practitioners": { "type": "string", "description": "How common practitioners are" },
+    "prevalence": { "type": "string", "enum": ["rare", "uncommon", "common", "ubiquitous"] },
+    "cost": { "type": "string", "description": "What magic costs the practitioner (fatigue, aging, madness, memory loss, life force)" },
+    "how_ability_gained": { "type": "string", "description": "How one becomes able to use magic" },
+    "how_ability_lost": { "type": "string", "description": "How one can lose the ability to use magic" },
+    "spells_needed": { "type": "boolean", "description": "Whether formal spells are needed or willpower suffices" },
+    "multiple_types_possible": { "type": "string", "description": "Whether one practitioner can use multiple magic types" },
+    "anti_magic": { "type": "string", "description": "Anti-magic measures (zones, devices, substances)" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "type", "source", "possible_effects", "impossible_effects", "who_can_use", "prevalence", "cost"],
+  "x-cross-references": {
+    "magic-system-rules": "Detailed rules in the Magic System Rules Sheet",
+    "magic-type-detail": "Individual magic types detailed in Magic Type Detail Templates",
+    "spell-design": "Spells designed using the Spell Design Template",
+    "magic-training-society": "Training and society in the Magic Training and Society Template",
+    "supernatural-prevalence": "Overall supernatural prevalence governs this system"
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "water-body-reference",
+  "title": "Water Body Reference Sheet",
+  "description": "Defines a single water body -- ocean, sea, bay, strait, lake, or river -- including its type, location, connections, myths, and significance. Water bodies are fundamental to settlement placement, trade routes, and naval power.",
+  "step": 13,
+  "phase": 3,
+  "source_chapter": "V2 Ch3 -- Creating a Continent",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this water body (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the water body (naming can be based on reputation, events, or characteristics)"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["ocean", "sea", "bay", "gulf", "cove", "fjord", "inlet", "sound", "strait", "channel", "passage", "lake", "river"],
+      "description": "Type of water body"
+    },
+    "location": {
+      "type": "string",
+      "description": "Where this water body is located relative to continents and other features"
+    },
+    "size": {
+      "type": "string",
+      "description": "Approximate size (miles/km across, length for rivers)"
+    },
+    "depth": {
+      "type": "string",
+      "description": "General depth characteristics (shallow, moderate, deep trenches) and implications"
+    },
+    "water_type": {
+      "type": "string",
+      "enum": ["saltwater", "freshwater", "brackish"],
+      "description": "Type of water"
+    },
+    "connected_to": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "water-body-reference"
+      },
+      "description": "Other water bodies this one connects to"
+    },
+    "continents_bordered": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "continent-profile"
+      },
+      "description": "Continents that border this water body"
+    },
+    "settlements_on_shores": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "settlement-profile"
+      },
+      "description": "Major settlements along this water body's shores"
+    },
+    "sovereign_powers_bordering": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "sovereign-power-profile"
+      },
+      "description": "Sovereign powers that control shores of this water body"
+    },
+    "reputation": {
+      "type": "string",
+      "description": "What this water body is known for (dangerous crossings, pirate waters, monster sightings, etc.)"
+    },
+    "myths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Myths or legends associated with this water body (Bermuda Triangle-style phenomena, sea monsters)"
+    },
+    "creatures": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Notable creatures known to inhabit this water body"
+    },
+    "trade_significance": {
+      "type": "string",
+      "description": "How important this water body is for trade (major shipping lane, fishing ground, etc.)"
+    },
+    "current_patterns": {
+      "type": "string",
+      "description": "Current patterns that affect navigation"
+    },
+    "tidal_characteristics": {
+      "type": "string",
+      "description": "Tidal behavior specific to this water body"
+    },
+    "significance": {
+      "type": "string",
+      "description": "Why this water body matters for the world (strategic chokepoint, species origin, historical battle site)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "type", "location", "significance"],
+  "x-cross-references": {
+    "continent-profile": "This water body borders or is part of continents",
+    "settlement-profile": "Settlements along this water body are defined in Settlement Profiles",
+    "sovereign-power-profile": "Powers controlling shores are defined in Sovereign Power Profiles",
+    "ship-profile": "Ships sailing this water body are defined in Ship Profiles",
+    "sea-travel-calculator": "Travel times across this water body use the Sea Travel Calculator"
+  }
+}

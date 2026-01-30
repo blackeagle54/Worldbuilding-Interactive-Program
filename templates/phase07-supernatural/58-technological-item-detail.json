@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "technological-item-detail",
+  "title": "Technological Item Detail Sheet",
+  "description": "Additional details for technological items: manufacturer, species origin, capabilities, reliability, and reputation. Different manufacturers and species should produce items of varying quality and design philosophy.",
+  "step": 39,
+  "phase": 7,
+  "source_chapter": "V3 Ch7 -- Items",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "item_id": { "type": "string", "x-cross-reference": "item-profile", "description": "The parent item profile" },
+    "manufacturer": { "type": "string", "description": "Who/what company/species manufactured it" },
+    "species_origin": { "type": "string", "x-cross-reference": "species-profile", "description": "Which species designed/built it" },
+    "technology_level": { "type": "string" },
+    "capabilities": { "type": "array", "items": { "type": "string" } },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "battery_life": { "type": "string" },
+    "reliability_rating": { "type": "string" },
+    "durability_rating": { "type": "string" },
+    "usability_interface": { "type": "string" },
+    "data_connectivity": { "type": "string", "description": "Connectivity with other tech (don't assume cross-planet compatibility)" },
+    "safety_mechanisms": { "type": "string" },
+    "known_hacks": { "type": "string" },
+    "cost_availability": { "type": "string" },
+    "reputation": { "type": "string", "description": "Product/brand reputation" },
+    "form_function_notes": { "type": "string", "description": "Does form match function? (Question assumptions like gun shapes for lasers)" },
+    "biological_controls": { "type": "string", "description": "Species-specific controls or biometric locks" },
+    "notes": { "type": "string" }
+  },
+  "required": ["item_id", "manufacturer", "capabilities", "limitations", "reputation"],
+  "x-cross-references": {
+    "item-profile": "This extends an Item Profile",
+    "species-profile": "Species-based design differences"
+  }
+}

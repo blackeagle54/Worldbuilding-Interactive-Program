@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "planet-profile",
+  "title": "Planet Profile Template",
+  "description": "Defines the global-scale properties of the world's planet: its star, rotation, moons, tides, seasons, climate zones, prevailing winds, and constellations. These planetary-level decisions cascade down to affect every continent, settlement, and story.",
+  "step": 10,
+  "phase": 2,
+  "source_chapter": "V2 Ch2 -- Creating a Planet",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this planet (auto-generated)"
+    },
+    "planet_name": {
+      "type": "string",
+      "description": "The name of the planet"
+    },
+    "star_type": {
+      "type": "string",
+      "description": "Type of star (e.g., 'yellow dwarf' like our Sun, 'red dwarf', etc.)"
+    },
+    "rotation_direction": {
+      "type": "string",
+      "enum": ["counterclockwise", "clockwise"],
+      "description": "Direction of planet rotation (counterclockwise = Earth-like, sunrise in east)"
+    },
+    "axial_tilt": {
+      "type": "number",
+      "description": "Axial tilt in degrees (Earth is 23.5; this affects seasons)"
+    },
+    "hours_per_day": {
+      "type": "number",
+      "description": "Number of hours in one day (recommended: close to 24)"
+    },
+    "moon_count": {
+      "type": "integer",
+      "description": "Number of moons orbiting the planet"
+    },
+    "moons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the moon"
+          },
+          "orbital_period_days": {
+            "type": "number",
+            "description": "How many days for one orbit"
+          },
+          "relative_size": {
+            "type": "string",
+            "enum": ["tiny", "small", "medium", "large", "massive"],
+            "description": "Size relative to Earth's moon"
+          },
+          "tidally_locked": {
+            "type": "boolean",
+            "description": "Whether this moon always shows the same face"
+          },
+          "surface_composition": {
+            "type": "string",
+            "description": "Surface type (barren, habitable, icy, volcanic)"
+          },
+          "moonlight_intensity": {
+            "type": "string",
+            "enum": ["dim", "moderate", "bright", "brilliant"],
+            "description": "How bright the moonlight is (depends on surface reflectivity)"
+          },
+          "cultural_significance": {
+            "type": "string",
+            "description": "What the inhabitants associate with this moon"
+          }
+        }
+      },
+      "description": "Details for each moon"
+    },
+    "conjunction_cycle": {
+      "type": "string",
+      "description": "If multiple moons, how often they align. Formula: (P1 * P2) / (P2 - P1) = C days"
+    },
+    "equator_position": {
+      "type": "string",
+      "description": "Description of where the equator falls relative to major landmasses"
+    },
+    "prevailing_winds": {
+      "type": "object",
+      "properties": {
+        "tropical": {
+          "type": "string",
+          "description": "Wind direction in the tropics (Earth: easterly trade winds)"
+        },
+        "temperate": {
+          "type": "string",
+          "description": "Wind direction in temperate zones (Earth: westerlies)"
+        },
+        "polar": {
+          "type": "string",
+          "description": "Wind direction in polar zones (Earth: easterly)"
+        }
+      },
+      "description": "Prevailing wind directions by latitude zone"
+    },
+    "ocean_current_direction": {
+      "type": "string",
+      "description": "General ocean current patterns (e.g., 'clockwise in northern hemisphere, counterclockwise in southern')"
+    },
+    "other_planets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["rocky", "gas_giant", "ice_giant"] },
+          "visible_to_naked_eye": { "type": "boolean" },
+          "cultural_significance": { "type": "string" }
+        }
+      },
+      "description": "Other planets in the solar system visible to inhabitants"
+    },
+    "constellations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the constellation"
+          },
+          "hemisphere_visibility": {
+            "type": "string",
+            "enum": ["both", "northern", "southern"],
+            "description": "Which hemisphere(s) can see this constellation"
+          },
+          "seasonal_visibility": {
+            "type": "string",
+            "description": "When this constellation is most visible"
+          },
+          "associated_deity": {
+            "type": "string",
+            "x-cross-reference": "god-profile",
+            "description": "God or figure associated with this constellation"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["light", "dark"],
+            "description": "Whether formed by stars (light) or interstellar gas (dark)"
+          },
+          "cultural_meaning": {
+            "type": "string",
+            "description": "What inhabitants believe about this constellation"
+          }
+        }
+      },
+      "description": "Named constellations in the night sky"
+    },
+    "notable_comets_asteroids": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "orbital_period": { "type": "string" },
+          "cultural_significance": { "type": "string" }
+        }
+      },
+      "description": "Named comets or asteroids with cultural significance"
+    },
+    "tidal_notes": {
+      "type": "string",
+      "description": "How tides work on this planet (spring tides, neap tides, multi-moon effects)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes about the planet"
+    }
+  },
+  "required": ["star_type", "rotation_direction", "moon_count", "axial_tilt", "equator_position", "prevailing_winds"],
+  "x-cross-references": {
+    "climate-zone-reference": "Climate zones are determined by this planet's properties",
+    "continent-profile": "Continents exist on this planet and are affected by its properties",
+    "god-profile": "Constellations may be associated with gods",
+    "pantheon-overview": "The pantheon may have influenced planetary creation"
+  }
+}

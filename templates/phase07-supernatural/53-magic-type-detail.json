@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "magic-type-detail",
+  "title": "Magic Type Detail Template",
+  "description": "Details a specific type of magic within a system -- its effects, limitations, interactions with other types, practitioners, and cultural perception. Multiple magic types should be distinct in rules, limits, and practitioner requirements.",
+  "step": 38,
+  "phase": 7,
+  "source_chapter": "V3 Ch6 -- Magic Systems",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string" },
+    "system_id": { "type": "string", "x-cross-reference": "magic-system-overview", "description": "Parent magic system" },
+    "description": { "type": "string" },
+    "who_can_perform": { "type": "string" },
+    "prerequisites": { "type": "string", "description": "What is needed to practice this type" },
+    "effects": { "type": "array", "items": { "type": "string" }, "description": "What this magic type can do" },
+    "limitations": { "type": "array", "items": { "type": "string" }, "description": "What this type cannot do" },
+    "benefits": { "type": "array", "items": { "type": "string" }, "description": "Specific advantages of this type" },
+    "problems": { "type": "array", "items": { "type": "string" }, "description": "Specific dangers or drawbacks" },
+    "required_components": { "type": "string", "description": "Words, gestures, ingredients, or none" },
+    "interaction_with_other_types": { "type": "array", "items": { "type": "string" }, "description": "How it interacts with other magic types" },
+    "practitioners": { "type": "array", "items": { "type": "string" }, "description": "Notable practitioners or practitioner types" },
+    "practitioner_title": { "type": "string", "description": "What practitioners of this type are called" },
+    "training_required": { "type": "string", "description": "Training duration and form" },
+    "source_of_power": { "type": "string", "description": "Where this type draws power from" },
+    "cultural_perception": { "type": "string", "description": "How society views this type of magic" },
+    "associated_deity": { "type": "string", "x-cross-reference": "god-profile", "description": "If associated with a specific deity" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "system_id", "description", "effects", "limitations", "cultural_perception"],
+  "x-cross-references": {
+    "magic-system-overview": "This type belongs to a magic system",
+    "spell-design": "Spells of this type are designed using the Spell Design Template",
+    "god-profile": "May be associated with a deity"
+  }
+}

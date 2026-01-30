@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "space-travel-reference",
+  "title": "Space Travel Reference",
+  "description": "Reference for space travel rules, propulsion types, FTL constraints, key routes, and space stations in sci-fi or advanced-tech worlds.",
+  "step": 48,
+  "phase": 10,
+  "source_chapter": "V2 Ch8 -- Travel by Water",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "propulsion_types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "speed_description": { "type": "string" },
+          "fuel_source": { "type": "string" },
+          "availability": { "type": "string", "enum": ["common", "military_only", "rare", "experimental", "ancient"] },
+          "limitations": { "type": "string" }
+        }
+      }
+    },
+    "ftl_rules": {
+      "type": "object",
+      "properties": {
+        "exists": { "type": "boolean" },
+        "method": { "type": "string" },
+        "speed_factor": { "type": "string", "description": "How fast relative to light (e.g., 10x lightspeed, instantaneous jump)" },
+        "constraints": { "type": "array", "items": { "type": "string" }, "description": "Gravity wells, cooldown times, fuel costs, jump point requirements" },
+        "risks": { "type": "array", "items": { "type": "string" } },
+        "who_has_access": { "type": "string" }
+      }
+    },
+    "speed_limits": { "type": "string", "description": "Maximum speeds and any universal speed constraints" },
+    "key_routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "distance": { "type": "string" },
+          "travel_time": { "type": "string" },
+          "hazards": { "type": "array", "items": { "type": "string" } },
+          "trade_importance": { "type": "string" }
+        }
+      }
+    },
+    "space_stations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "location": { "type": "string" },
+          "purpose": { "type": "string", "enum": ["trade", "military", "research", "refueling", "habitation", "jump_gate", "other"] },
+          "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+          "population": { "type": "integer" }
+        }
+      }
+    },
+    "navigation_hazards": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Asteroid fields, nebulae, black holes, pirate zones, etc."
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["propulsion_types", "ftl_rules"],
+  "x-cross-references": {
+    "spacecraft-profile": "Spacecraft use these travel rules",
+    "sovereign-power-profile": "Space stations belong to sovereign powers",
+    "planet-profile": "Routes connect planets"
+  }
+}

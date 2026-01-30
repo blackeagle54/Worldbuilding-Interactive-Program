@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "language-usage-tracker",
+  "title": "Language Usage Tracker",
+  "description": "Tracks all invented words and phrases for consistency. Essential for the ad-hoc approach -- even without a formal language, tracking ensures words stay consistent across stories.",
+  "step": 43,
+  "phase": 9,
+  "source_chapter": "V3 Ch8 -- Languages",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "language_id": { "type": "string", "x-cross-reference": "naming-language-brief", "description": "The language these words belong to" },
+    "words_created": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "word": { "type": "string" },
+          "meaning": { "type": "string" },
+          "part_of_speech": { "type": "string" },
+          "pronunciation": { "type": "string" },
+          "used_in": { "type": "array", "items": { "type": "string" }, "description": "Stories/chapters where this word appears" },
+          "speaker": { "type": "string", "description": "Who says this word" },
+          "context": { "type": "string" },
+          "consistent_check": { "type": "boolean", "description": "Verified consistent with other words" },
+          "notes": { "type": "string" }
+        }
+      },
+      "description": "All invented words and phrases"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["words_created"],
+  "x-cross-references": {
+    "naming-language-brief": "Words belong to a language defined in a Naming Language Brief",
+    "name-registry": "Named entities use these words"
+  }
+}

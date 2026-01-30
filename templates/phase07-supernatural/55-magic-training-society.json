@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "magic-training-society",
+  "title": "Magic Training and Society Template",
+  "description": "Defines how magic users are trained, organized, and positioned in society. Training creates distinct ranks, schools, and social dynamics.",
+  "step": 38,
+  "phase": 7,
+  "source_chapter": "V3 Ch6 -- Magic Systems",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "system_id": { "type": "string", "x-cross-reference": "magic-system-overview", "description": "The magic system" },
+    "training_structure": { "type": "string", "enum": ["apprenticeship", "school", "self_taught", "divine_grant", "mixed"], "description": "How training is organized" },
+    "training_duration": { "type": "string" },
+    "curriculum": { "type": "array", "items": { "type": "string" }, "description": "What is taught" },
+    "ranks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "requirements": { "type": "string" },
+          "privileges": { "type": "string" }
+        }
+      },
+      "description": "Rank progression"
+    },
+    "tests": { "type": "array", "items": { "type": "string" }, "description": "Tests for advancement" },
+    "graduation_requirements": { "type": "string" },
+    "failure_consequences": { "type": "string", "description": "What happens to those who fail training" },
+    "institutions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "location": { "type": "string" },
+          "reputation": { "type": "string" },
+          "specialty": { "type": "string" }
+        }
+      },
+      "description": "Notable training institutions"
+    },
+    "famous_instructors": { "type": "array", "items": { "type": "string" } },
+    "local_laws": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sovereign_power": { "type": "string" },
+          "laws": { "type": "string" }
+        }
+      },
+      "description": "Laws governing magic use by sovereign power"
+    },
+    "social_attitudes": { "type": "string", "description": "How society views magic users (by species, class, region)" },
+    "employment_prospects": { "type": "string", "description": "What magic users can do for a living" },
+    "cultural_customs": { "type": "string", "description": "Customs among practitioners" },
+    "attire_norms": { "type": "string", "description": "What magic users wear (challenging the robe cliche)" },
+    "height_of_power": { "type": "string", "description": "What life looks like at peak power (prospects, safety, family)" },
+    "waning_years": { "type": "string", "description": "What happens as ability fades with age" },
+    "notes": { "type": "string" }
+  },
+  "required": ["system_id", "training_structure", "curriculum", "ranks", "social_attitudes"],
+  "x-cross-references": {
+    "magic-system-overview": "This belongs to a magic system",
+    "sovereign-power-profile": "Laws vary by sovereign power",
+    "education-system": "Magical education supplements general education"
+  }
+}

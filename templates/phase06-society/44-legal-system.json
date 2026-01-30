@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "legal-system",
+  "title": "Legal System Template",
+  "description": "Defines the legal system of a sovereign power including system type, moral and incident laws, trial types, and punishments. Moral laws stem from values/beliefs; incident laws respond to past events. Punishments should leverage invented elements for uniqueness.",
+  "step": 34,
+  "phase": 6,
+  "source_chapter": "V3 Ch10 -- Other Systems",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile", "description": "The sovereign power" },
+    "system_type": {
+      "type": "string",
+      "enum": ["civil_law", "common_law", "religious_law", "hybrid"],
+      "description": "Type of legal system"
+    },
+    "source_of_laws": { "type": "string", "description": "Where laws come from (constitution, precedent, holy text)" },
+    "moral_laws": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "law": { "type": "string" },
+          "underlying_value": { "type": "string" },
+          "punishment": { "type": "string" }
+        }
+      },
+      "description": "Laws derived from values, beliefs, and morals"
+    },
+    "incident_laws": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "law": { "type": "string" },
+          "triggering_incident": { "type": "string" },
+          "punishment": { "type": "string" }
+        }
+      },
+      "description": "Laws created in response to specific past events"
+    },
+    "trial_types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["jury", "combat", "ordeal_fire", "ordeal_water", "cruentation", "duel", "divine_judgment", "other"] },
+          "description": { "type": "string" },
+          "when_used": { "type": "string" }
+        }
+      },
+      "description": "Available trial types"
+    },
+    "duel_legality": { "type": "string", "description": "Whether dueling is legal and under what circumstances" },
+    "punishments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "severity": { "type": "string", "enum": ["minor", "moderate", "severe", "capital"] },
+          "punishment": { "type": "string" },
+          "unique_elements": { "type": "string", "description": "How this punishment leverages invented creatures, places, or supernatural elements" }
+        }
+      },
+      "description": "Punishments from minor to capital"
+    },
+    "unique_punishments": { "type": "array", "items": { "type": "string" }, "description": "Punishments unique to this world" },
+    "capital_punishment": {
+      "type": "object",
+      "properties": {
+        "exists": { "type": "boolean" },
+        "methods": { "type": "array", "items": { "type": "string" } }
+      },
+      "description": "Capital punishment details"
+    },
+    "law_enforcement": { "type": "string", "description": "Who enforces laws and how" },
+    "law_publication": { "type": "string", "description": "How people learn about laws" },
+    "notes": { "type": "string" }
+  },
+  "required": ["sovereign_power_id", "system_type", "moral_laws", "incident_laws", "trial_types", "punishments"],
+  "x-cross-references": {
+    "sovereign-power-profile": "This system belongs to a sovereign power",
+    "religion-profile": "Religious law may be the foundation",
+    "culture-profile": "Laws reflect cultural values"
+  }
+}

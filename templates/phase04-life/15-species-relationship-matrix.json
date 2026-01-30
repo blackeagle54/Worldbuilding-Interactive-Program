@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "species-relationship-matrix",
+  "title": "Species Relationship Matrix",
+  "description": "Documents the relationship between two species, including their overall dynamic, historical events, and mutual stereotypes. One entry per species pair. A hero to one species may be a villain to another.",
+  "step": 18,
+  "phase": 4,
+  "source_chapter": "V1 Ch3 -- Creating a Species",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this relationship entry (auto-generated)"
+    },
+    "species_a": {
+      "type": "string",
+      "x-cross-reference": "species-profile",
+      "description": "First species in the pair"
+    },
+    "species_b": {
+      "type": "string",
+      "x-cross-reference": "species-profile",
+      "description": "Second species in the pair"
+    },
+    "relationship_type": {
+      "type": "string",
+      "enum": ["ally", "enemy", "neutral", "complicated", "master_servant", "trading_partners", "avoidance"],
+      "description": "Overall relationship dynamic"
+    },
+    "relationship_detail": {
+      "type": "string",
+      "description": "Detailed description of the relationship dynamic"
+    },
+    "historical_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "event": { "type": "string" },
+          "date": { "type": "string" },
+          "impact": { "type": "string" }
+        }
+      },
+      "description": "Key historical events between these species"
+    },
+    "stereotypes_a_of_b": {
+      "type": "string",
+      "description": "What species A generally believes about species B (may be wrong)"
+    },
+    "stereotypes_b_of_a": {
+      "type": "string",
+      "description": "What species B generally believes about species A (may be wrong)"
+    },
+    "interbreeding_possible": {
+      "type": "boolean",
+      "description": "Whether these species can produce offspring together"
+    },
+    "joint_settlements": {
+      "type": "boolean",
+      "description": "Whether these species live together in joint settlements"
+    },
+    "trade_relationships": {
+      "type": "string",
+      "description": "What trade exists between these species"
+    },
+    "territorial_disputes": {
+      "type": "string",
+      "description": "Any ongoing territorial conflicts"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["species_a", "species_b", "relationship_type", "stereotypes_a_of_b", "stereotypes_b_of_a"],
+  "x-cross-references": {
+    "species-profile": "Both species in the pair are defined in Species Profiles",
+    "sovereign-power-profile": "Territorial disputes may involve sovereign powers",
+    "history-entry": "Historical events between species may be formal history entries"
+  }
+}

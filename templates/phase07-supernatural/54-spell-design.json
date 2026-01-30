@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "spell-design",
+  "title": "Spell Design Template",
+  "description": "Designs a single spell as a recipe: gestures control area/distance, ingredients serve specific functions, words bind everything together. Failure modes are a critical design decision.",
+  "step": 38,
+  "phase": 7,
+  "source_chapter": "V3 Ch6 -- Magic Systems",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string" },
+    "magic_type_id": { "type": "string", "x-cross-reference": "magic-type-detail", "description": "Which magic type this spell belongs to" },
+    "purpose": { "type": "string", "description": "What the spell is meant to do" },
+    "gestures": { "type": "string", "description": "Required gestures (control area, distance, power level)" },
+    "ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredient": { "type": "string" },
+          "purpose": { "type": "string" },
+          "substitution": { "type": "string" }
+        }
+      },
+      "description": "Required ingredients with their purpose"
+    },
+    "words": { "type": "string", "description": "Required words (control function, language, incantation text)" },
+    "effect": { "type": "string", "description": "What happens when cast successfully" },
+    "area": { "type": "string", "description": "Area of effect" },
+    "range": { "type": "string", "description": "Maximum range" },
+    "duration": { "type": "string", "description": "How long the effect lasts" },
+    "failure_result": { "type": "string", "description": "What happens on failure (nothing, accident, energy release, catastrophe)" },
+    "safety_features": { "type": "string", "description": "Built-in safety mechanisms" },
+    "difficulty": { "type": "string", "enum": ["novice", "apprentice", "journeyman", "master", "grandmaster"], "description": "Skill level required" },
+    "training_level_needed": { "type": "string" },
+    "known_variations": { "type": "array", "items": { "type": "string" }, "description": "Variant forms of this spell" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "magic_type_id", "effect", "failure_result", "difficulty"],
+  "x-cross-references": {
+    "magic-type-detail": "This spell belongs to a magic type",
+    "plant-profile": "Ingredients may come from plants",
+    "animal-profile": "Ingredients may come from animals"
+  }
+}

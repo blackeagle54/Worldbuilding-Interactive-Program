@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "magic-path",
+  "title": "Magic Path / Supernatural Land Template",
+  "description": "Defines a supernatural travel route, pocket dimension, or alternate landscape. Magic paths offer fast travel with high risk, creating adventure opportunities.",
+  "step": 36,
+  "phase": 7,
+  "source_chapter": "V3 Ch5 -- The Supernatural",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string" },
+    "type": { "type": "string", "enum": ["path", "land", "pocket_dimension", "alternate_reality", "portal_network"], "description": "Type of supernatural space" },
+    "origin": { "type": "string", "description": "How this was created (gods, nature, accident, unknown)" },
+    "doorway_description": { "type": "string", "description": "How to enter (doorway locations, activation methods, who can enter)" },
+    "doorway_locations": { "type": "array", "items": { "type": "string" }, "description": "Known entry and exit points" },
+    "predictable": { "type": "boolean", "description": "Whether entry/exit points are predictable or shift" },
+    "advantages": { "type": "array", "items": { "type": "string" }, "description": "Benefits of using this (speed, access to hidden places)" },
+    "dangers": { "type": "array", "items": { "type": "string" }, "description": "Dangers (creatures, lost travelers, physics anomalies, time distortion)" },
+    "rules": { "type": "string", "description": "Rules governing behavior within (time behavior, physics differences, restrictions)" },
+    "time_behavior": { "type": "string", "enum": ["faster", "slower", "same", "variable", "frozen"], "description": "How time passes relative to the normal world" },
+    "connected_locations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Where this path connects to"
+    },
+    "notable_locations_within": { "type": "array", "items": { "type": "string" }, "description": "Notable places within the path/land" },
+    "items_or_resources": { "type": "array", "items": { "type": "string" }, "description": "Unique items or resources found here" },
+    "regular_users": { "type": "string", "description": "Who uses this regularly and why" },
+    "entry_restrictions": { "type": "string", "description": "Restrictions or requirements for entry" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "type", "doorway_description", "advantages", "dangers", "rules"],
+  "x-cross-references": {
+    "god-profile": "Gods may have created this supernatural space",
+    "place-of-interest-profile": "Entry points may be places of interest",
+    "land-travel-calculator": "May affect travel time calculations"
+  }
+}

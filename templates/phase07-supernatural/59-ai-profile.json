@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ai-profile",
+  "title": "A.I. Profile Template",
+  "description": "Defines an artificial intelligence including gender, location, personality, capabilities, limits, and vulnerabilities. A.I.s need defined limits and personality to maintain story tension.",
+  "step": 39,
+  "phase": 7,
+  "source_chapter": "V3 Ch7 -- Items",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string" },
+    "creator": { "type": "string", "description": "Who/what created this A.I." },
+    "manufacturer": { "type": "string" },
+    "purpose": { "type": "string", "description": "What it was designed to do" },
+    "gender": { "type": "string", "description": "Fixed or changeable gender presentation" },
+    "intelligence_level": { "type": "string" },
+    "physical_form": { "type": "string", "description": "Location/form factor (ship, structure, portable, hologram, voice only, screen)" },
+    "visual_manifestation": { "type": "string", "description": "How it appears to users" },
+    "personality": { "type": "string", "description": "Personality traits (consider manufacturer defaults)" },
+    "conscientiousness_modesty": { "type": "string", "description": "Social programming level" },
+    "capabilities": { "type": "array", "items": { "type": "string" } },
+    "limitations": { "type": "array", "items": { "type": "string" }, "description": "What it CANNOT do -- critical for story tension" },
+    "data_storage": { "type": "string", "enum": ["local", "networked", "hybrid"], "description": "Data storage method" },
+    "backup_systems": { "type": "string" },
+    "hacking_vulnerability": { "type": "string" },
+    "augmentation_capability": { "type": "string", "description": "Can it be upgraded or augmented?" },
+    "impersonation_capability": { "type": "string", "description": "Can it impersonate humans/species?" },
+    "legal_status": { "type": "string", "description": "Legal rights and status" },
+    "maintenance_requirements": { "type": "string" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "purpose", "intelligence_level", "capabilities", "limitations", "personality", "physical_form"],
+  "x-cross-references": {
+    "item-profile": "May also have an Item Profile entry",
+    "spacecraft-profile": "Ship-based A.I.s are connected to spacecraft",
+    "sovereign-power-profile": "Legal status varies by power"
+  }
+}

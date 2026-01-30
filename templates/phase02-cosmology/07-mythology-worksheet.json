@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mythology-worksheet",
+  "title": "Mythology Worksheet",
+  "description": "Documents a single myth in the world -- creation myths, end-of-world myths, or other stories involving gods and the supernatural. Each myth records both what actually happened and what inhabitants believe happened, since these often differ.",
+  "step": 8,
+  "phase": 2,
+  "source_chapter": "V1 Ch2 -- Creating Gods",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this myth (auto-generated)"
+    },
+    "title": {
+      "type": "string",
+      "description": "The name or title of this myth"
+    },
+    "myth_type": {
+      "type": "string",
+      "enum": ["creation", "end_of_world", "origin_of_species", "origin_of_place", "origin_of_item", "cautionary_tale", "heroic_tale", "divine_conflict", "other"],
+      "description": "What type of myth this is"
+    },
+    "gods_involved": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "god-profile"
+      },
+      "description": "IDs of gods who feature in this myth",
+      "minItems": 1
+    },
+    "species_involved": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "species-profile"
+      },
+      "description": "IDs of species who feature in or are affected by this myth"
+    },
+    "what_happened": {
+      "type": "string",
+      "description": "What actually happened -- the objective truth of events (may be unknown even to the worldbuilder)"
+    },
+    "what_inhabitants_believe": {
+      "type": "string",
+      "description": "What the world's inhabitants believe happened -- the popular version of the myth"
+    },
+    "what_is_true": {
+      "type": "string",
+      "description": "Which parts of the popular belief are accurate"
+    },
+    "what_is_false": {
+      "type": "string",
+      "description": "Which parts of the popular belief are inaccurate, distorted, or fabricated"
+    },
+    "what_is_unknown": {
+      "type": "string",
+      "description": "Facts about this myth that no one currently knows"
+    },
+    "moral_or_lesson": {
+      "type": "string",
+      "description": "The moral or lesson inhabitants draw from this myth (if any)"
+    },
+    "cultural_impact": {
+      "type": "string",
+      "description": "How this myth affects current culture, customs, fears, or celebrations"
+    },
+    "who_tells_it": {
+      "type": "string",
+      "description": "Which cultures or species tell this myth, and how do different groups tell it differently?"
+    },
+    "locations_featured": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Locations where events in this myth take place"
+    },
+    "items_featured": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "item-profile"
+      },
+      "description": "Notable items or artifacts that appear in this myth"
+    },
+    "analogue_sources": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Earth mythological sources used as analogues (private notes, not shown to audience)"
+    },
+    "pantheon_id": {
+      "type": "string",
+      "x-cross-reference": "pantheon-overview",
+      "description": "Which pantheon this myth belongs to"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["title", "myth_type", "gods_involved", "what_happened", "what_inhabitants_believe", "cultural_impact"],
+  "x-cross-references": {
+    "god-profile": "Gods featured in this myth are defined in God Profiles",
+    "pantheon-overview": "This myth belongs to a pantheon's mythology",
+    "species-profile": "Species affected by this myth are defined in Species Profiles",
+    "religion-profile": "Religions may incorporate this myth into their teachings",
+    "item-profile": "Items featured in this myth may be defined in Item Profiles"
+  }
+}

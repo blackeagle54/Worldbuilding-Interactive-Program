@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "place-of-interest-profile",
+  "title": "Place of Interest Profile",
+  "description": "Defines a notable place such as ruins, dungeons, sacred sites, battlefields, or mysterious locations. These are places worth visiting or exploring beyond ordinary settlements.",
+  "step": 49,
+  "phase": 11,
+  "source_chapter": "V2 Ch10 -- Places of Interest",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["ruins", "dungeon", "sacred_site", "battlefield", "monument", "natural_wonder", "hidden_location", "cursed_ground", "ancient_structure", "portal", "library", "prison", "graveyard", "other"]
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "continent_id": { "type": "string", "x-cross-reference": "continent-profile" },
+        "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+        "nearest_settlement_id": { "type": "string", "x-cross-reference": "settlement-profile" },
+        "terrain": { "type": "string" },
+        "coordinates_description": { "type": "string" }
+      }
+    },
+    "story": { "type": "string", "description": "The narrative or legend associated with this place" },
+    "history_entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "event": { "type": "string" },
+          "date": { "type": "string" },
+          "significance": { "type": "string" }
+        }
+      },
+      "description": "Historical events tied to this location"
+    },
+    "current_state": { "type": "string", "enum": ["intact", "ruined", "partially_destroyed", "hidden", "submerged", "buried", "active", "abandoned", "contested"] },
+    "current_occupants": { "type": "string", "description": "Who or what currently inhabits or guards this place" },
+    "secrets": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Hidden truths, buried treasure, concealed passages, etc."
+    },
+    "dangers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Traps, monsters, curses, environmental hazards"
+    },
+    "rewards": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Treasure, knowledge, magical items, allies"
+    },
+    "accessibility": { "type": "string", "description": "How difficult it is to reach or enter" },
+    "known_by": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Who knows about this place (common knowledge, scholars only, legend, forgotten)"
+    },
+    "related_mythology_id": { "type": "string", "x-cross-reference": "mythology-worksheet" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "type", "location", "story", "current_state"],
+  "x-cross-references": {
+    "continent-profile": "Located on a continent",
+    "sovereign-power-profile": "May be within a sovereign power's territory",
+    "settlement-profile": "Near a settlement",
+    "mythology-worksheet": "Associated myths",
+    "history-entry": "Historical events at this location",
+    "item-profile": "Items found here"
+  }
+}

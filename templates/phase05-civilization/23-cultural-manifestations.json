@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cultural-manifestations",
+  "title": "Cultural Manifestations Sheet",
+  "description": "Documents the visible, audible, and performed manifestations of a culture -- greetings, clothing, dining, body language, architecture, daily life, holidays, and folklore. Every manifestation should trace back to the culture's core values, beliefs, and morals.",
+  "step": 27,
+  "phase": 5,
+  "source_chapter": "V3 Ch1 -- Cultures",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this sheet (auto-generated)"
+    },
+    "culture_id": {
+      "type": "string",
+      "x-cross-reference": "culture-profile",
+      "description": "The culture these manifestations belong to"
+    },
+    "greetings": {
+      "type": "object",
+      "properties": {
+        "formal_words": { "type": "string" },
+        "formal_gesture": { "type": "string", "description": "Handshake, bow, kiss, salute, other" },
+        "informal_words": { "type": "string" },
+        "informal_gesture": { "type": "string" }
+      },
+      "description": "How people greet each other"
+    },
+    "farewells": {
+      "type": "object",
+      "properties": {
+        "formal": { "type": "string" },
+        "informal": { "type": "string" }
+      },
+      "description": "How people say goodbye"
+    },
+    "swear_words": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Invented swear words or expressions"
+    },
+    "colloquialisms": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Slang, expressions, and sayings unique to this culture"
+    },
+    "dining_etiquette": {
+      "type": "object",
+      "properties": {
+        "style": { "type": "string", "enum": ["hearty", "refined", "moderate"] },
+        "utensils": { "type": "string" },
+        "seating_rules": { "type": "string" },
+        "meal_structure": { "type": "string" },
+        "taboos": { "type": "string" },
+        "guest_customs": { "type": "string" }
+      },
+      "description": "Dining customs and etiquette"
+    },
+    "food_drink": {
+      "type": "string",
+      "description": "Cultural food associations, staple dishes, seasonal foods, drinks, presentation style"
+    },
+    "clothing_norms": {
+      "type": "object",
+      "properties": {
+        "status_indicators": { "type": "string" },
+        "modesty_standards": { "type": "string" },
+        "gender_norms": { "type": "string" },
+        "economic_effects": { "type": "string" },
+        "typical_materials": { "type": "string" }
+      },
+      "description": "What people wear and what it signifies"
+    },
+    "hair_expectations": {
+      "type": "string",
+      "description": "Hair style norms, facial hair expectations, cultural associations"
+    },
+    "body_modifications": {
+      "type": "string",
+      "description": "Tattoos, piercings, branding, implants, scarification, and their cultural meanings"
+    },
+    "gestures": {
+      "type": "string",
+      "description": "Culturally specific gestures and their meanings (including rude gestures)"
+    },
+    "body_language": {
+      "type": "object",
+      "properties": {
+        "eye_contact": { "type": "string" },
+        "personal_space": { "type": "string" },
+        "posture_expectations": { "type": "string" },
+        "facial_expression_norms": { "type": "string" }
+      },
+      "description": "Body language conventions"
+    },
+    "architecture": {
+      "type": "string",
+      "description": "Architectural style, materials, and the impression it creates"
+    },
+    "daily_life": {
+      "type": "object",
+      "properties": {
+        "work_hours": { "type": "string" },
+        "bathing_frequency": { "type": "string" },
+        "sleeping_norms": { "type": "string" },
+        "gender_in_workforce": { "type": "string" }
+      },
+      "description": "Daily life patterns"
+    },
+    "transportation": {
+      "type": "string",
+      "description": "How people typically get around and cultural attitudes toward travel"
+    },
+    "pastimes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Hobbies, games, sports, entertainment"
+    },
+    "holidays_festivals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "date": { "type": "string" },
+          "origin": { "type": "string" },
+          "observance": { "type": "string" }
+        }
+      },
+      "description": "Holidays, festivals, and ceremonies"
+    },
+    "folklore": {
+      "type": "string",
+      "description": "Verbal, material, and customary folklore traditions"
+    },
+    "beauty_standards": {
+      "type": "string",
+      "description": "What is considered beautiful, how age is viewed"
+    },
+    "accessories": {
+      "type": "string",
+      "description": "Hats, wedding bands, functional accessories, and their cultural meanings"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["culture_id", "greetings", "dining_etiquette", "clothing_norms"],
+  "x-cross-references": {
+    "culture-profile": "These manifestations belong to a culture defined in a Culture Profile",
+    "cultural-clash-planner": "Differences in manifestations create cultural clashes",
+    "religion-profile": "Religious influences on daily life manifestations",
+    "sovereign-power-profile": "Government type influences cultural expression"
+  }
+}

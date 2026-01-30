@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sovereign-power-profile",
+  "title": "Sovereign Power Profile Template",
+  "description": "Defines a sovereign power (kingdom, empire, republic, etc.) including government type, leadership, population, territory, relationships, and identifiers. Government type is the first and most important decision. Every power needs distinct world view, symbols, and at least one ally and one enemy.",
+  "step": 25,
+  "phase": 5,
+  "source_chapter": "V2 Ch5 -- Creating a Sovereign Power",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this sovereign power (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Official name of the sovereign power (note: name may not match actual government type)"
+    },
+    "government_type": {
+      "type": "string",
+      "enum": ["autocracy", "totalitarian", "authoritarian", "dictatorship", "direct_democracy", "representative_democracy", "republic", "parliamentary_democracy", "presidential_democracy", "federation", "unitary_state", "confederation", "empire", "constitutional_monarchy", "absolute_monarchy", "aristocracy", "plutocracy", "military_junta", "stratocracy", "timocracy", "magocracy", "theocracy", "other"],
+      "description": "Current government type"
+    },
+    "head_of_state": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string", "description": "Ceremonial or actual power?" },
+        "powers": { "type": "array", "items": { "type": "string" } },
+        "limitations": { "type": "string" }
+      },
+      "description": "Head of state (often ceremonial)"
+    },
+    "head_of_government": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "powers": { "type": "array", "items": { "type": "string" } },
+        "limitations": { "type": "string" },
+        "selection_method": { "type": "string" }
+      },
+      "description": "Head of government (actual executive power)"
+    },
+    "branches_of_government": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Branches of government (executive, judicial, legislative)"
+    },
+    "parliamentary_system": {
+      "type": "boolean",
+      "description": "Whether a parliamentary system exists"
+    },
+    "previous_governments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "approximate_dates": { "type": "string" },
+          "how_ended": { "type": "string" },
+          "legacy": { "type": "string" }
+        }
+      },
+      "description": "Previous government types in chronological order"
+    },
+    "founding_event": {
+      "type": "string",
+      "description": "How this power was founded (conquest, treaty, revolution, divine right)"
+    },
+    "sovereignty_type": {
+      "type": "string",
+      "enum": ["fully_independent", "dependent", "collective", "disputed"],
+      "description": "Nature of sovereignty"
+    },
+    "population": {
+      "type": "integer",
+      "description": "Total population"
+    },
+    "species_breakdown": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "species_id": { "type": "string", "x-cross-reference": "species-profile" },
+          "percentage": { "type": "number" },
+          "status": { "type": "string", "enum": ["full_citizens", "second_class", "enslaved", "excluded"] }
+        }
+      },
+      "description": "Population breakdown by species with citizenship status"
+    },
+    "languages": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Official and secondary languages"
+    },
+    "common_tongue_used": {
+      "type": "boolean",
+      "description": "Whether a common tongue is used alongside official language"
+    },
+    "world_view": {
+      "type": "string",
+      "description": "2-3 driving ideological ideas that characterize this power (e.g., 'magic banned, military might valued, expansion cherished')"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location on the continent"
+    },
+    "continent_id": {
+      "type": "string",
+      "x-cross-reference": "continent-profile",
+      "description": "Which continent this power is on"
+    },
+    "climate": {
+      "type": "string",
+      "description": "Predominant climate(s)"
+    },
+    "terrain": {
+      "type": "string",
+      "description": "Key terrain features within borders"
+    },
+    "neighbors": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "sovereign-power-profile"
+      },
+      "description": "Bordering sovereign powers"
+    },
+    "allies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+          "reason": { "type": "string" }
+        }
+      },
+      "description": "Allied powers with reasons for alliance"
+    },
+    "enemies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+          "reason": { "type": "string" }
+        }
+      },
+      "description": "Enemy powers with reasons for enmity"
+    },
+    "internal_conflicts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Internal conflicts (ethnic tension, resource disputes, succession crises)"
+    },
+    "symbol": {
+      "type": "string",
+      "description": "National symbol and the impression it creates (aggressive, inclusive, etc.)"
+    },
+    "colors": {
+      "type": "string",
+      "description": "Primary and secondary colors"
+    },
+    "flag": {
+      "type": "string",
+      "description": "Description of the flag"
+    },
+    "slogan": {
+      "type": "string",
+      "description": "National slogan or motto"
+    },
+    "reputation": {
+      "type": "string",
+      "description": "2-3 key traits this power is known for (mad king, slave trade, naval superpower, unique products)"
+    },
+    "key_resources": {
+      "type": "object",
+      "properties": {
+        "available": { "type": "array", "items": { "type": "string" } },
+        "lacking": { "type": "array", "items": { "type": "string" } }
+      },
+      "description": "Resources this power has and lacks"
+    },
+    "capital_city": {
+      "type": "string",
+      "x-cross-reference": "settlement-profile",
+      "description": "The capital settlement"
+    },
+    "major_settlements": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "settlement-profile"
+      },
+      "description": "Other major settlements"
+    },
+    "customs": {
+      "type": "string",
+      "description": "Key cultural customs, especially greetings and expectations for visitors"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "government_type", "head_of_state", "population", "species_breakdown", "world_view", "location", "symbol", "colors", "reputation"],
+  "x-cross-references": {
+    "continent-profile": "This power occupies territory on a continent",
+    "species-profile": "Species populating this power",
+    "settlement-profile": "Settlements within this power",
+    "culture-profile": "Cultures within this power are detailed in Culture Profiles",
+    "armed-forces-profile": "Military forces of this power",
+    "religion-profile": "Religions practiced within this power",
+    "legal-system": "Legal system of this power",
+    "commerce-system": "Commerce system of this power"
+  }
+}

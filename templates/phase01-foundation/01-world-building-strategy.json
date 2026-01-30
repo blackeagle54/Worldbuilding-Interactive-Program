@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "world-building-strategy",
+  "title": "World Building Strategy Worksheet",
+  "description": "Establishes the foundational strategic decisions for the worldbuilding project: scope, career plans, primary medium, exposition strategy, and analogue principles. This worksheet is completed once at the start and revisited periodically.",
+  "step": 1,
+  "phase": 1,
+  "source_chapter": "V1 Ch1 -- Why Build A World?",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this worksheet (auto-generated)"
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["one_world_one_story", "one_world_many_stories", "many_worlds", "hybrid"],
+      "description": "How many worlds will you build? One world for one story, one world for many stories, many separate worlds, or a hybrid approach"
+    },
+    "career_length": {
+      "type": "string",
+      "enum": ["short_term", "long_term", "lifer"],
+      "description": "How long do you plan to use this world? Short-term (1-2 projects), long-term (3-10 projects), or lifer (career-spanning)"
+    },
+    "primary_medium": {
+      "type": "string",
+      "enum": ["novel", "short_story", "film_tv", "video_game", "tabletop_rpg", "comic_graphic_novel", "other"],
+      "description": "The primary medium through which this world will be experienced"
+    },
+    "secondary_media": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Any additional media planned for this world"
+    },
+    "stories_planned": {
+      "type": "string",
+      "enum": ["1", "2-5", "6-20", "20+"],
+      "description": "How many stories are planned for this world"
+    },
+    "genre": {
+      "type": "string",
+      "enum": ["fantasy", "science_fiction", "hybrid", "other"],
+      "description": "The primary genre of the world"
+    },
+    "technology_level": {
+      "type": "string",
+      "description": "Brief description of the world's technology level (e.g., medieval, industrial, space-faring)"
+    },
+    "exposition_strategy": {
+      "type": "string",
+      "enum": ["show_through_story", "glossary", "website", "appendices", "mixed"],
+      "description": "Primary strategy for revealing worldbuilding to the audience"
+    },
+    "exposition_notes": {
+      "type": "string",
+      "description": "Detailed notes on how worldbuilding will be revealed through the chosen strategy"
+    },
+    "analogue_philosophy": {
+      "type": "string",
+      "description": "Your approach to using Earth analogues: how aggressively will you remix real-world sources? Will you follow the Rule of Three consistently?"
+    },
+    "naming_philosophy": {
+      "type": "string",
+      "description": "Your approach to naming invented things: when will you use known terms vs. invented names? How will you handle mental inertia?"
+    },
+    "depth_philosophy": {
+      "type": "string",
+      "description": "How deep will you go? Which areas will receive maximum detail vs. moderate vs. minimal?"
+    },
+    "influences": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Key creative influences (authors, mythologies, games, films) that will shape this world"
+    },
+    "audience": {
+      "type": "string",
+      "description": "Who is the target audience? Age range, genre expectations, familiarity with the genre"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes on strategy decisions"
+    }
+  },
+  "required": ["scope", "career_length", "primary_medium", "stories_planned", "genre", "exposition_strategy"],
+  "x-cross-references": {
+    "worldbuilding-goals": "This strategy worksheet is complemented by the Worldbuilding Goals Worksheet which defines specific creation priorities",
+    "file-organization": "The File Organization Template implements the storage strategy implied by these decisions"
+  }
+}

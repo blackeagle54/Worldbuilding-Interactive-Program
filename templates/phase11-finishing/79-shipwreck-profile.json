@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "shipwreck-profile",
+  "title": "Shipwreck Profile",
+  "description": "Defines a shipwreck including the original ship, cause of sinking, location, cargo, survivors, legends, and current salvage status.",
+  "step": 49,
+  "phase": 11,
+  "source_chapter": "V2 Ch10 -- Places of Interest",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "ship_name": { "type": "string" },
+    "original_ship_id": { "type": "string", "x-cross-reference": "ship-profile", "description": "Reference to the original ship profile if one exists" },
+    "ship_type": { "type": "string" },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+    "location": {
+      "type": "object",
+      "properties": {
+        "water_body_id": { "type": "string", "x-cross-reference": "water-body-reference" },
+        "depth": { "type": "string" },
+        "coordinates_description": { "type": "string" },
+        "accessibility": { "type": "string", "enum": ["shallow_diveable", "deep_water", "underground_cave", "beached", "reef", "unknown"] }
+      }
+    },
+    "sinking_cause": { "type": "string", "enum": ["storm", "battle", "reef", "mutiny", "sabotage", "monster_attack", "curse", "fire", "overloaded", "unknown", "other"] },
+    "date": { "type": "string", "description": "When the ship sank" },
+    "crew_at_time": { "type": "integer" },
+    "survivors": { "type": "integer" },
+    "notable_survivors": { "type": "array", "items": { "type": "string" } },
+    "cargo": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": { "type": "string" },
+          "value": { "type": "string" },
+          "recovered": { "type": "boolean" }
+        }
+      },
+      "description": "What the ship was carrying when it sank"
+    },
+    "current_state": { "type": "string", "enum": ["intact", "partially_intact", "scattered_debris", "buried", "consumed", "unknown"] },
+    "legends": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Stories, ghost tales, and legends about the wreck"
+    },
+    "salvage_status": { "type": "string", "enum": ["unsalvaged", "partially_salvaged", "fully_salvaged", "protected", "impossible", "ongoing"] },
+    "current_hazards": { "type": "array", "items": { "type": "string" }, "description": "Monsters, currents, curses, structural collapse" },
+    "notes": { "type": "string" }
+  },
+  "required": ["ship_name", "location", "sinking_cause", "date", "current_state"],
+  "x-cross-references": {
+    "ship-profile": "The original ship before it sank",
+    "water-body-reference": "Located in a water body",
+    "sovereign-power-profile": "Original sovereign power",
+    "item-profile": "Valuable items in the cargo",
+    "place-of-interest-profile": "A shipwreck is a place of interest"
+  }
+}

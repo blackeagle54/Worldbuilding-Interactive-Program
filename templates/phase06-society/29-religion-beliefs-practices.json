@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "religion-beliefs-practices",
+  "title": "Religion Beliefs and Practices Template",
+  "description": "Details the specific beliefs, prohibited behaviors, required practices, holidays, and rituals of a religion. Beliefs should answer fundamental questions about the god (origin, desires, rewards/punishments).",
+  "step": 31,
+  "phase": 6,
+  "source_chapter": "V3 Ch4 -- Religions",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "religion_id": { "type": "string", "x-cross-reference": "religion-profile", "description": "The religion this belongs to" },
+    "core_beliefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Fundamental beliefs: where the god originated, what the god represents, what the god wants"
+    },
+    "god_origin_belief": { "type": "string", "description": "What followers believe about the god's origin" },
+    "god_desires": { "type": "string", "description": "What followers believe the god wants from them" },
+    "god_power_manifestation": { "type": "string", "description": "How the god's power manifests in the world" },
+    "rewards": { "type": "string", "description": "What faithful followers receive" },
+    "punishments": { "type": "string", "description": "What happens to the unfaithful" },
+    "prohibited_behaviors": { "type": "array", "items": { "type": "string" }, "description": "Forbidden actions and behaviors" },
+    "required_practices": { "type": "array", "items": { "type": "string" }, "description": "Required daily/weekly/annual practices" },
+    "forbidden_foods": { "type": "array", "items": { "type": "string" }, "description": "Dietary restrictions" },
+    "fasting_requirements": { "type": "string", "description": "Fasting rules and schedule" },
+    "prayer_practices": {
+      "type": "object",
+      "properties": {
+        "frequency": { "type": "string" },
+        "posture": { "type": "string" },
+        "tools": { "type": "string" },
+        "language": { "type": "string" }
+      },
+      "description": "Prayer practices"
+    },
+    "holy_texts": { "type": "string", "description": "Sacred texts, their form and language" },
+    "holidays": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "date": { "type": "string" },
+          "origin": { "type": "string" },
+          "observance": { "type": "string" }
+        }
+      },
+      "description": "Religious holidays and their observance"
+    },
+    "rituals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "occasion": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      },
+      "description": "Religious rituals and ceremonies"
+    },
+    "pilgrimages": { "type": "array", "items": { "type": "string" }, "description": "Required or encouraged pilgrimages" },
+    "notes": { "type": "string" }
+  },
+  "required": ["religion_id", "core_beliefs", "prohibited_behaviors", "required_practices", "holidays"],
+  "x-cross-references": {
+    "religion-profile": "This belongs to a Religion Profile",
+    "god-profile": "Beliefs are derived from god attributes",
+    "culture-profile": "Religious practices influence culture"
+  }
+}

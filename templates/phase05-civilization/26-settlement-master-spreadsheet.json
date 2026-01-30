@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "settlement-master-spreadsheet",
+  "title": "Settlement Master Spreadsheet",
+  "description": "A quick-reference overview of all settlements in the world. Prevents duplicate symbols, provides at-a-glance comparison. Full details for story-critical settlements; basic entries for all others.",
+  "step": 30,
+  "phase": 5,
+  "source_chapter": "V2 Ch6 -- Creating a Settlement",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier (auto-generated)"
+    },
+    "settlements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "settlement_id": { "type": "string", "x-cross-reference": "settlement-profile" },
+          "sovereign_power": { "type": "string" },
+          "location": { "type": "string" },
+          "type": { "type": "string" },
+          "population": { "type": "integer" },
+          "species_pct": { "type": "string", "description": "Brief species percentage summary" },
+          "products": { "type": "string" },
+          "symbol": { "type": "string" },
+          "colors": { "type": "string" },
+          "military": { "type": "string" },
+          "reputation": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "required": ["name", "sovereign_power", "location"]
+      },
+      "description": "All settlements in the world"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["settlements"],
+  "x-cross-references": {
+    "settlement-profile": "Each entry corresponds to a detailed Settlement Profile",
+    "sovereign-power-profile": "Settlements are grouped by sovereign power"
+  }
+}

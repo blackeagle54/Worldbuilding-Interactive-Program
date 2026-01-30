@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sea-travel-calculator",
+  "title": "Sea Travel Calculator Template",
+  "description": "Calculates sea travel times. Open ocean: 4-6 knots typical. Coastal: 3-4 knots. Nautical mile = 1.151 land miles. Formula: nautical miles / speed in knots = hours.",
+  "step": 47,
+  "phase": 10,
+  "source_chapter": "V2 Ch8 -- Travel by Water",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "origin_port": { "type": "string" },
+    "destination_port": { "type": "string" },
+    "coastal_distance_miles": { "type": "number" },
+    "open_ocean_distance_miles": { "type": "number" },
+    "total_land_miles": { "type": "number" },
+    "distance_nautical_miles": { "type": "number", "description": "Land miles / 1.151 = nautical miles" },
+    "ship_type": { "type": "string" },
+    "speed_knots": { "type": "number", "description": "Typical speed in knots" },
+    "coastal_stops": { "type": "integer", "description": "Number of overnight stops (lose ~8 hours each)" },
+    "hours_at_speed": { "type": "number" },
+    "hours_lost_to_stops": { "type": "number" },
+    "total_hours": { "type": "number" },
+    "total_days": { "type": "number" },
+    "hazards": { "type": "array", "items": { "type": "string" } },
+    "river_segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "river_name": { "type": "string" },
+          "distance": { "type": "string" },
+          "speed_knots": { "type": "number", "description": "River: 1-4 knots typical" }
+        }
+      },
+      "description": "River travel segments"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["origin_port", "destination_port", "distance_nautical_miles", "ship_type", "speed_knots", "total_days"],
+  "x-cross-references": {
+    "ship-profile": "Ship type determines speed",
+    "water-body-reference": "Route crosses water bodies",
+    "settlement-profile": "Ports are settlements"
+  }
+}

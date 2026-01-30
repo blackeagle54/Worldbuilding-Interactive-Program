@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "land-feature-catalog",
+  "title": "Land Feature Catalog Template",
+  "description": "Catalogs a single land feature -- mountain range, volcano, forest, river, lake, desert, wetland, or grassland. Mountains should be placed first because they determine rain shadows, which determine where forests, deserts, and rivers form.",
+  "step": 14,
+  "phase": 3,
+  "source_chapter": "V2 Ch4 -- Creating Land Features",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this land feature (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the land feature"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["mountain_range", "volcano", "river", "lake", "forest", "woodland", "savannah", "jungle", "rainforest", "desert", "grassland", "bog", "fen", "marsh", "swamp", "pond", "other"],
+      "description": "Type of land feature"
+    },
+    "subtype": {
+      "type": "string",
+      "description": "More specific classification (e.g., for mountains: 'coastal' or 'interior'; for forests: 'temperate' or 'boreal'; for deserts: 'hot', 'cold', 'mild', 'sand', 'rocky')"
+    },
+    "location": {
+      "type": "string",
+      "description": "Where this feature is located on the continent"
+    },
+    "continent_id": {
+      "type": "string",
+      "x-cross-reference": "continent-profile",
+      "description": "Which continent this feature is on"
+    },
+    "climate_zone": {
+      "type": "string",
+      "description": "Which climate zone this feature falls in"
+    },
+    "size": {
+      "type": "string",
+      "description": "Approximate size (length, area, height as appropriate)"
+    },
+    "height_range": {
+      "type": "string",
+      "description": "For mountains: height range in feet/meters. 3-4000 ft may not cause rain shadows; 10,000+ ft causes oxygen deprivation"
+    },
+    "rain_shadow_direction": {
+      "type": "string",
+      "description": "For mountains: which direction the rain shadow falls (determined by prevailing winds)"
+    },
+    "volcanic_status": {
+      "type": "string",
+      "enum": ["active", "dormant", "extinct", "not_applicable"],
+      "description": "For mountains/volcanoes: volcanic activity status"
+    },
+    "tree_types": {
+      "type": "string",
+      "description": "For forests: evergreen, coniferous, deciduous, or mixed"
+    },
+    "canopy_density": {
+      "type": "string",
+      "description": "For forests: percentage of canopy coverage and underbrush density"
+    },
+    "water_characteristics": {
+      "type": "object",
+      "properties": {
+        "age": {
+          "type": "string",
+          "enum": ["young", "mature", "old"],
+          "description": "For rivers: young (steep/fast), mature (slow/wide), old (meandering/floodplains)"
+        },
+        "flow_direction": { "type": "string" },
+        "freshwater": { "type": "boolean" },
+        "depth": { "type": "string" },
+        "notable_characteristics": { "type": "string" }
+      },
+      "description": "For water features: specific characteristics"
+    },
+    "desert_characteristics": {
+      "type": "object",
+      "properties": {
+        "surface_type": {
+          "type": "string",
+          "enum": ["sand_dunes", "rocky_pavement", "mixed"],
+          "description": "80% of real deserts are rocky, not sandy"
+        },
+        "temperature_type": {
+          "type": "string",
+          "enum": ["hot", "cold", "mild"]
+        },
+        "cause": {
+          "type": "string",
+          "description": "What causes this desert (rain shadow from which range, latitude, elevation)"
+        }
+      },
+      "description": "For deserts: specific characteristics"
+    },
+    "description": {
+      "type": "string",
+      "description": "A narrative description of this feature suitable for storytelling"
+    },
+    "connected_features": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "land-feature-catalog"
+      },
+      "description": "Other land features connected to this one (e.g., a river flowing from these mountains)"
+    },
+    "species_found": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "species-profile"
+      },
+      "description": "Species that inhabit this land feature"
+    },
+    "creatures_found": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Monsters, animals, or other creatures found here"
+    },
+    "settlements_nearby": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "settlement-profile"
+      },
+      "description": "Settlements near or on this feature"
+    },
+    "sovereign_powers_nearby": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "sovereign-power-profile"
+      },
+      "description": "Sovereign powers that control or border this feature"
+    },
+    "travel_difficulty": {
+      "type": "string",
+      "enum": ["easy", "moderate", "difficult", "extremely_difficult", "impassable"],
+      "description": "How difficult it is to traverse this feature"
+    },
+    "notable_passes_or_routes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "For mountains: notable passes. For forests/deserts: known routes through"
+    },
+    "resources": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Natural resources found here (minerals, timber, herbs, water)"
+    },
+    "dangers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Known dangers (monsters, natural hazards, hostile species)"
+    },
+    "cultivation_impact": {
+      "type": "string",
+      "description": "How sentient species have altered this feature (deforestation, dams, mining, pollution)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "type", "location", "description"],
+  "x-cross-references": {
+    "continent-profile": "This feature is located on a continent",
+    "climate-zone-reference": "This feature exists within a climate zone",
+    "species-profile": "Species inhabiting this feature are defined in Species Profiles",
+    "settlement-profile": "Nearby settlements are defined in Settlement Profiles",
+    "sovereign-power-profile": "Controlling powers are defined in Sovereign Power Profiles",
+    "land-travel-calculator": "Travel through this feature uses the Land Travel Calculator"
+  }
+}

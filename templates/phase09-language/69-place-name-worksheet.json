@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "place-name-worksheet",
+  "title": "Place Name Worksheet",
+  "description": "Documents how a place name was created -- the technique used, source word(s), modifications made, and pronunciation. Place names can use events, people, suffixes/prefixes, or compound words.",
+  "step": 44,
+  "phase": 9,
+  "source_chapter": "V3 Ch9 -- Names",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "place_id": { "type": "string", "description": "ID of the place entity" },
+    "name": { "type": "string" },
+    "naming_technique": {
+      "type": "string",
+      "enum": ["suffix_prefix", "vowel_substitution", "compound", "foreign_adaptation", "event_based", "person_based", "feature_based", "silent_letters", "word_breaking", "other"],
+      "description": "Technique used to create this name"
+    },
+    "source_word": { "type": "string", "description": "The base word(s) used" },
+    "modifications_made": { "type": "string", "description": "What was changed from the source" },
+    "meaning_of_components": { "type": "string", "description": "What the name components mean" },
+    "culture_that_named_it": { "type": "string", "x-cross-reference": "culture-profile" },
+    "when_named": { "type": "string" },
+    "previous_names": { "type": "array", "items": { "type": "string" } },
+    "pronunciation": { "type": "string" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "naming_technique", "source_word", "pronunciation"],
+  "x-cross-references": {
+    "naming-convention": "Name follows culture's naming conventions",
+    "name-registry": "Name is registered in the Name Registry",
+    "settlement-profile": "May name a settlement",
+    "land-feature-catalog": "May name a land feature"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "time-system",
+  "title": "Time System Template",
+  "description": "Defines how time is measured: hours, days, weeks, months, years, and calendar structure. Keep minutes and hours Earth-like; change weeks, months, and year length instead. Reveal differences through character dialogue, not exposition.",
+  "step": 40,
+  "phase": 8,
+  "source_chapter": "V2 Ch10 -- Creating Time and History",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "hours_per_day": { "type": "number", "description": "Hours in a day (recommend close to 24)" },
+    "minutes_per_hour": { "type": "number", "description": "Minutes per hour (recommend 60)" },
+    "days_per_week": { "type": "integer", "description": "Days in a week (recommend 6 or 8 to stay close to Earth)" },
+    "day_names": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "origin_meaning": { "type": "string" }
+        }
+      },
+      "description": "Day names and their origins (celestial bodies, gods, schools of magic, etc.)"
+    },
+    "weeks_per_month": { "type": "integer" },
+    "days_per_month": { "type": "integer", "description": "Can be standardized or variable" },
+    "months_per_year": { "type": "integer", "description": "Recommend 11 or 13" },
+    "month_names": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "suffix_convention": { "type": "string", "description": "e.g., '-mon' suffix for recognition" },
+          "associated_event_or_season": { "type": "string" }
+        }
+      },
+      "description": "Month names -- avoid seasonal associations (they fail across hemispheres)"
+    },
+    "year_length": { "type": "integer", "description": "Total days in a year" },
+    "year_length_vs_earth": { "type": "string", "description": "Comparison to Earth's 365 days" },
+    "calendar_anchor_event": { "type": "string", "description": "What year zero represents (birth of magic, cataclysm, mass exodus)" },
+    "calendar_notation": { "type": "string", "description": "e.g., B.M./A.M. (Before Magic/After Magic)" },
+    "year_start": { "type": "string", "description": "What event starts the new year (should be unrelated to weather/seasons)" },
+    "named_ages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "approximate_span": { "type": "string" },
+          "defining_characteristic": { "type": "string" }
+        }
+      },
+      "description": "Named historical ages (typically thousands of years)"
+    },
+    "current_age": { "type": "string", "description": "The current age (may lack a name)" },
+    "how_differences_revealed": { "type": "string", "description": "How time differences are communicated to the audience (dialogue, not exposition)" },
+    "notes": { "type": "string" }
+  },
+  "required": ["hours_per_day", "days_per_week", "day_names", "months_per_year", "month_names", "year_length", "calendar_anchor_event", "calendar_notation"],
+  "x-cross-references": {
+    "planet-profile": "Day and year length are determined by the planet's properties",
+    "world-history-timeline": "Ages and calendar are used in the history timeline",
+    "religion-profile": "Calendar anchor may be religious"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "item-profile",
+  "title": "Item Profile Template",
+  "description": "Defines a significant item (magical, technological, or regular). Items gain meaning from association, not just properties. Limitations on items are more valuable than powers -- avoid solving problems too easily.",
+  "step": 39,
+  "phase": 7,
+  "source_chapter": "V3 Ch7 -- Items",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string" },
+    "type": { "type": "string", "enum": ["magic", "technological", "regular"], "description": "Item category" },
+    "significance_source": { "type": "string", "description": "Why this item matters (association with person/event/place, inherent properties, both)" },
+    "purpose": { "type": "string", "description": "What the item is for" },
+    "physical_description": { "type": "string" },
+    "form": { "type": "string", "enum": ["wearable", "handheld", "freestanding", "vehicle", "other"] },
+    "properties": { "type": "array", "items": { "type": "string" }, "description": "Powers, functions, or special properties" },
+    "limitations": { "type": "array", "items": { "type": "string" }, "description": "What the item cannot do or what limits it" },
+    "defects": { "type": "string", "description": "Flaws, quirks, or curses" },
+    "on_off_capability": { "type": "string", "description": "Whether and how powers can be activated/deactivated" },
+    "deterioration": { "type": "string", "description": "Whether the item degrades over time" },
+    "creator": { "type": "string", "description": "Who made it and how" },
+    "owner_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "owner": { "type": "string" },
+          "period": { "type": "string" },
+          "how_acquired": { "type": "string" },
+          "how_lost": { "type": "string" }
+        }
+      },
+      "description": "Provenance -- how it changed hands"
+    },
+    "current_location": { "type": "string" },
+    "current_owner": { "type": "string" },
+    "rightful_owner": { "type": "string", "description": "If different from current owner" },
+    "who_can_use": { "type": "string", "description": "Restrictions on who can use it (species, magic talent, training, bloodline)" },
+    "activation_method": { "type": "string" },
+    "description": { "type": "string", "description": "Narrative description" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "type", "significance_source", "description", "who_can_use"],
+  "x-cross-references": {
+    "magic-item-detail": "Magic items have additional details in the Magic Item Detail Sheet",
+    "technological-item-detail": "Tech items have additional details in the Technological Item Detail Sheet",
+    "god-profile": "May be divine in origin",
+    "world-figure-profile": "May be associated with a world figure",
+    "history-entry": "Item history may be formal history entries"
+  }
+}

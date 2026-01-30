@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "animal-profile",
+  "title": "Animal Profile Template",
+  "description": "Defines a single invented animal species including classification, appearance, behavior, uses, and habitat. Each animal should have a purpose in the world (food, transportation, guard, pet, sport, materials source).",
+  "step": 21,
+  "phase": 4,
+  "source_chapter": "V1 Ch6 -- Creating Plants and Animals",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this animal (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the animal"
+    },
+    "earth_analogue": {
+      "type": "string",
+      "description": "Earth animal used as inspiration (private notes)"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["mammal", "bird", "fish", "amphibian", "reptile", "invertebrate", "other"],
+      "description": "Animal classification"
+    },
+    "appearance": {
+      "type": "object",
+      "properties": {
+        "size": { "type": "string" },
+        "coloring": { "type": "string" },
+        "distinguishing_features": { "type": "string" }
+      },
+      "description": "Physical appearance"
+    },
+    "locomotion": {
+      "type": "string",
+      "enum": ["plantigrade", "digitigrade", "ungulate", "flight", "swimming", "slithering", "burrowing", "other"],
+      "description": "How it moves (plantigrade=flat-footed/slower/stronger, digitigrade=toe-walking/faster/quieter, ungulate=hoof-tip/fastest)"
+    },
+    "thermoregulation": {
+      "type": "string",
+      "enum": ["warm_blooded", "cold_blooded"],
+      "description": "Warm or cold blooded"
+    },
+    "diet": {
+      "type": "string",
+      "enum": ["herbivore", "carnivore", "omnivore", "scavenger", "parasitic"],
+      "description": "Dietary classification"
+    },
+    "behavior": {
+      "type": "object",
+      "properties": {
+        "social_structure": {
+          "type": "string",
+          "enum": ["solitary", "pair", "pack", "herd", "flock", "swarm", "colony"],
+          "description": "Social behavior"
+        },
+        "migration": { "type": "boolean" },
+        "territorial": { "type": "boolean" },
+        "nocturnal": { "type": "boolean" },
+        "intelligence_level": { "type": "string" },
+        "temperament": { "type": "string" }
+      },
+      "description": "Behavioral characteristics"
+    },
+    "habitat": {
+      "type": "string",
+      "description": "Preferred terrain, climate, and specific locations"
+    },
+    "predators": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "What hunts this animal"
+    },
+    "prey": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "What this animal hunts"
+    },
+    "reproduction": {
+      "type": "object",
+      "properties": {
+        "method": { "type": "string", "enum": ["eggs", "live_birth", "other"] },
+        "litter_size": { "type": "string" },
+        "incubation_rearing": { "type": "string" }
+      },
+      "description": "Reproduction details"
+    },
+    "lifespan": {
+      "type": "string",
+      "description": "Typical lifespan"
+    },
+    "special_abilities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Special abilities (venom, camouflage, flight, regeneration, electroception)"
+    },
+    "venom_or_poison": {
+      "type": "object",
+      "properties": {
+        "has_venom": { "type": "boolean", "description": "Venom must be injected (offensive/defensive)" },
+        "has_poison": { "type": "boolean", "description": "Poison transmitted by touch (defensive)" },
+        "details": { "type": "string" }
+      },
+      "description": "Venom vs. poison distinction matters for how creatures are used"
+    },
+    "uses": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["food", "pet", "transportation", "guard", "sport", "materials", "domestic_work", "entertainment", "spell_component", "other"]
+      },
+      "description": "How inhabitants use this animal"
+    },
+    "materials_harvested": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Materials obtained from this animal (hide, bone, teeth, secretions, wax, wool, feathers)"
+    },
+    "domesticated": {
+      "type": "boolean",
+      "description": "Whether this animal has been domesticated"
+    },
+    "cultural_significance": {
+      "type": "string",
+      "description": "Cultural importance, symbolism, or myths about this animal"
+    },
+    "danger_level": {
+      "type": "string",
+      "enum": ["harmless", "low", "moderate", "high", "extreme"],
+      "description": "Danger level to sentient species"
+    },
+    "rarity": {
+      "type": "string",
+      "enum": ["common", "uncommon", "rare", "extremely_rare"],
+      "description": "How rare this animal is"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "type", "habitat", "appearance", "behavior", "uses", "rarity"],
+  "x-cross-references": {
+    "products-to-source-mapping": "This animal may be a source in the Products-to-Source Mapping",
+    "land-feature-catalog": "This animal inhabits specific land features",
+    "climate-zone-reference": "This animal lives in specific climate zones",
+    "species-profile": "Species that use or interact with this animal",
+    "monster-profile": "Monsters are distinguished from animals by being singular and lacking society"
+  }
+}

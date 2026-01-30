@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "supernatural-prevalence",
+  "title": "Supernatural Prevalence Worksheet",
+  "description": "Determines how common the supernatural is in the world. This is the master switch: prevalence determines everything else about how magic/supernatural elements affect daily life, industry, and society.",
+  "step": 35,
+  "phase": 7,
+  "source_chapter": "V3 Ch5 -- The Supernatural",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "prevalence": { "type": "string", "enum": ["rare", "uncommon", "common", "ubiquitous"], "description": "Overall supernatural prevalence" },
+    "who_can_access": { "type": "string", "description": "Who can perform or access supernatural abilities" },
+    "industries_affected": { "type": "array", "items": { "type": "string" }, "description": "Industries changed or eliminated by the supernatural" },
+    "professions_changed": { "type": "array", "items": { "type": "string" }, "description": "Professions altered by supernatural prevalence" },
+    "professions_eliminated": { "type": "array", "items": { "type": "string" }, "description": "Professions made obsolete" },
+    "professions_created": { "type": "array", "items": { "type": "string" }, "description": "New professions created by the supernatural" },
+    "transportation_impact": { "type": "string", "description": "How the supernatural affects travel" },
+    "law_enforcement_impact": { "type": "string", "description": "How the supernatural affects policing and law" },
+    "healthcare_impact": { "type": "string", "description": "How the supernatural affects medicine and healing" },
+    "warfare_impact": { "type": "string", "description": "How the supernatural affects military operations" },
+    "education_impact": { "type": "string", "description": "How the supernatural affects education" },
+    "housing_impact": { "type": "string", "description": "How the supernatural affects buildings and living" },
+    "attitudes_by_species": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "species_id": { "type": "string", "x-cross-reference": "species-profile" },
+          "attitude": { "type": "string" }
+        }
+      },
+      "description": "How each species views the supernatural"
+    },
+    "attitudes_by_class": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "class": { "type": "string" },
+          "attitude": { "type": "string" }
+        }
+      },
+      "description": "How different social classes view the supernatural"
+    },
+    "laws_governing_use": { "type": "array", "items": { "type": "string" }, "description": "Laws about supernatural use" },
+    "notes": { "type": "string" }
+  },
+  "required": ["prevalence", "who_can_access", "industries_affected", "transportation_impact", "warfare_impact"],
+  "x-cross-references": {
+    "magic-system-overview": "Magic systems operate within this prevalence framework",
+    "sovereign-power-profile": "Laws governing supernatural use are set by sovereign powers",
+    "species-profile": "Species attitudes toward the supernatural"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "worldbuilding-goals",
+  "title": "Worldbuilding Goals Worksheet",
+  "description": "Defines specific worldbuilding goals including what elements must be created, what is optional, time commitments, and priority ordering. Helps prevent overwhelm by establishing clear scope boundaries and a creation order.",
+  "step": 3,
+  "phase": 1,
+  "source_chapter": "V3 Ch11 -- Conclusion",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this worksheet (auto-generated)"
+    },
+    "primary_goal": {
+      "type": "string",
+      "enum": ["storytelling", "gaming", "hobbyist", "professional_reference", "other"],
+      "description": "The primary reason for building this world"
+    },
+    "time_commitment": {
+      "type": "string",
+      "description": "How many hours per week can be dedicated to worldbuilding"
+    },
+    "patience_level": {
+      "type": "string",
+      "enum": ["months", "years", "indefinite"],
+      "description": "How long are you willing to spend before the world is 'usable'?"
+    },
+    "approach": {
+      "type": "string",
+      "enum": ["top_down", "bottom_up", "random", "mixed"],
+      "description": "Primary creation approach: top-down (continent first), bottom-up (details first), random (as inspiration strikes), or mixed (recommended)"
+    },
+    "required_elements": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Elements that MUST be created for the world to function (e.g., 'sovereign powers', 'magic system', 'species', 'settlements')"
+    },
+    "optional_elements": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Elements that would enrich the world but are not strictly required"
+    },
+    "excluded_elements": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Elements intentionally excluded from this worldbuilding effort (e.g., 'conlang', 'space travel', 'undead')"
+    },
+    "priority_order": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ordered list of elements from highest to lowest priority for creation"
+    },
+    "first_story_needs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Specific elements needed for the first planned story or campaign"
+    },
+    "depth_targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "element": {
+            "type": "string",
+            "description": "The worldbuilding element (e.g., 'magic system', 'religions')"
+          },
+          "depth": {
+            "type": "string",
+            "enum": ["minimal", "moderate", "deep", "exhaustive"],
+            "description": "How deeply this element will be developed"
+          }
+        }
+      },
+      "description": "Target depth for each major worldbuilding element"
+    },
+    "review_frequency": {
+      "type": "string",
+      "enum": ["weekly", "monthly", "quarterly", "as_needed"],
+      "description": "How often to review and reassess goals"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes on goals and priorities"
+    }
+  },
+  "required": ["primary_goal", "time_commitment", "required_elements", "priority_order"],
+  "x-cross-references": {
+    "world-building-strategy": "Goals should align with the strategic decisions made in the Strategy Worksheet",
+    "file-organization": "The file organization should reflect the priority order defined here",
+    "review-schedule": "The review schedule template tracks ongoing review of these goals"
+  }
+}

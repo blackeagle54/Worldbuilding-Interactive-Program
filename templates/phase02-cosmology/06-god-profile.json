@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "god-profile",
+  "title": "God Profile Template",
+  "description": "Defines a single deity in the world's pantheon. Each god needs at minimum: a domain, an alignment, a symbol, and at least one relationship to another god.",
+  "step": 7,
+  "phase": 2,
+  "source_chapter": "V1 Ch2 -- Creating Gods",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this god (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "The god's primary name"
+    },
+    "titles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Alternate names, epithets, or titles (e.g., 'God of War', 'The Weeping God')"
+    },
+    "domain_primary": {
+      "type": "string",
+      "description": "The god's primary domain (war, love, death, wisdom, etc.)"
+    },
+    "domains_secondary": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Secondary domains or areas of influence"
+    },
+    "alignment": {
+      "type": "string",
+      "enum": ["good", "neutral", "evil", "complex"],
+      "description": "The god's moral alignment (note: 'evil' gods may not view themselves as evil)"
+    },
+    "alignment_nuance": {
+      "type": "string",
+      "description": "More sophisticated alignment description (e.g., 'benevolent but manipulative', 'nefarious but principled')"
+    },
+    "symbol": {
+      "type": "string",
+      "description": "The god's primary symbol (used in religious iconography, temples, flags, armor)"
+    },
+    "element_association": {
+      "type": "string",
+      "description": "Associated element (air, earth, fire, water, etc.)"
+    },
+    "season_association": {
+      "type": "string",
+      "description": "Associated season"
+    },
+    "color_association": {
+      "type": "string",
+      "description": "Associated color(s)"
+    },
+    "appearance": {
+      "type": "string",
+      "description": "Physical appearance when manifesting (gender, species form, animal form)"
+    },
+    "personality": {
+      "type": "string",
+      "description": "Core personality traits and behavioral tendencies"
+    },
+    "power_level": {
+      "type": "string",
+      "enum": ["supreme", "greater", "intermediate", "lesser", "demigod"],
+      "description": "Relative power level within the pantheon"
+    },
+    "origin": {
+      "type": "string",
+      "description": "How this god came into being (primordial, born of other gods, ascended mortal, etc.)"
+    },
+    "residence": {
+      "type": "string",
+      "description": "Where this god lives (divine realm, physical location, etc.)"
+    },
+    "lifespan": {
+      "type": "string",
+      "description": "Immortal, conditionally immortal, or can age/die? What is the god's current state?"
+    },
+    "vulnerability": {
+      "type": "string",
+      "description": "What can weaken, harm, or kill this god"
+    },
+    "patronage": {
+      "type": "string",
+      "description": "Who this god favors (hunters, lovers, children, sailors, scholars, etc.)"
+    },
+    "behavior_tendencies": {
+      "type": "string",
+      "description": "Behavioral patterns: lawful, rebellious, secretive, interventionist, etc."
+    },
+    "reputation_among_mortals": {
+      "type": "string",
+      "description": "How mortals generally view this god (feared, loved, misunderstood, forgotten)"
+    },
+    "mortal_interaction": {
+      "type": "string",
+      "enum": ["active", "distant", "forbidden", "selective", "disguised"],
+      "description": "How this god interacts with mortals"
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_id": {
+            "type": "string",
+            "description": "ID of the related god",
+            "x-cross-reference": "god-profile"
+          },
+          "relationship_type": {
+            "type": "string",
+            "enum": ["parent", "child", "spouse", "sibling", "rival", "ally", "enemy", "creator", "servant", "twin"]
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Relationships to other gods. At least one required.",
+      "minItems": 1
+    },
+    "species_created": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "species-profile"
+      },
+      "description": "Species this god created or influenced"
+    },
+    "places_created": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Places this god created (continents, land features, settlements)"
+    },
+    "items_created": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "item-profile"
+      },
+      "description": "Notable items or artifacts this god created or possesses"
+    },
+    "myths_featured_in": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "mythology-worksheet"
+      },
+      "description": "Mythology worksheets that feature this god"
+    },
+    "worship_notes": {
+      "type": "string",
+      "description": "Brief notes on how this god is worshiped (expanded in Religion Profile)"
+    },
+    "pantheon_id": {
+      "type": "string",
+      "x-cross-reference": "pantheon-overview",
+      "description": "Which pantheon this god belongs to"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "domain_primary", "alignment", "symbol", "relationships", "pantheon_id"],
+  "x-cross-references": {
+    "pantheon-overview": "This god belongs to a pantheon defined in the Pantheon Overview Sheet",
+    "mythology-worksheet": "This god appears in myths defined in Mythology Worksheets",
+    "species-profile": "This god may have created species defined in Species Profiles",
+    "religion-profile": "This god may be worshiped through religions defined in Religion Profiles",
+    "item-profile": "This god may own or have created items defined in Item Profiles"
+  }
+}

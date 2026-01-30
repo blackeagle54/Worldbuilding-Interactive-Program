@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "monster-profile",
+  "title": "Monster Profile Template",
+  "description": "Defines a single monster -- a harmful, unnatural creature typically singular or rare. Monsters are distinguished from species by lacking society and from animals by being singular. Origin story is more important than physical appearance for memorability.",
+  "step": 22,
+  "phase": 4,
+  "source_chapter": "V1 Ch5 -- Creating Monsters",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this monster (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name (self-given or given by others)"
+    },
+    "nicknames": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Titles or alternate names used by inhabitants"
+    },
+    "famous_for": {
+      "type": "string",
+      "description": "What stories do people tell about this monster?"
+    },
+    "origin": {
+      "type": "string",
+      "enum": ["accidental", "designed", "evolved"],
+      "description": "How this monster came to exist"
+    },
+    "origin_details": {
+      "type": "object",
+      "properties": {
+        "accidental_cause": {
+          "type": "string",
+          "description": "If accidental: what happened, who/what caused it, was it once sentient"
+        },
+        "designed_creator": {
+          "type": "string",
+          "description": "If designed: who created it"
+        },
+        "designed_purpose": {
+          "type": "string",
+          "description": "If designed: why was it created"
+        },
+        "designed_control": {
+          "type": "string",
+          "description": "If designed: does the creator still control it? Is the creator alive?"
+        },
+        "evolved_from": {
+          "type": "string",
+          "description": "If evolved: what did it evolve from, what pressure caused it"
+        }
+      },
+      "description": "Detailed origin based on type"
+    },
+    "creator_god": {
+      "type": "string",
+      "x-cross-reference": "god-profile",
+      "description": "God who created or cursed this monster into existence (if applicable)"
+    },
+    "motivation": {
+      "type": "string",
+      "enum": ["isolation", "hoarding", "food", "security", "revenge", "territorial", "existential", "other"],
+      "description": "What drives this monster's behavior -- 'I'm evil' is not sufficient"
+    },
+    "motivation_detail": {
+      "type": "string",
+      "description": "Specific details of what the monster wants and why"
+    },
+    "appearance": {
+      "type": "object",
+      "properties": {
+        "overall_impression": { "type": "string" },
+        "size": { "type": "string" },
+        "notable_features": { "type": "string", "description": "Notable features with rationale for each" },
+        "deformities_mutations": { "type": "string" },
+        "movement": { "type": "string" }
+      },
+      "description": "Physical appearance -- design AFTER establishing origins and motivation"
+    },
+    "lair_description": {
+      "type": "string",
+      "description": "Where the monster lives -- lairs reveal character without exposition"
+    },
+    "lair_contents": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "What is found in the lair (bones, treasure, victims, traps, evidence)"
+    },
+    "nocturnal": {
+      "type": "boolean",
+      "description": "Whether the monster is active at night"
+    },
+    "range": {
+      "type": "string",
+      "description": "How far from its lair does it travel"
+    },
+    "trail_evidence": {
+      "type": "string",
+      "description": "What evidence/trail does it leave for trackers"
+    },
+    "characteristics": {
+      "type": "object",
+      "properties": {
+        "intelligence": { "type": "string" },
+        "wisdom": { "type": "string" },
+        "charisma": { "type": "string" },
+        "strength": { "type": "string" },
+        "constitution": { "type": "string" },
+        "agility": { "type": "string" },
+        "dexterity": { "type": "string" },
+        "morale": { "type": "string" }
+      },
+      "description": "Core characteristics"
+    },
+    "abilities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Physical feats and supernatural abilities"
+    },
+    "weakness": {
+      "type": "string",
+      "description": "What the monster is vulnerable to"
+    },
+    "world_view": {
+      "type": "string",
+      "description": "Does it have a world view? How does it see itself?"
+    },
+    "diet": {
+      "type": "string",
+      "description": "What it eats, whether it eats sentient species, how it hunts"
+    },
+    "habitat": {
+      "type": "string",
+      "description": "Terrain and climate where this monster is found"
+    },
+    "species_relationships": {
+      "type": "string",
+      "description": "Does it hate one species specifically? Leave others alone?"
+    },
+    "language": {
+      "type": "string",
+      "description": "Can it speak? Which languages?"
+    },
+    "combat": {
+      "type": "string",
+      "description": "How it fights, special attacks, defensive abilities"
+    },
+    "reproduction": {
+      "type": "string",
+      "description": "Can it reproduce? How? Are there offspring?"
+    },
+    "sympathetic_elements": {
+      "type": "string",
+      "description": "Was it once human? Does it have a tragic backstory? Accidental monsters elicit sympathy."
+    },
+    "myths_associated": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "mythology-worksheet"
+      },
+      "description": "Myths that feature or reference this monster"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "origin", "motivation", "appearance", "lair_description", "abilities", "weakness", "habitat"],
+  "x-cross-references": {
+    "god-profile": "A god may have created this monster",
+    "mythology-worksheet": "Myths may feature this monster",
+    "land-feature-catalog": "The monster inhabits specific land features",
+    "species-profile": "The monster may target or be associated with specific species",
+    "place-of-interest-profile": "The monster's lair may be a place of interest"
+  }
+}

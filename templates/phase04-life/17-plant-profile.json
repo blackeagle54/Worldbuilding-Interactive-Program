@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "plant-profile",
+  "title": "Plant Profile Template",
+  "description": "Defines a single invented plant species including its classification, habitat, appearance, uses, and cultural significance. Every plant should have a clear purpose in the world (food, medicine, poison, spell component, etc.).",
+  "step": 20,
+  "phase": 4,
+  "source_chapter": "V1 Ch6 -- Creating Plants and Animals",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this plant (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the plant"
+    },
+    "earth_analogue": {
+      "type": "string",
+      "description": "Earth plant used as inspiration (private notes, not shown to audience)"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["moss", "fern", "cycad", "conifer", "flowering", "fungus", "other"],
+      "description": "Plant classification type"
+    },
+    "lifecycle": {
+      "type": "string",
+      "enum": ["annual", "biennial", "perennial", "bulb"],
+      "description": "Growth lifecycle"
+    },
+    "habitat": {
+      "type": "string",
+      "description": "Climate zone and terrain where this plant is found"
+    },
+    "season": {
+      "type": "string",
+      "description": "When this plant grows, flowers, or is harvestable"
+    },
+    "appearance": {
+      "type": "object",
+      "properties": {
+        "color": { "type": "string" },
+        "size": { "type": "string" },
+        "texture": { "type": "string" },
+        "distinctive_features": { "type": "string" }
+      },
+      "description": "Visual appearance of the plant"
+    },
+    "smell": {
+      "type": "string",
+      "description": "What the plant smells like"
+    },
+    "taste": {
+      "type": "string",
+      "description": "What the plant tastes like (if edible)"
+    },
+    "toxicity": {
+      "type": "string",
+      "enum": ["none", "mildly_poisonous", "moderately_poisonous", "deadly", "variable"],
+      "description": "Toxicity level"
+    },
+    "useful_parts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Which parts are useful (leaves, stem, seeds, roots, pulp, flowers, bark, sap)"
+    },
+    "preparation_required": {
+      "type": "string",
+      "description": "How to prepare the plant for use (crushing, boiling, drying, fermenting, distilling)"
+    },
+    "uses": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["food", "medicine", "poison", "spell_component", "decoration", "building_material", "clothing", "fuel", "dye", "fragrance", "tool", "other"]
+      },
+      "description": "How this plant is used by inhabitants"
+    },
+    "cultural_significance": {
+      "type": "string",
+      "description": "Ceremonial, religious, or superstitious associations"
+    },
+    "rarity": {
+      "type": "string",
+      "enum": ["common", "uncommon", "rare", "extremely_rare"],
+      "description": "How rare this plant is"
+    },
+    "where_found": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Specific locations where this plant grows (climate zones, terrains, near specific features)"
+    },
+    "reputation": {
+      "type": "string",
+      "description": "Stories or beliefs associated with this plant"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "type", "habitat", "appearance", "uses", "rarity"],
+  "x-cross-references": {
+    "products-to-source-mapping": "This plant may be a source in the Products-to-Source Mapping",
+    "land-feature-catalog": "This plant grows in specific land features",
+    "climate-zone-reference": "This plant grows in specific climate zones",
+    "species-profile": "Species that use or cultivate this plant",
+    "spell-design": "This plant may be a spell component"
+  }
+}

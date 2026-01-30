@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "magic-item-detail",
+  "title": "Magic Item Detail Sheet",
+  "description": "Additional details for magical items: powers, defects, limitations, creation method, and attunement. Magic items should have one or two related powers; wands and staves are exceptions.",
+  "step": 39,
+  "phase": 7,
+  "source_chapter": "V3 Ch7 -- Items",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "item_id": { "type": "string", "x-cross-reference": "item-profile", "description": "The parent item profile" },
+    "powers": { "type": "array", "items": { "type": "string" }, "description": "Magical powers (ideally 1-2 related powers)" },
+    "power_count_rationale": { "type": "string", "description": "Why this many powers (avoid Swiss army knife items)" },
+    "defects": { "type": "array", "items": { "type": "string" }, "description": "Quirks, curses, or flaws" },
+    "limitations": { "type": "array", "items": { "type": "string" }, "description": "What the magic cannot do" },
+    "on_off_issues": { "type": "string", "description": "Problems with activating or deactivating" },
+    "sentience": { "type": "string", "description": "Whether the item is sentient (avoid talking swords cliche)" },
+    "magic_system_id": { "type": "string", "x-cross-reference": "magic-system-overview", "description": "Which magic system governs this item" },
+    "creation_method": { "type": "string", "description": "How the item was enchanted" },
+    "creator_type": { "type": "string", "enum": ["specialist_mage", "god", "accident", "ancient_unknown", "other"] },
+    "attunement_requirements": { "type": "string", "description": "What is needed to bond with or use the item" },
+    "non_magical_user_effect": { "type": "string", "description": "What happens if a non-magical person tries to use it" },
+    "compatible_magic_types": { "type": "array", "items": { "type": "string" } },
+    "notes": { "type": "string" }
+  },
+  "required": ["item_id", "powers", "defects", "limitations", "magic_system_id", "creation_method"],
+  "x-cross-references": {
+    "item-profile": "This extends an Item Profile",
+    "magic-system-overview": "Governed by a magic system",
+    "god-profile": "May be created by a god"
+  }
+}

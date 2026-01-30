@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "review-schedule",
+  "title": "Review Schedule",
+  "description": "Tracks periodic review of worldbuilding materials for consistency, completeness, and quality. Ensures the world is revisited and refined on a regular schedule.",
+  "step": 51,
+  "phase": 12,
+  "source_chapter": "V3 Ch14 -- Conclusion",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "review_frequency": { "type": "string", "enum": ["weekly", "biweekly", "monthly", "quarterly", "per_chapter", "per_milestone", "custom"] },
+    "custom_frequency": { "type": "string", "description": "Description if review_frequency is custom" },
+    "last_review_date": { "type": "string", "format": "date" },
+    "next_review_date": { "type": "string", "format": "date" },
+    "review_checklist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": { "type": "string" },
+          "category": { "type": "string", "enum": ["consistency", "completeness", "cross_reference", "naming", "geography", "timeline", "culture", "magic", "other"] },
+          "status": { "type": "string", "enum": ["not_started", "in_progress", "passed", "needs_revision"] },
+          "notes": { "type": "string" }
+        }
+      },
+      "description": "Items to check during each review"
+    },
+    "changes_to_make_file": { "type": "string", "description": "Path or reference to a running list of changes identified during reviews" },
+    "review_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "format": "date" },
+          "issues_found": { "type": "integer" },
+          "issues_resolved": { "type": "integer" },
+          "summary": { "type": "string" }
+        }
+      }
+    },
+    "areas_of_concern": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Known weak spots or areas that need extra attention"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["review_frequency", "next_review_date", "review_checklist"],
+  "x-cross-references": {
+    "world-building-strategy": "Review aligns with overall worldbuilding strategy",
+    "worldbuilding-goals": "Review checks progress toward goals"
+  }
+}

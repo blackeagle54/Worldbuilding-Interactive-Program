@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "culture-profile",
+  "title": "Culture Profile Template",
+  "description": "Defines the foundational ideas (values, beliefs, morals) of a culture and its scope. Culture flows from ideas to manifestations: define values/beliefs/morals FIRST, then derive consistent customs. A unified cultural vision prevents contradictory manifestations.",
+  "step": 26,
+  "phase": 5,
+  "source_chapter": "V3 Ch1 -- Cultures",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this culture (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of this culture"
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["sovereign_power", "regional", "settlement", "social_group"],
+      "description": "Scope level: sovereign power > region > settlement > social group"
+    },
+    "sovereign_power_id": {
+      "type": "string",
+      "x-cross-reference": "sovereign-power-profile",
+      "description": "Associated sovereign power"
+    },
+    "parent_culture_id": {
+      "type": "string",
+      "x-cross-reference": "culture-profile",
+      "description": "If regional/settlement/social, which broader culture does this inherit from"
+    },
+    "cultural_vision": {
+      "type": "string",
+      "enum": ["formal", "exuberant", "timid", "brash", "modest", "calculating", "stoic", "passionate", "other"],
+      "description": "The unifying cultural vision that all manifestations should be consistent with"
+    },
+    "cultural_vision_detail": {
+      "type": "string",
+      "description": "Detailed description of the cultural vision -- this should make all manifestations feel consistent"
+    },
+    "core_values": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Core values of this culture (honor, family, individuality, community, knowledge, strength, etc.)"
+    },
+    "core_beliefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Core beliefs (religious, superstitious, philosophical) that shape behavior"
+    },
+    "core_morals": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Core moral principles (what is considered right/wrong, taboo, honorable)"
+    },
+    "species_races": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "species-profile"
+      },
+      "description": "Species and races that participate in this culture"
+    },
+    "social_classes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "role": { "type": "string" },
+          "mobility": { "type": "string", "description": "Can members move between classes?" }
+        }
+      },
+      "description": "Social class structure (elite, upper middle, lower middle, working, poor)"
+    },
+    "government_influence": {
+      "type": "string",
+      "description": "How the government type affects cultural freedom and variation"
+    },
+    "inherited_from_parent": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Cultural elements inherited unchanged from the parent culture"
+    },
+    "modified_from_parent": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Cultural elements modified from the parent culture"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "scope", "cultural_vision", "core_values", "core_beliefs", "core_morals"],
+  "x-cross-references": {
+    "sovereign-power-profile": "This culture exists within a sovereign power",
+    "cultural-manifestations": "Observable manifestations of this culture are detailed in the Cultural Manifestations Sheet",
+    "cultural-clash-planner": "Clashes with other cultures are planned in the Cultural Clash Planner",
+    "species-profile": "Species participating in this culture",
+    "religion-profile": "Religions influence this culture's beliefs"
+  }
+}

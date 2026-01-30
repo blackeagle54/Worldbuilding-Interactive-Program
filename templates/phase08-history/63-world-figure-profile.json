@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "world-figure-profile",
+  "title": "World Figure Profile Template",
+  "description": "Defines a famous individual whose reputation shapes history -- heroes, villains, martyrs. They exist so characters have someone to reference, admire, or fear. What people believe about a figure should include both truths and falsehoods.",
+  "step": 42,
+  "phase": 8,
+  "source_chapter": "V1 Ch4 -- Creating World Figures",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string", "description": "Proper name" },
+    "nicknames": { "type": "array", "items": { "type": "string" } },
+    "type": { "type": "string", "enum": ["hero", "villain", "martyr", "explorer", "scholar", "conqueror", "other"] },
+    "fame_reason": { "type": "string", "description": "1-3 sentence summary of public perception" },
+    "species_id": { "type": "string", "x-cross-reference": "species-profile", "description": "Species of this figure" },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile", "description": "Origin sovereign power" },
+    "status": { "type": "string", "enum": ["alive", "dead", "presumed_dead", "missing", "imprisoned", "ascended", "undead"] },
+    "status_details": { "type": "string", "description": "Details about current status (if dead: how, where remains are; if alive: location, activity)" },
+    "what_people_believe": { "type": "string", "description": "Public perception" },
+    "what_is_true": { "type": "string", "description": "What is actually true about this figure" },
+    "what_is_false": { "type": "string", "description": "What is believed but wrong" },
+    "what_is_unknown": { "type": "string", "description": "Hidden facts that could change everything" },
+    "deeds": { "type": "array", "items": { "type": "string" }, "description": "Significant actions and achievements" },
+    "possessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_id": { "type": "string", "x-cross-reference": "item-profile" },
+          "item_name": { "type": "string" },
+          "type": { "type": "string" },
+          "how_acquired": { "type": "string" },
+          "current_status": { "type": "string", "enum": ["intact", "broken", "lost", "stolen", "hidden"] }
+        }
+      },
+      "description": "Notable possessions (limit to 1-2 to maintain impact)"
+    },
+    "steed_or_ship": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "personality": { "type": "string" },
+        "current_status": { "type": "string" }
+      },
+      "description": "Notable mount or vessel"
+    },
+    "family": {
+      "type": "object",
+      "properties": {
+        "parents": { "type": "string" },
+        "siblings": { "type": "string" },
+        "spouse_lover": { "type": "string" },
+        "children_known": { "type": "string" },
+        "children_unknown": { "type": "string" },
+        "family_dynamics": { "type": "string" }
+      },
+      "description": "Family details -- descendants may leverage or hide lineage"
+    },
+    "perception_by_species": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "species_id": { "type": "string", "x-cross-reference": "species-profile" },
+          "perception": { "type": "string" }
+        }
+      },
+      "description": "How different species view this figure -- a hero to one may be a villain to another"
+    },
+    "origin": { "type": "string", "description": "Continent, kingdom, social class" },
+    "training": { "type": "string", "description": "Academy, apprentice, self-taught, field experience" },
+    "key_skills": { "type": "array", "items": { "type": "string" } },
+    "legacy": { "type": "string", "description": "What changed in the world because of this person" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "fame_reason", "species_id", "status", "deeds", "what_people_believe", "what_is_true"],
+  "x-cross-references": {
+    "species-profile": "This figure belongs to a species",
+    "sovereign-power-profile": "This figure is from a sovereign power",
+    "item-profile": "Possessions are defined in Item Profiles",
+    "history-entry": "Deeds may be formal history entries",
+    "world-history-timeline": "This figure appears in the timeline"
+  }
+}

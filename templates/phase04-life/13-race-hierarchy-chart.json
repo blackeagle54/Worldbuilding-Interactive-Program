@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "race-hierarchy-chart",
+  "title": "Race Hierarchy Chart",
+  "description": "Documents the hierarchy of races within a single species. If two humanoids share DNA, they are races of one species; if they have different DNA, they are separate species. Dual-race solutions (e.g., high elves and drow) extend creative reach and create trust/identity tension.",
+  "step": 16,
+  "phase": 4,
+  "source_chapter": "V1 Ch3 -- Creating a Species",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this chart (auto-generated)"
+    },
+    "species_id": {
+      "type": "string",
+      "x-cross-reference": "species-profile",
+      "description": "The parent species this hierarchy belongs to"
+    },
+    "species_name": {
+      "type": "string",
+      "description": "Name of the parent species"
+    },
+    "races": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of this race"
+          },
+          "parent_species": {
+            "type": "string",
+            "description": "The parent species name"
+          },
+          "distinguishing_traits": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Physical and cultural traits that distinguish this race from others of the same species"
+          },
+          "habitat": {
+            "type": "string",
+            "description": "Preferred habitat and terrain"
+          },
+          "disposition": {
+            "type": "string",
+            "enum": ["good", "evil", "neutral", "complex"],
+            "description": "General moral disposition"
+          },
+          "disposition_detail": {
+            "type": "string",
+            "description": "Nuanced description of disposition"
+          },
+          "population": {
+            "type": "string",
+            "description": "Approximate population or relative abundance"
+          },
+          "relationship_to_other_races": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "race_name": { "type": "string" },
+                "relationship": { "type": "string" }
+              }
+            },
+            "description": "How this race relates to other races of the same species"
+          }
+        },
+        "required": ["name", "distinguishing_traits", "habitat", "disposition"]
+      },
+      "description": "All races within this species"
+    },
+    "bio_diversity_notes": {
+      "type": "string",
+      "description": "Notes on how and why these races diverged from the parent species"
+    },
+    "masquerade_potential": {
+      "type": "string",
+      "description": "Can members of one race pass as another? What are the tells?"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["species_id", "races"],
+  "x-cross-references": {
+    "species-profile": "The parent species is defined in a Species Profile",
+    "species-relationship-matrix": "Inter-race relationships feed into the broader Species Relationship Matrix",
+    "sovereign-power-profile": "Different races may dominate different sovereign powers"
+  }
+}

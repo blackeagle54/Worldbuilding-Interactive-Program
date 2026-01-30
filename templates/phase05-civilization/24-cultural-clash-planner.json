@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cultural-clash-planner",
+  "title": "Cultural Clash Planner",
+  "description": "Plans the friction points between two cultures, identifying key differences, potential misunderstandings, and how they can be used in stories. Cultural clashes between characters from different cultures are a primary storytelling tool.",
+  "step": 28,
+  "phase": 5,
+  "source_chapter": "V3 Ch1 -- Cultures",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier (auto-generated)"
+    },
+    "culture_a_id": {
+      "type": "string",
+      "x-cross-reference": "culture-profile",
+      "description": "First culture in the clash"
+    },
+    "culture_b_id": {
+      "type": "string",
+      "x-cross-reference": "culture-profile",
+      "description": "Second culture in the clash"
+    },
+    "key_differences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "area": { "type": "string", "description": "Area of difference (greetings, dining, body language, values, etc.)" },
+          "culture_a_norm": { "type": "string" },
+          "culture_b_norm": { "type": "string" }
+        }
+      },
+      "description": "Key cultural differences"
+    },
+    "potential_misunderstandings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scenario": { "type": "string" },
+          "what_a_intends": { "type": "string" },
+          "how_b_interprets": { "type": "string" }
+        }
+      },
+      "description": "Specific misunderstandings that could arise"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["minor", "serious", "deadly"],
+      "description": "How severe the consequences of misunderstanding can be"
+    },
+    "story_use": {
+      "type": "string",
+      "description": "How to use this clash in a story (comedy of manners, diplomatic incident, plot driver, character growth)"
+    },
+    "historical_clashes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Past incidents where these cultures clashed"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["culture_a_id", "culture_b_id", "key_differences", "potential_misunderstandings", "severity", "story_use"],
+  "x-cross-references": {
+    "culture-profile": "Both cultures are defined in Culture Profiles",
+    "cultural-manifestations": "Specific manifestations that clash are detailed in Cultural Manifestations Sheets",
+    "sovereign-power-profile": "Clashes may occur between sovereign powers"
+  }
+}

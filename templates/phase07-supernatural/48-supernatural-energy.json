@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "supernatural-energy",
+  "title": "Supernatural Energy Template",
+  "description": "Defines a supernatural energy source -- its appearance, properties, occurrence conditions, relation to gods, and dangers. Supernatural energies should be named, located, and characterized for consistency.",
+  "step": 35,
+  "phase": 7,
+  "source_chapter": "V3 Ch5 -- The Supernatural",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string", "description": "Formal name" },
+    "nickname": { "type": "string", "description": "Common name" },
+    "origin": { "type": "string", "enum": ["gods", "nature", "unknown", "cosmic", "other"], "description": "Where this energy comes from" },
+    "appearance": { "type": "string", "description": "What it looks like when present" },
+    "temperature": { "type": "string", "description": "Temperature effect when present" },
+    "detection_range": { "type": "string", "description": "How far away it can be detected and by what means" },
+    "intensity_by_distance": { "type": "string", "description": "How intensity changes with proximity" },
+    "duration": { "type": "string", "description": "How long it persists" },
+    "occurrence_conditions": { "type": "string", "description": "When and where it occurs" },
+    "locations": { "type": "array", "items": { "type": "string" }, "description": "Known locations" },
+    "control_methods": { "type": "string", "description": "How it can be controlled or harnessed" },
+    "protection": { "type": "string", "description": "How to protect against it" },
+    "relation_to_gods": {
+      "type": "array",
+      "items": { "type": "string", "x-cross-reference": "god-profile" },
+      "description": "Gods connected to this energy"
+    },
+    "dangers": { "type": "array", "items": { "type": "string" }, "description": "Dangers of exposure or misuse" },
+    "past_incidents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "who": { "type": "string" },
+          "what": { "type": "string" },
+          "when": { "type": "string" },
+          "outcome": { "type": "string" }
+        }
+      },
+      "description": "Historical incidents involving this energy"
+    },
+    "current_status": { "type": "string", "description": "Current state of this energy" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "origin", "appearance", "occurrence_conditions", "dangers"],
+  "x-cross-references": {
+    "god-profile": "Gods may be the source of this energy",
+    "magic-system-overview": "Magic systems may draw on this energy",
+    "phenomenon-catalog": "Locations of this energy may be phenomena"
+  }
+}

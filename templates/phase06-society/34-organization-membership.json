@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "organization-membership",
+  "title": "Organization Membership Sheet",
+  "description": "Documents how members join, what they know at each level, and what happens when they leave. The joining process reveals the group's nature: evil groups may kill failed recruits; good groups let people walk away.",
+  "step": 32,
+  "phase": 6,
+  "source_chapter": "V3 Ch2 -- Organizations",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "organization_id": { "type": "string", "x-cross-reference": "organization-profile", "description": "The organization" },
+    "recruitment_methods": { "type": "array", "items": { "type": "string" }, "description": "How new members are found and approached" },
+    "benefits_offered": { "type": "array", "items": { "type": "string" }, "description": "What recruits are promised" },
+    "join_process": { "type": "string", "description": "Steps to becoming a member" },
+    "acceptance_criteria": { "type": "string", "description": "What determines acceptance" },
+    "failed_recruit_fate": { "type": "string", "description": "What happens to rejected applicants (released, killed, memory erased)" },
+    "probation_period": { "type": "string", "description": "Probation terms and duration" },
+    "knowledge_by_level": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "level": { "type": "string" },
+          "knowledge_access": { "type": "string" }
+        }
+      },
+      "description": "What members know at each level (outer circle vs. inner circle)"
+    },
+    "leaving_process": { "type": "string", "description": "How departure is handled" },
+    "defector_fate": { "type": "string", "description": "What happens to defectors (death, exile, hunting)" },
+    "ranks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "requirements": { "type": "string" },
+          "role": { "type": "string" }
+        }
+      },
+      "description": "Internal rank structure"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["organization_id", "join_process", "failed_recruit_fate", "leaving_process", "defector_fate"],
+  "x-cross-references": {
+    "organization-profile": "This belongs to an Organization Profile"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "supernatural-being",
+  "title": "Supernatural Being Template",
+  "description": "Defines a supernatural being -- demigod, familiar, spirit, superhero, or notable figure. Demi-gods serve specific functions and are easy to create on-the-fly.",
+  "step": 36,
+  "phase": 7,
+  "source_chapter": "V3 Ch5 -- The Supernatural",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string" },
+    "type": { "type": "string", "enum": ["demigod", "half_god", "familiar", "spirit", "superhero", "figure_of_note", "supernatural_creature", "other"], "description": "Type of supernatural being" },
+    "origin": { "type": "string", "description": "How this being came to exist" },
+    "physical_description": { "type": "string" },
+    "abilities": { "type": "array", "items": { "type": "string" }, "description": "Supernatural abilities" },
+    "limitations": { "type": "array", "items": { "type": "string" }, "description": "Weaknesses and limitations" },
+    "role_function": { "type": "string", "description": "Role or function in the world (messenger, harbinger, guardian, bonded companion)" },
+    "relation_to_gods": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "god_id": { "type": "string", "x-cross-reference": "god-profile" },
+          "relationship": { "type": "string" }
+        }
+      },
+      "description": "Relationships with deities"
+    },
+    "relation_to_mortals": { "type": "string", "description": "How this being interacts with and views mortals" },
+    "location": { "type": "string", "description": "Where this being is typically found" },
+    "disposition": { "type": "string", "enum": ["benevolent", "malevolent", "neutral", "capricious", "indifferent"] },
+    "how_encountered": { "type": "string", "description": "How mortals encounter this being" },
+    "bonding_mechanics": { "type": "string", "description": "For familiars: how bonding works, who can bond, consequences" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "type", "origin", "abilities", "limitations", "relation_to_mortals"],
+  "x-cross-references": {
+    "god-profile": "May be children of or servants to gods",
+    "species-profile": "May interact with specific species",
+    "magic-system-overview": "May be part of a magic system (familiars)"
+  }
+}

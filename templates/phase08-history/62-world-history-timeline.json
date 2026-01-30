@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "world-history-timeline",
+  "title": "World History Timeline",
+  "description": "Organizes all history entries chronologically by age, with defining events and key figures for each era. History enriches the present without needing to be exhaustive.",
+  "step": 41,
+  "phase": 8,
+  "source_chapter": "V2 Ch10 -- Creating Time and History",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "ages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "start_date": { "type": "string" },
+          "end_date": { "type": "string" },
+          "defining_characteristic": { "type": "string" },
+          "defining_events": {
+            "type": "array",
+            "items": { "type": "string", "x-cross-reference": "history-entry" }
+          },
+          "key_figures": {
+            "type": "array",
+            "items": { "type": "string", "x-cross-reference": "world-figure-profile" }
+          },
+          "dominant_powers": { "type": "array", "items": { "type": "string" } },
+          "technology_level": { "type": "string" },
+          "supernatural_state": { "type": "string" }
+        }
+      },
+      "description": "Historical ages in chronological order"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["ages"],
+  "x-cross-references": {
+    "time-system": "Ages are defined in the Time System",
+    "history-entry": "Individual events are History Entries",
+    "world-figure-profile": "Key figures are World Figure Profiles",
+    "sovereign-power-profile": "Dominant powers per age"
+  }
+}

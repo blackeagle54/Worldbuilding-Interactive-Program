@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "information-system",
+  "title": "Information System Template",
+  "description": "Defines how information travels in a sovereign power -- news methods, message speed, censorship, and notable information networks. Information flow determines how fast news travels and therefore how characters can plan.",
+  "step": 34,
+  "phase": 6,
+  "source_chapter": "V3 Ch10 -- Other Systems",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile", "description": "The sovereign power" },
+    "genre_baseline": { "type": "string", "enum": ["fantasy", "sf", "hybrid"], "description": "Genre determines baseline technology" },
+    "news_methods": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "method": { "type": "string", "description": "Posted notices, town criers, messengers, pigeons, magic, radio, internet-equivalent" },
+          "speed": { "type": "string" },
+          "reliability": { "type": "string" },
+          "cost": { "type": "string" }
+        }
+      },
+      "description": "Methods of spreading information"
+    },
+    "message_speed": { "type": "string", "description": "How fast can a message travel across the power?" },
+    "literacy_impact": { "type": "string", "description": "How literacy rate affects information access" },
+    "censorship_level": { "type": "string", "enum": ["none", "light", "moderate", "heavy", "total"], "description": "Government censorship of information" },
+    "messenger_protections": { "type": "string", "description": "Whether messengers have legal protections" },
+    "hacking_interference": { "type": "string", "description": "Risks of message interception or corruption" },
+    "magic_based_communication": { "type": "string", "description": "If magic exists, how it affects communication" },
+    "notable_information_networks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "reliability": { "type": "string" },
+          "who_controls": { "type": "string" }
+        }
+      },
+      "description": "Notable spy networks, news organizations, or communication systems"
+    },
+    "how_characters_access_news": { "type": "string", "description": "How typical characters learn about events" },
+    "notes": { "type": "string" }
+  },
+  "required": ["sovereign_power_id", "news_methods", "message_speed", "censorship_level"],
+  "x-cross-references": {
+    "sovereign-power-profile": "This system belongs to a sovereign power",
+    "magic-system-overview": "Magical communication methods depend on the magic system",
+    "organization-profile": "Spy networks may be organizations"
+  }
+}

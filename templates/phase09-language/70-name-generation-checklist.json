@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "name-generation-checklist",
+  "title": "Name Generation Checklist",
+  "description": "Quality checklist for invented names: syllable count, first-letter conflicts, pronunciation test, Google check, and cultural consistency. Keep names short (1-3 syllables), simple, and pronounceable.",
+  "step": 45,
+  "phase": 9,
+  "source_chapter": "V3 Ch9 -- Names",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name_being_checked": { "type": "string" },
+    "technique_used": {
+      "type": "string",
+      "enum": ["silent_letters", "repeated_letters", "vowel_substitution", "vowel_addition", "vowel_subtraction", "capitalize_other_letter", "switch_first_letters", "suffix_prefix", "word_breaking", "compound", "foreign_language", "other"],
+      "description": "Technique used to create this name"
+    },
+    "base_words": { "type": "string", "description": "Source word(s)" },
+    "modifications": { "type": "string" },
+    "syllable_count_target": { "type": "integer", "description": "Target: 1-3 ideal, rarely exceed 4" },
+    "actual_syllable_count": { "type": "integer" },
+    "avoid_same_first_letter_as": { "type": "array", "items": { "type": "string" }, "description": "Other names in the same story that start with the same letter" },
+    "first_letter_conflict": { "type": "boolean" },
+    "googled": { "type": "boolean", "description": "Googled for existing meanings in other languages" },
+    "google_results": { "type": "string" },
+    "said_aloud": { "type": "boolean", "description": "Pronounced aloud" },
+    "sounds_right": { "type": "boolean" },
+    "culture_consistency_check": { "type": "boolean", "description": "Consistent with the culture's naming conventions" },
+    "apostrophe_justified": { "type": "string", "description": "If apostrophes are used, what they represent (contraction, pronunciation guide)" },
+    "approved": { "type": "boolean" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name_being_checked", "syllable_count_target", "googled", "said_aloud", "culture_consistency_check"],
+  "x-cross-references": {
+    "naming-convention": "Culture naming conventions to check against",
+    "name-registry": "Approved names go into the Name Registry"
+  }
+}

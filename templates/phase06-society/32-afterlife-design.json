@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "afterlife-design",
+  "title": "Afterlife Design Sheet",
+  "description": "Defines what happens after death in a religion -- whether the afterlife is real or imagined, its nature, how souls are sorted, and whether the living can visit. The afterlife's reality or fiction fundamentally affects follower behavior and story tension.",
+  "step": 31,
+  "phase": 6,
+  "source_chapter": "V3 Ch4 -- Religions",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "religion_id": { "type": "string", "x-cross-reference": "religion-profile", "description": "The religion this afterlife belongs to" },
+    "afterlife_exists": {
+      "type": "string",
+      "enum": ["real", "imagined", "ambiguous"],
+      "description": "Whether the afterlife is objectively real, merely believed in, or deliberately ambiguous"
+    },
+    "destinations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["paradise", "ascension", "rebirth", "oblivion", "torture", "boredom", "service", "other"] },
+          "description": { "type": "string" },
+          "who_goes_here": { "type": "string" }
+        }
+      },
+      "description": "Possible afterlife destinations"
+    },
+    "sorting_criteria": { "type": "string", "description": "How souls are sorted (conduct, faith, both, divine judgment, self-selection)" },
+    "description": { "type": "string", "description": "Narrative description of the afterlife" },
+    "can_living_visit": {
+      "type": "object",
+      "properties": {
+        "possible": { "type": "boolean" },
+        "method": { "type": "string" },
+        "barriers": { "type": "string" },
+        "perils": { "type": "string" }
+      },
+      "description": "Whether and how the living can visit"
+    },
+    "relation_to_undead": { "type": "string", "description": "How the afterlife concept relates to undead existence" },
+    "notes": { "type": "string" }
+  },
+  "required": ["religion_id", "afterlife_exists", "destinations", "sorting_criteria"],
+  "x-cross-references": {
+    "religion-profile": "This afterlife belongs to a Religion Profile",
+    "undead-type-profile": "Undead existence may relate to afterlife concepts",
+    "god-profile": "Gods may govern the afterlife"
+  }
+}

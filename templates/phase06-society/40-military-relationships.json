@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "military-relationships",
+  "title": "Military Relationships Sheet",
+  "description": "Maps relationships between a military force and other entities using a 7-level scale from cooperation to open conflict. Multiple groups in the same area naturally develop rivalries.",
+  "step": 33,
+  "phase": 6,
+  "source_chapter": "V3 Ch3 -- Armed Forces",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "force_id": { "type": "string", "x-cross-reference": "armed-forces-profile", "description": "The armed force" },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_id": { "type": "string" },
+          "target_type": { "type": "string", "enum": ["military_group", "species", "settlement", "sovereign_power", "organization", "other"] },
+          "level": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 7,
+            "description": "1=full cooperation, 2=mutual respect, 3=cordial, 4=neutral, 5=rivalry, 6=hostility, 7=open conflict"
+          },
+          "description": { "type": "string" },
+          "location_specific": { "type": "string", "description": "Relationship may vary by location" },
+          "key_incidents": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "description": "All relationships"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["force_id", "relationships"],
+  "x-cross-references": {
+    "armed-forces-profile": "This belongs to an Armed Forces Profile",
+    "sovereign-power-profile": "May relate to sovereign powers",
+    "organization-profile": "May relate to organizations"
+  }
+}

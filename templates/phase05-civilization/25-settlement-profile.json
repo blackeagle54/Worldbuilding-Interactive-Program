@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "settlement-profile",
+  "title": "Settlement Profile Template",
+  "description": "Defines a settlement from outpost to city. Always place settlements near water. Settlement size determines formality, diversity, crime, and resource quality. Every settlement should have a reason for existing in its location.",
+  "step": 29,
+  "phase": 5,
+  "source_chapter": "V2 Ch6 -- Creating a Settlement",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Settlement name"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["outpost", "castle", "village", "town", "city", "space_station", "orbital_settlement"],
+      "description": "Settlement type -- size determines everything from formality to crime to species diversity"
+    },
+    "sovereign_power_id": {
+      "type": "string",
+      "x-cross-reference": "sovereign-power-profile",
+      "description": "Which sovereign power this settlement belongs to"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location on the continent (coordinates or description)"
+    },
+    "climate": {
+      "type": "string",
+      "description": "Local climate"
+    },
+    "terrain": {
+      "type": "string",
+      "description": "Local terrain"
+    },
+    "water_supply": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["river", "lake", "spring", "well", "aqueduct", "artificial"] },
+        "location": { "type": "string" },
+        "reliability": { "type": "string" }
+      },
+      "description": "Water supply -- the most fundamental requirement"
+    },
+    "population": {
+      "type": "integer",
+      "description": "Total population"
+    },
+    "species_breakdown": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "species_id": { "type": "string", "x-cross-reference": "species-profile" },
+          "percentage": { "type": "number" }
+        }
+      },
+      "description": "Population by species -- should reflect nearby land features"
+    },
+    "leadership": {
+      "type": "object",
+      "properties": {
+        "leader_name": { "type": "string" },
+        "leader_title": { "type": "string" },
+        "power_level": { "type": "string" },
+        "limitations": { "type": "string" },
+        "selection_method": { "type": "string" }
+      },
+      "description": "Settlement governance"
+    },
+    "power_structure": {
+      "type": "string",
+      "description": "Council, mayor, wards, clandestine influencers"
+    },
+    "notable_people": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Heroes, villains, wizards, priests, celebrities, monsters in this settlement"
+    },
+    "population_disposition": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Adjectives describing the population (dangerous, safe, quirky, sleepy, bustling, transient, stable)"
+    },
+    "quarters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "character": { "type": "string" },
+          "primary_species": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      },
+      "description": "Species-based neighborhoods or distinct quarters"
+    },
+    "zoning": {
+      "type": "string",
+      "description": "Residential, commercial, industrial, agricultural, mixed zoning notes"
+    },
+    "old_town": {
+      "type": "object",
+      "properties": {
+        "exists": { "type": "boolean" },
+        "condition": { "type": "string" },
+        "character": { "type": "string" }
+      },
+      "description": "Old Town area -- crowded, historical, possibly dangerous"
+    },
+    "fortifications": {
+      "type": "string",
+      "description": "Walls, towers, castle, cleared areas"
+    },
+    "armed_forces": {
+      "type": "string",
+      "description": "Local guards, cavalry, knights, flying forces, navy present"
+    },
+    "primary_threats": {
+      "type": "string",
+      "description": "What threatens this settlement and from which direction"
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "event": { "type": "string" },
+          "date": { "type": "string" },
+          "impact": { "type": "string" }
+        }
+      },
+      "description": "Settlement history (founding, conquests, notable events)"
+    },
+    "local_lore": {
+      "type": "string",
+      "description": "Legends, myths, supernatural phenomena"
+    },
+    "reputation": {
+      "type": "string",
+      "description": "What this settlement is known for"
+    },
+    "products": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Products produced, consumed, imported, exported"
+    },
+    "colors": {
+      "type": "string",
+      "description": "Settlement colors"
+    },
+    "symbol": {
+      "type": "string",
+      "description": "Settlement symbol"
+    },
+    "slogan": {
+      "type": "string",
+      "description": "Settlement slogan or motto"
+    },
+    "secrets": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Hidden rooms, catacombs, portals, secret organizations -- save until needed"
+    },
+    "nearby_land_features": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "land-feature-catalog"
+      },
+      "description": "Nearby land features and their impact"
+    },
+    "neighbor_settlements": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "settlement-profile"
+      },
+      "description": "Allied or enemy neighboring settlements"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "type", "sovereign_power_id", "climate", "terrain", "population", "species_breakdown", "leadership"],
+  "x-cross-references": {
+    "sovereign-power-profile": "This settlement belongs to a sovereign power",
+    "species-profile": "Species living here",
+    "land-feature-catalog": "Nearby land features",
+    "settlement-master-spreadsheet": "This settlement should be listed in the master spreadsheet",
+    "culture-profile": "Culture practiced in this settlement"
+  }
+}

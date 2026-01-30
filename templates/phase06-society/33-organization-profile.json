@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "organization-profile",
+  "title": "Organization Profile Template",
+  "description": "Defines an organization (good or evil) including its worldview, goals, power structure, symbol, identity markers, and alignment. Evil organizations rarely see themselves as evil; goals should be layered and complex.",
+  "step": 32,
+  "phase": 6,
+  "source_chapter": "V3 Ch2 -- Organizations",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string", "description": "Organization name" },
+    "type": { "type": "string", "enum": ["good", "evil", "ambiguous"], "description": "Moral alignment" },
+    "world_view": { "type": "string", "description": "Worldview and guiding philosophy -- determines all actions" },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "goal": { "type": "string" },
+          "type": { "type": "string", "enum": ["object_control", "land_possession", "power", "upholding_ideas", "other"] },
+          "current_status": { "type": "string" }
+        }
+      },
+      "description": "Layered goals -- multiple reasons for continued existence"
+    },
+    "power_structure": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["single_leader", "inner_circle", "democratic", "council"] },
+        "power_basis": { "type": "string", "description": "Physical, wealth, connections, mental acuity" },
+        "current_leader": { "type": "string" },
+        "leader_qualities": { "type": "string" }
+      },
+      "description": "How the organization is led"
+    },
+    "symbol": { "type": "string", "description": "Organization symbol" },
+    "colors": { "type": "string", "description": "Organization colors" },
+    "identity_markers": { "type": "array", "items": { "type": "string" }, "description": "How members are identified (tattoo, medallion, ring, password, handshake)" },
+    "headquarters": { "type": "string", "description": "Location of headquarters" },
+    "size": { "type": "string", "description": "Membership count or estimate" },
+    "public_reputation": { "type": "string", "description": "How the public views this organization" },
+    "secret_aspects": { "type": "string", "description": "Hidden truths about the organization" },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile", "description": "Primary sovereign power it operates in" },
+    "formation_story": { "type": "string", "description": "When, where, why, and who formed it" },
+    "alignment": { "type": "string", "description": "Detailed moral alignment beyond simple good/evil" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "type", "world_view", "goals", "power_structure", "symbol", "identity_markers", "formation_story"],
+  "x-cross-references": {
+    "organization-membership": "Membership details in the Organization Membership Sheet",
+    "organization-history-log": "History in the Organization History Log",
+    "organization-relationships": "Relationships in the Organization Relationships Matrix",
+    "sovereign-power-profile": "Operates within sovereign powers",
+    "religion-profile": "May be religiously motivated"
+  }
+}

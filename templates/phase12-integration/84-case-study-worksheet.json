@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "case-study-worksheet",
+  "title": "Case Study Worksheet",
+  "description": "Analyzes how a geographic feature or event ripples through the world, affecting sovereign powers, governments, alliances, trade, and naming. Used to stress-test worldbuilding consistency.",
+  "step": 52,
+  "phase": 12,
+  "source_chapter": "V3 Ch14 -- Conclusion",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "title": { "type": "string", "description": "Name for this case study" },
+    "geographic_feature": { "type": "string", "description": "The geographic feature or event being analyzed (e.g., a mountain range, a river, a volcanic eruption)" },
+    "geographic_feature_id": { "type": "string", "x-cross-reference": "land-feature-catalog" },
+    "sovereign_powers_affected": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+          "how_affected": { "type": "string" }
+        }
+      }
+    },
+    "government_types": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Government types involved and how geography influenced them"
+    },
+    "geography_influence": { "type": "string", "description": "How the geographic feature shapes politics, culture, trade, and conflict" },
+    "alliances": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "parties": { "type": "array", "items": { "type": "string" } },
+          "reason": { "type": "string" },
+          "geographic_basis": { "type": "string" }
+        }
+      },
+      "description": "Alliances formed because of this feature"
+    },
+    "enmities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "parties": { "type": "array", "items": { "type": "string" } },
+          "reason": { "type": "string" },
+          "geographic_basis": { "type": "string" }
+        }
+      },
+      "description": "Conflicts or rivalries caused by this feature"
+    },
+    "trade_implications": { "type": "string", "description": "How this feature affects trade routes, resources, and commerce" },
+    "cultural_impact": { "type": "string", "description": "How this feature influences cultures, traditions, and beliefs" },
+    "naming_rationale": { "type": "string", "description": "How names in the area reflect the geographic reality" },
+    "historical_events": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Key historical events tied to this feature"
+    },
+    "inconsistencies_found": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Any worldbuilding inconsistencies discovered through this analysis"
+    },
+    "resolutions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "How inconsistencies were resolved"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["title", "geographic_feature", "sovereign_powers_affected", "geography_influence", "trade_implications", "naming_rationale"],
+  "x-cross-references": {
+    "land-feature-catalog": "The geographic feature being studied",
+    "sovereign-power-profile": "Sovereign powers affected",
+    "culture-profile": "Cultures influenced by the feature",
+    "settlement-profile": "Settlements near the feature",
+    "naming-convention": "Naming patterns influenced by geography",
+    "history-entry": "Historical events tied to the feature"
+  }
+}

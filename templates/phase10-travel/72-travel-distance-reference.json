@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "travel-distance-reference",
+  "title": "Travel Distance Reference",
+  "description": "Quick-reference table of travel times between key locations by different travel modes. Travel calculations should be preserved for consistency.",
+  "step": 46,
+  "phase": 10,
+  "source_chapter": "V2 Ch7 -- Travel Over Land",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "distance_miles": { "type": "number" },
+          "terrain_summary": { "type": "string" },
+          "days_walking": { "type": "number" },
+          "days_riding": { "type": "number" },
+          "days_wagon": { "type": "number" },
+          "days_flying": { "type": "number" },
+          "obstacles": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      },
+      "description": "All calculated routes"
+    },
+    "map_scale": { "type": "string" },
+    "not_to_scale_noted": { "type": "boolean", "description": "Whether 'not drawn to scale' is noted on maps" },
+    "notes": { "type": "string" }
+  },
+  "required": ["routes"],
+  "x-cross-references": {
+    "land-travel-calculator": "Routes calculated using the Land Travel Calculator",
+    "settlement-profile": "Routes connect settlements"
+  }
+}

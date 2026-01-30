@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "phenomenon-catalog",
+  "title": "Phenomenon Catalog",
+  "description": "Catalogs unusual phenomena in the world: magical storms, dimensional rifts, time anomalies, cursed zones, natural wonders, and other extraordinary occurrences.",
+  "step": 49,
+  "phase": 11,
+  "source_chapter": "V2 Ch10 -- Places of Interest",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["magical_storm", "dimensional_rift", "time_anomaly", "cursed_zone", "natural_wonder", "aurora", "mirage", "wild_magic_zone", "gravity_anomaly", "seasonal_event", "migration", "other"]
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "fixed": { "type": "boolean", "description": "Whether the phenomenon occurs at a fixed location or moves" },
+        "description": { "type": "string" },
+        "continent_id": { "type": "string", "x-cross-reference": "continent-profile" },
+        "area_of_effect": { "type": "string" }
+      }
+    },
+    "effect": { "type": "string", "description": "What the phenomenon does to the environment, creatures, or travelers" },
+    "cause": { "type": "string", "description": "Known or theorized cause (natural, magical, divine, unknown)" },
+    "frequency": { "type": "string", "enum": ["constant", "periodic", "seasonal", "random", "triggered", "one_time", "unknown"] },
+    "duration": { "type": "string" },
+    "known_by": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Who knows about this phenomenon: common knowledge, scholars, local tribes, etc."
+    },
+    "danger_level": { "type": "string", "enum": ["harmless", "minor", "moderate", "severe", "lethal", "world_ending", "unknown"] },
+    "benefits": { "type": "string", "description": "Any positive effects or opportunities the phenomenon provides" },
+    "related_mythology_id": { "type": "string", "x-cross-reference": "mythology-worksheet" },
+    "scientific_or_magical_explanation": { "type": "string" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "type", "effect", "cause", "danger_level"],
+  "x-cross-references": {
+    "continent-profile": "Located on a continent",
+    "mythology-worksheet": "May be explained by mythology",
+    "supernatural-prevalence": "Related to the world's supernatural level",
+    "magic-system-overview": "May be caused by the magic system"
+  }
+}

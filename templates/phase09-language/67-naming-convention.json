@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "naming-convention",
+  "title": "Naming Convention Sheet",
+  "description": "Defines naming conventions per culture or sovereign power: name order, typical name count, common affixes, compound surname rules, and name change triggers. Suffixes and prefixes build cultural naming consistency.",
+  "step": 44,
+  "phase": 9,
+  "source_chapter": "V3 Ch9 -- Names",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "culture_id": { "type": "string", "x-cross-reference": "culture-profile", "description": "The culture these conventions belong to" },
+    "name_order": { "type": "string", "enum": ["given_first", "surname_first"], "description": "Name order convention" },
+    "typical_name_count": { "type": "integer", "description": "How many names a person typically has" },
+    "given_name_conventions": { "type": "string", "description": "How given names are chosen (meaning, ancestor, occupation)" },
+    "surname_conventions": { "type": "string", "description": "How surnames work (inherited, place-based, occupation-based, patronymic)" },
+    "common_prefixes": { "type": "array", "items": { "type": "string" } },
+    "common_suffixes": { "type": "array", "items": { "type": "string" } },
+    "common_letter_combinations": { "type": "array", "items": { "type": "string" } },
+    "compound_surname_rules": { "type": "string", "description": "How compound surnames work (father-mother order, hyphenation)" },
+    "name_change_triggers": { "type": "array", "items": { "type": "string" }, "description": "Events that cause name changes (coming of age, marriage, gaining magic, immigration)" },
+    "forbidden_names": { "type": "array", "items": { "type": "string" }, "description": "Names that are restricted or forbidden" },
+    "naming_inspirations": { "type": "string", "description": "What inspires names (traits, occupations, places, ancestors)" },
+    "syllable_target": { "type": "string", "description": "Target syllable count (1-3 ideal, rarely exceed 4)" },
+    "notes": { "type": "string" }
+  },
+  "required": ["culture_id", "name_order", "typical_name_count", "common_suffixes"],
+  "x-cross-references": {
+    "culture-profile": "These conventions belong to a culture",
+    "name-registry": "Names following these conventions are tracked in the Name Registry",
+    "naming-language-brief": "Language brief provides the phonological foundation"
+  }
+}

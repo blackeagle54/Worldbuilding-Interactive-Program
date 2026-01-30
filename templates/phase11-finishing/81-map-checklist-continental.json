@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "map-checklist-continental",
+  "title": "Map Checklist -- Continental",
+  "description": "Quality checklist for continental/world maps ensuring all geographic, political, and navigational elements are present and consistent with worldbuilding data.",
+  "step": 50,
+  "phase": 11,
+  "source_chapter": "V2 Ch11 -- Maps",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "map_name": { "type": "string" },
+    "continent_id": { "type": "string", "x-cross-reference": "continent-profile" },
+    "coastline_done": { "type": "boolean", "description": "Coastlines drawn with appropriate detail" },
+    "latitude_marked": { "type": "boolean", "description": "Latitude lines or climate zones indicated" },
+    "mountains_placed": { "type": "boolean", "description": "Mountain ranges placed consistent with plate tectonics" },
+    "rain_shadows_marked": { "type": "boolean", "description": "Rain shadow areas indicated on leeward side of mountains" },
+    "rivers_drawn": { "type": "boolean", "description": "Rivers flow from highlands to sea, do not split going downhill" },
+    "rivers_correct_direction": { "type": "boolean", "description": "Rivers merge going downstream, not split" },
+    "lakes_placed": { "type": "boolean" },
+    "forests_marked": { "type": "boolean" },
+    "deserts_placed": { "type": "boolean", "description": "Deserts at ~30 degrees latitude or in rain shadows" },
+    "settlements_placed": { "type": "boolean", "description": "Cities placed near water sources and trade routes" },
+    "vegetation_marked": { "type": "boolean" },
+    "roads_drawn": { "type": "boolean", "description": "Roads connecting major settlements" },
+    "borders_drawn": { "type": "boolean", "description": "Political borders of sovereign powers" },
+    "scale_noted": { "type": "boolean", "description": "Map scale included" },
+    "not_to_scale_added": { "type": "boolean", "description": "If not drawn to scale, this is noted on the map" },
+    "compass_rose": { "type": "boolean" },
+    "legend_included": { "type": "boolean" },
+    "place_names_added": { "type": "boolean" },
+    "consistency_check": {
+      "type": "object",
+      "properties": {
+        "climate_matches_latitude": { "type": "boolean" },
+        "settlements_near_water": { "type": "boolean" },
+        "terrain_matches_profiles": { "type": "boolean" },
+        "borders_match_sovereign_powers": { "type": "boolean" }
+      },
+      "description": "Cross-checks against worldbuilding data"
+    },
+    "issues_found": { "type": "array", "items": { "type": "string" } },
+    "notes": { "type": "string" }
+  },
+  "required": ["map_name", "continent_id", "coastline_done", "mountains_placed", "rivers_drawn", "settlements_placed", "scale_noted"],
+  "x-cross-references": {
+    "continent-profile": "Map depicts this continent",
+    "land-feature-catalog": "Geographic features to verify",
+    "water-body-reference": "Water bodies to verify",
+    "sovereign-power-profile": "Borders to verify",
+    "settlement-profile": "Settlement locations to verify"
+  }
+}

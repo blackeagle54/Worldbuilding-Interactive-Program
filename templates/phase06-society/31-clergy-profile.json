@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "clergy-profile",
+  "title": "Clergy Profile Template",
+  "description": "Defines the clergy structure of a religion including prerequisites, training path, ranks, duties, vestments, privileges, and restrictions. Clergy combat readiness should reflect the deity's nature.",
+  "step": 31,
+  "phase": 6,
+  "source_chapter": "V3 Ch4 -- Religions",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "religion_id": { "type": "string", "x-cross-reference": "religion-profile", "description": "The religion this clergy serves" },
+    "clergy_title": { "type": "string", "description": "What clergy members are called (priest, cleric, monk, etc.)" },
+    "prerequisites": { "type": "string", "description": "Requirements to become clergy (beauty, virginity, profession, literacy, supernatural ability)" },
+    "acceptance_process": { "type": "string", "description": "How candidates are evaluated and accepted" },
+    "training_path": { "type": "string", "description": "Training overview and duration" },
+    "rank_structure": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rank": { "type": "string" },
+          "duties": { "type": "string" },
+          "vestments": { "type": "string" },
+          "advancement_requirements": { "type": "string" }
+        }
+      },
+      "description": "Rank structure from novice to highest rank"
+    },
+    "duties": { "type": "array", "items": { "type": "string" }, "description": "General duties (marriages, burials, counseling, military chaplain)" },
+    "vestments": { "type": "string", "description": "What clergy wear" },
+    "privileges": { "type": "array", "items": { "type": "string" }, "description": "Special privileges of clergy" },
+    "restrictions": { "type": "array", "items": { "type": "string" }, "description": "Restrictions on clergy (celibacy, diet, behavior)" },
+    "gender_restrictions": { "type": "string", "description": "Gender limitations on clergy" },
+    "species_restrictions": { "type": "string", "description": "Species limitations on clergy" },
+    "combat_readiness": {
+      "type": "object",
+      "properties": {
+        "weapons": { "type": "string" },
+        "armor": { "type": "string" },
+        "martial_skills": { "type": "string" },
+        "blood_spilling_rules": { "type": "string", "description": "Rules about weapons that draw blood" }
+      },
+      "description": "Combat capabilities -- should reflect the deity's nature"
+    },
+    "role_in_society": { "type": "string", "description": "Social role and influence of clergy" },
+    "notes": { "type": "string" }
+  },
+  "required": ["religion_id", "clergy_title", "rank_structure", "duties", "restrictions"],
+  "x-cross-references": {
+    "religion-profile": "This clergy serves a religion defined in a Religion Profile",
+    "god-profile": "Clergy combat readiness reflects the god's nature",
+    "armed-forces-profile": "Military clergy may overlap with armed forces"
+  }
+}

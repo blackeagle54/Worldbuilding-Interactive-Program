@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "language-decision",
+  "title": "Language Decision Worksheet",
+  "description": "Documents the strategic decision about language creation: whether to ignore it, make up phrases ad-hoc, create a naming language, hire a professional, or build a full conlang. Language creation is optional and has diminishing returns for most worldbuilders.",
+  "step": 43,
+  "phase": 9,
+  "source_chapter": "V3 Ch8 -- Languages",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "approach": { "type": "string", "enum": ["ignore", "ad_hoc", "naming_language", "sketch", "basic", "detailed", "professional", "full_conlang"], "description": "Chosen approach to language" },
+    "medium": { "type": "string", "description": "Primary medium (audio/visual media benefit most from conlangs; print least)" },
+    "world_usage_frequency": { "type": "string", "description": "How often this world will be used (one story, series, career)" },
+    "rationale": { "type": "string", "description": "Why this approach was chosen" },
+    "budget": { "type": "string", "description": "Budget available for language creation ($100-$800 for LCS services)" },
+    "time_available": { "type": "string" },
+    "plan": { "type": "string", "enum": ["self_create", "hire_lcs", "hire_other", "skip"] },
+    "timeline": { "type": "string" },
+    "resources_consulted": { "type": "array", "items": { "type": "string" }, "description": "Books or resources consulted on language creation" },
+    "notes": { "type": "string" }
+  },
+  "required": ["approach", "medium", "rationale"],
+  "x-cross-references": {
+    "naming-language-brief": "If hiring, use the Naming Language Brief",
+    "naming-convention": "Naming conventions are defined separately",
+    "culture-profile": "Language tone reflects cultural vision"
+  }
+}

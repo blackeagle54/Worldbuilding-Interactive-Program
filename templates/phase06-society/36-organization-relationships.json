@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "organization-relationships",
+  "title": "Organization Relationships Matrix",
+  "description": "Maps relationships between an organization and other entities (individuals, species, kingdoms, other groups). Organizations create tensions with and between other entities.",
+  "step": 32,
+  "phase": 6,
+  "source_chapter": "V3 Ch2 -- Organizations",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "organization_id": { "type": "string", "x-cross-reference": "organization-profile", "description": "The organization" },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_id": { "type": "string", "description": "ID of the related entity" },
+          "target_type": { "type": "string", "enum": ["organization", "sovereign_power", "species", "settlement", "religion", "individual"] },
+          "relationship": { "type": "string", "enum": ["ally", "enemy", "neutral", "complicated", "patron", "subordinate"] },
+          "reason": { "type": "string" },
+          "current_status": { "type": "string" },
+          "historical_incidents": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "description": "All relationships with other entities"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["organization_id", "relationships"],
+  "x-cross-references": {
+    "organization-profile": "This belongs to an Organization Profile",
+    "sovereign-power-profile": "May relate to sovereign powers",
+    "species-profile": "May relate to species",
+    "religion-profile": "May relate to religions"
+  }
+}

@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "species-profile",
+  "title": "Species Profile Template",
+  "description": "Comprehensive profile for a sentient species covering appearance, senses, disposition, world view, society, language, customs, history, relationships, supernatural abilities, technology, and combat. World view -- how the species thinks differently from humans -- is the most important differentiator.",
+  "step": 17,
+  "phase": 4,
+  "source_chapter": "V1 Ch3 -- Creating a Species",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this species (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Primary species name"
+    },
+    "nicknames": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Common terms used by other species to refer to this one"
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["species", "race"],
+      "description": "Whether this is a full species or a race of another species"
+    },
+    "parent_species_id": {
+      "type": "string",
+      "x-cross-reference": "species-profile",
+      "description": "If this is a race, the parent species ID"
+    },
+    "famous_for": {
+      "type": "string",
+      "description": "What this species is most known for (key reputation in one sentence)"
+    },
+    "habitat": {
+      "type": "object",
+      "properties": {
+        "preferred_terrain": { "type": "string" },
+        "preferred_climate": { "type": "string" },
+        "settlement_type": {
+          "type": "string",
+          "enum": ["isolated", "joint", "nomadic", "mixed"],
+          "description": "How they live: in their own settlements, mixed with others, or wandering"
+        },
+        "settlement_characteristics": {
+          "type": "string",
+          "description": "Architecture, materials, and defenses typical of their settlements"
+        }
+      },
+      "description": "Where this species lives and how"
+    },
+    "disposition": {
+      "type": "string",
+      "enum": ["good", "evil", "neutral", "complex"],
+      "description": "General moral disposition"
+    },
+    "disposition_detail": {
+      "type": "string",
+      "description": "Nuanced explanation of disposition -- uniformly evil species have limited utility"
+    },
+    "appearance": {
+      "type": "object",
+      "properties": {
+        "summary": { "type": "string", "description": "Overall appearance in 1-2 sentences" },
+        "head": {
+          "type": "object",
+          "properties": {
+            "face_shape": { "type": "string" },
+            "brow": { "type": "string" },
+            "eyebrows": { "type": "string" },
+            "eyes": { "type": "string" },
+            "iris_color": { "type": "string" },
+            "cheekbones": { "type": "string" },
+            "nose": { "type": "string" },
+            "mouth_lips": { "type": "string" },
+            "teeth": { "type": "string" },
+            "chin": { "type": "string" },
+            "ears": { "type": "string" },
+            "hair_styles": { "type": "string" },
+            "hair_colors": { "type": "string" }
+          }
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "height_range": { "type": "string" },
+            "build": { "type": "string" },
+            "hands_feet": { "type": "string" },
+            "distinguishing_features": { "type": "string" },
+            "appendages": { "type": "string", "description": "Tail, wings, extra limbs, etc." }
+          }
+        },
+        "is_humanoid": { "type": "boolean" },
+        "clothing_tendencies": { "type": "string" },
+        "accessories": { "type": "string" }
+      },
+      "description": "Detailed physical appearance"
+    },
+    "senses": {
+      "type": "object",
+      "properties": {
+        "sight": { "type": "string", "description": "Visual capability (night vision, color range, etc.)" },
+        "hearing": { "type": "string" },
+        "touch": { "type": "string" },
+        "taste": { "type": "string" },
+        "smell": { "type": "string" },
+        "sixth_senses": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Telepathy, clairvoyance, psychometry, precognition, mediumship"
+        },
+        "other_senses": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Electroception, nociception, time sense, magnetoception, magiception"
+        }
+      },
+      "description": "Sensory capabilities -- altering one or two senses provides meaningful differences"
+    },
+    "creator_god": {
+      "type": "string",
+      "x-cross-reference": "god-profile",
+      "description": "The god who created or most influenced this species"
+    },
+    "characteristics": {
+      "type": "object",
+      "properties": {
+        "intelligence": { "type": "string" },
+        "wisdom": { "type": "string" },
+        "charisma": { "type": "string" },
+        "strength": { "type": "string" },
+        "constitution": { "type": "string" },
+        "agility": { "type": "string" },
+        "dexterity": { "type": "string" },
+        "morale": { "type": "string" }
+      },
+      "description": "Core characteristics rated or described"
+    },
+    "world_view": {
+      "type": "string",
+      "description": "How this species sees themselves, others, and their place in the world. This is the MOST IMPORTANT differentiator from humans. Write in paragraph form."
+    },
+    "government_type": {
+      "type": "string",
+      "description": "Typical government type for this species"
+    },
+    "marriage_family": {
+      "type": "string",
+      "description": "Marriage norms, divorce customs, family structure"
+    },
+    "key_laws": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Key laws or social rules unique to this species"
+    },
+    "language": {
+      "type": "object",
+      "properties": {
+        "written": { "type": "boolean" },
+        "spoken": { "type": "boolean" },
+        "language_name": { "type": "string" },
+        "other_languages_known": { "type": "array", "items": { "type": "string" } },
+        "common_tongue": { "type": "boolean" }
+      },
+      "description": "Language capabilities"
+    },
+    "customs": {
+      "type": "string",
+      "description": "Key greetings, ceremonies, taboos, and cultural habits"
+    },
+    "history": {
+      "type": "object",
+      "properties": {
+        "place_of_origin": { "type": "string" },
+        "major_migrations": { "type": "string" },
+        "key_wars": { "type": "string" },
+        "enslavement_history": { "type": "string" }
+      },
+      "description": "Species history"
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_species_id": {
+            "type": "string",
+            "x-cross-reference": "species-profile"
+          },
+          "relationship_summary": { "type": "string" }
+        }
+      },
+      "description": "Relationships with other species"
+    },
+    "supernatural": {
+      "type": "object",
+      "properties": {
+        "attitude_toward_phenomena": { "type": "string" },
+        "magic_capability": { "type": "string" },
+        "magic_type": { "type": "string" },
+        "magic_limitations": { "type": "string" },
+        "godly_power": { "type": "string" }
+      },
+      "description": "Supernatural abilities and attitudes"
+    },
+    "technology_level": {
+      "type": "string",
+      "description": "Technology level and capabilities"
+    },
+    "combat": {
+      "type": "object",
+      "properties": {
+        "preferred_weapons": { "type": "array", "items": { "type": "string" } },
+        "armor_type": { "type": "string" },
+        "tactics": { "type": "string" },
+        "formations": { "type": "string" },
+        "morale_in_battle": { "type": "string" }
+      },
+      "description": "Combat characteristics"
+    },
+    "races": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "race-hierarchy-chart"
+      },
+      "description": "Race hierarchy chart IDs for this species"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "habitat", "disposition", "appearance", "world_view"],
+  "x-cross-references": {
+    "god-profile": "Creator god is defined in a God Profile",
+    "race-hierarchy-chart": "Races within this species are defined in Race Hierarchy Charts",
+    "species-relationship-matrix": "Relationships with other species are tracked in the Species Relationship Matrix",
+    "sovereign-power-profile": "This species populates sovereign powers defined in Sovereign Power Profiles",
+    "settlement-profile": "This species lives in settlements defined in Settlement Profiles",
+    "culture-profile": "Cultural practices of this species are detailed in Culture Profiles"
+  }
+}

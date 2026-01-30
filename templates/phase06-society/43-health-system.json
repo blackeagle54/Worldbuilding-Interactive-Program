@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "health-system",
+  "title": "Health System Template",
+  "description": "Defines healthcare in a sovereign power including life expectancy, magical healing availability, medical knowledge level, common diseases, and mental health understanding. Medical care quality should not be too convenient; instant healing removes tension.",
+  "step": 34,
+  "phase": 6,
+  "source_chapter": "V3 Ch10 -- Other Systems",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile", "description": "The sovereign power" },
+    "life_expectancy": { "type": "string", "description": "Average life expectancy (pre-modern settings rarely above 30)" },
+    "magical_healing_available": {
+      "type": "object",
+      "properties": {
+        "available": { "type": "boolean" },
+        "limitations": { "type": "string" },
+        "cost": { "type": "string" },
+        "who_provides": { "type": "string" }
+      },
+      "description": "Magical/supernatural healing availability and limits"
+    },
+    "medical_knowledge_level": {
+      "type": "string",
+      "enum": ["humors_bloodletting", "basic_herbalism", "basic_surgery", "germ_theory", "modern", "advanced_tech"],
+      "description": "Level of medical understanding"
+    },
+    "germ_theory_understood": { "type": "boolean", "description": "Whether germ theory is understood" },
+    "common_diseases": { "type": "array", "items": { "type": "string" }, "description": "Common diseases and plagues" },
+    "quack_remedies": { "type": "string", "description": "Prevalent false cures and snake oil" },
+    "health_infrastructure": { "type": "string", "description": "Hospitals, clinics, healer networks" },
+    "mental_health_understanding": { "type": "string", "description": "How mental health is understood and treated" },
+    "common_health_beliefs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "belief": { "type": "string" },
+          "true_or_false": { "type": "boolean" }
+        }
+      },
+      "description": "Common health-related beliefs, some true and some false"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["sovereign_power_id", "life_expectancy", "magical_healing_available", "medical_knowledge_level"],
+  "x-cross-references": {
+    "sovereign-power-profile": "This system belongs to a sovereign power",
+    "religion-profile": "Religious healing may supplement medical care",
+    "magic-system-overview": "Magical healing is governed by the magic system"
+  }
+}

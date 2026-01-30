@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "military-rank-structure",
+  "title": "Military Rank Structure",
+  "description": "Defines the rank hierarchy of an armed force, from lowest enlisted to highest officer. Understanding commissioned officers vs. enlisted grades adds believability.",
+  "step": 33,
+  "phase": 6,
+  "source_chapter": "V3 Ch3 -- Armed Forces",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "force_id": { "type": "string", "x-cross-reference": "armed-forces-profile", "description": "The armed force" },
+    "ranks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "description": "Custom rank title" },
+          "earth_equivalent": { "type": "string", "description": "Earth military equivalent for reference" },
+          "level": { "type": "integer", "description": "Numeric level (1 = lowest)" },
+          "branch": { "type": "string", "enum": ["commissioned", "enlisted", "nco"] },
+          "duties": { "type": "string" },
+          "insignia": { "type": "string" },
+          "authority_scope": { "type": "string", "description": "What unit or area they command" },
+          "population_at_rank": { "type": "string", "description": "How many hold this rank" },
+          "required_armor": { "type": "string" },
+          "reports_to": { "type": "string" }
+        }
+      },
+      "description": "All ranks from lowest to highest"
+    },
+    "co_xo_distinction": { "type": "string", "description": "How commanding officer vs. executive officer roles work" },
+    "unit_structure": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "unit_name": { "type": "string" },
+          "size": { "type": "string" },
+          "commanded_by": { "type": "string" }
+        }
+      },
+      "description": "Military unit sizes and their commanding ranks"
+    },
+    "notes": { "type": "string" }
+  },
+  "required": ["force_id", "ranks"],
+  "x-cross-references": {
+    "armed-forces-profile": "This belongs to an Armed Forces Profile"
+  }
+}

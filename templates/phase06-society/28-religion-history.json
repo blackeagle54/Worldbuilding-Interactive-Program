@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "religion-history",
+  "title": "Religion History Sheet",
+  "description": "Tracks the historical events of a religion from founding through present day, including prophetic figures, major events, schisms, and current status.",
+  "step": 31,
+  "phase": 6,
+  "source_chapter": "V3 Ch4 -- Religions",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "religion_id": { "type": "string", "x-cross-reference": "religion-profile", "description": "The religion this history belongs to" },
+    "founding_event": { "type": "string", "description": "The founding event in detail" },
+    "founding_date": { "type": "string", "description": "When the religion was founded" },
+    "prophetic_figure": { "type": "string", "description": "Name and key facts about the founding prophet" },
+    "prophet_death": { "type": "string", "description": "How the prophet died and the consequences (martyrdom, enemies, artifacts)" },
+    "major_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "impact": { "type": "string" }
+        }
+      },
+      "description": "Major historical events in the religion's history"
+    },
+    "saints_and_figures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "deed": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      },
+      "description": "Saints, prophets, betrayers, and important figures"
+    },
+    "schisms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "date": { "type": "string" },
+          "point_of_disagreement": { "type": "string" },
+          "resulting_sect": { "type": "string" },
+          "relationship_with_main": { "type": "string" }
+        }
+      },
+      "description": "Schisms and sects that broke away"
+    },
+    "end_of_world_myth": { "type": "string", "description": "The religion's end-of-world prophecy" },
+    "current_status": { "type": "string", "description": "Current state of the religion (growing, declining, stable, underground)" },
+    "how_religions_die": { "type": "string", "description": "If applicable, what threatens this religion's survival" },
+    "notes": { "type": "string" }
+  },
+  "required": ["religion_id", "founding_event", "major_events", "current_status"],
+  "x-cross-references": {
+    "religion-profile": "This history belongs to a Religion Profile",
+    "mythology-worksheet": "Founding events may overlap with myths",
+    "history-entry": "Events may be recorded as formal history entries",
+    "world-figure-profile": "Saints and prophets may be world figures"
+  }
+}

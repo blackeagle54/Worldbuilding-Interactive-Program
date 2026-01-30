@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "undead-type-profile",
+  "title": "Undead Type Profile Template",
+  "description": "Defines a type of undead -- beings once alive that now exist between life and death. Only create original undead if substantially different from existing types. Goals and behavior patterns are what truly distinguish one undead type from another.",
+  "step": 23,
+  "phase": 4,
+  "source_chapter": "V1 Ch7 -- Creating Undead",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this undead type (auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of this undead type"
+    },
+    "nicknames": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Alternate names or slang terms"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["spiritual", "corporeal_with_soul", "corporeal_without_soul"],
+      "description": "Classification: spiritual (no body), corporeal with soul, or corporeal without soul"
+    },
+    "based_on": {
+      "type": "string",
+      "enum": ["humanoid", "animal", "plant"],
+      "description": "What type of being this undead was in life"
+    },
+    "appearance": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "decay_level": { "type": "string", "enum": ["alive_looking", "slightly_decayed", "heavily_decayed", "skeletal", "translucent", "invisible", "other"] },
+        "obviously_undead": { "type": "boolean", "description": "Can it pass as living?" },
+        "distinguishing_markers": { "type": "string" }
+      },
+      "description": "Visual appearance"
+    },
+    "mind": {
+      "type": "object",
+      "properties": {
+        "mental_capability": { "type": "string", "enum": ["fully_intact", "impaired", "animal_level", "mindless"] },
+        "death_awareness": { "type": "string", "enum": ["aware", "in_denial", "confused", "unaware"] },
+        "emotional_state": { "type": "string", "enum": ["tormented", "content", "enraged", "indifferent", "mixed"] }
+      },
+      "description": "Whether the mind goes with the soul affects mental capability"
+    },
+    "origin_method": {
+      "type": "string",
+      "enum": ["accidental", "by_design", "curse", "self_inflicted", "divine", "other"],
+      "description": "How this type of undead is created"
+    },
+    "origin_details": {
+      "type": "string",
+      "description": "What specific event/phenomenon/spell/technology creates this undead"
+    },
+    "creator_if_designed": {
+      "type": "string",
+      "description": "If created by design: who, why, do they control it"
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Conditions that must be met before something becomes this undead (burial method, life circumstances, death type)"
+    },
+    "prevention_methods": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "How to prevent this type of undead from forming -- these become cultural burial customs"
+    },
+    "time_dead_before_transformation": {
+      "type": "string",
+      "description": "How long dead before transformation occurs"
+    },
+    "population": {
+      "type": "string",
+      "description": "How many exist"
+    },
+    "replication": {
+      "type": "object",
+      "properties": {
+        "can_replicate": { "type": "boolean" },
+        "method": { "type": "string", "description": "Bite, touch, proximity, etc." },
+        "killing_original_effect": { "type": "string", "description": "Does killing the original affect those it created?" }
+      },
+      "description": "Replication mechanics define threat level"
+    },
+    "goals": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Primary goals (unfinished business, regain life, find peace, torment others)"
+    },
+    "behavior_pattern": {
+      "type": "string",
+      "description": "The typical behavior pattern that identifies this type -- this is what makes it distinctive"
+    },
+    "behaviors": {
+      "type": "object",
+      "properties": {
+        "speech": { "type": "string", "enum": ["fluent", "limited", "nonsensical", "silent", "telepathic"] },
+        "touch_effects": { "type": "string", "description": "Can it touch physical world? Does touch corrupt or cause visions?" },
+        "movement": { "type": "string", "description": "Slow, fast, teleporting, passes through objects" },
+        "consumption": { "type": "string", "description": "Blood, souls, energy, food-out-of-habit, nothing" }
+      },
+      "description": "Trait behaviors"
+    },
+    "residence": {
+      "type": "object",
+      "properties": {
+        "tied_to_location": { "type": "boolean" },
+        "location_type": { "type": "string", "description": "Grave, home, death site, ship, etc." },
+        "between_activity": { "type": "string", "description": "Where does it go when not active" }
+      },
+      "description": "Where it resides and whether it is bound to a location"
+    },
+    "destruction_method": {
+      "type": "string",
+      "description": "How to permanently destroy this undead"
+    },
+    "what_harms_it": {
+      "type": "string",
+      "description": "What can harm but not destroy it"
+    },
+    "immunities": {
+      "type": "string",
+      "description": "What it is immune to"
+    },
+    "can_return_after_destruction": {
+      "type": "string",
+      "description": "Can it return after destruction? Under what conditions?"
+    },
+    "combat": {
+      "type": "string",
+      "description": "How it fights (physical, supernatural, psychological), special attacks"
+    },
+    "cultural_burial_customs_inspired": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Burial customs and cultural practices that exist because of this undead type"
+    },
+    "species_reactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "species_id": { "type": "string", "x-cross-reference": "species-profile" },
+          "reaction": { "type": "string" }
+        }
+      },
+      "description": "How different species react to this undead type"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes"
+    }
+  },
+  "required": ["name", "type", "origin_method", "prerequisites", "goals", "behaviors", "destruction_method"],
+  "x-cross-references": {
+    "god-profile": "Gods may have created or cursed beings into undead",
+    "afterlife-design": "The afterlife concept affects undead behavior and goals",
+    "religion-profile": "Religions develop customs around preventing undead",
+    "species-profile": "Species develop burial customs because of undead types",
+    "culture-profile": "Cultural practices around death may be influenced by undead"
+  }
+}

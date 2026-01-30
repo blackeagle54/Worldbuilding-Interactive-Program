@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "naval-forces-summary",
+  "title": "Naval Forces Summary",
+  "description": "Summary of a sovereign power's naval capabilities including fleet composition, key ports, traditions, and notable admirals.",
+  "step": 47,
+  "phase": 10,
+  "source_chapter": "V2 Ch8 -- Travel by Water",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+    "fleet_name": { "type": "string" },
+    "fleet_size": { "type": "integer", "description": "Total number of ships" },
+    "ship_types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "count": { "type": "integer" },
+          "primary_role": { "type": "string" }
+        }
+      },
+      "description": "Breakdown of fleet by ship type"
+    },
+    "key_ports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "port_name": { "type": "string" },
+          "settlement_id": { "type": "string", "x-cross-reference": "settlement-profile" },
+          "role": { "type": "string", "enum": ["home_port", "resupply", "forward_base", "shipyard", "trade_hub"] },
+          "ships_stationed": { "type": "integer" }
+        }
+      }
+    },
+    "naval_traditions": { "type": "string", "description": "Cultural traditions, rituals, and customs of the navy" },
+    "notable_admirals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "rank": { "type": "string" },
+          "notable_actions": { "type": "string" }
+        }
+      }
+    },
+    "primary_mission": { "type": "string", "enum": ["defense", "trade_protection", "power_projection", "exploration", "piracy", "blockade"] },
+    "rival_navies": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Sovereign power IDs of naval rivals"
+    },
+    "strengths": { "type": "string" },
+    "weaknesses": { "type": "string" },
+    "notes": { "type": "string" }
+  },
+  "required": ["sovereign_power_id", "fleet_size", "ship_types", "key_ports"],
+  "x-cross-references": {
+    "sovereign-power-profile": "This navy belongs to a sovereign power",
+    "ship-profile": "Individual ships in this fleet",
+    "settlement-profile": "Ports are settlements",
+    "armed-forces-profile": "Naval forces are part of the armed forces"
+  }
+}

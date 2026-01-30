@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "file-organization",
+  "title": "File Organization Template",
+  "description": "Documents the folder structure, naming conventions, backup plan, and file management approach for the worldbuilding project. Proper organization prevents lost work and enables efficient cross-referencing between world elements.",
+  "step": 4,
+  "phase": 1,
+  "source_chapter": "V3 Ch11 -- Conclusion",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this template (auto-generated)"
+    },
+    "world_name": {
+      "type": "string",
+      "description": "The name of the world being organized"
+    },
+    "folder_structure": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "folder_name": {
+            "type": "string",
+            "description": "Name of the folder"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "What this folder contains"
+          },
+          "subfolders": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Names of subfolders within this folder"
+          }
+        }
+      },
+      "description": "The hierarchical folder structure for all world files"
+    },
+    "naming_convention": {
+      "type": "string",
+      "description": "The file naming convention used across the project (e.g., 'entity-type-name.json', 'kebab-case-with-id')"
+    },
+    "authoritative_source_rules": {
+      "type": "string",
+      "description": "When information appears in multiple files, which file is the authoritative source? Rules for avoiding duplication."
+    },
+    "spreadsheet_tabs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Overview spreadsheet tabs needed (e.g., 'settlements overview', 'gods overview', 'species overview')"
+    },
+    "backup_plan": {
+      "type": "object",
+      "properties": {
+        "local_backup": {
+          "type": "string",
+          "description": "Local backup method and schedule"
+        },
+        "cloud_backup": {
+          "type": "string",
+          "description": "Cloud or offsite backup method"
+        },
+        "version_control": {
+          "type": "string",
+          "description": "Whether git or another version control system is used"
+        },
+        "backup_frequency": {
+          "type": "string",
+          "description": "How often backups occur"
+        }
+      },
+      "description": "Backup strategy to prevent data loss"
+    },
+    "changes_file_location": {
+      "type": "string",
+      "description": "Location of the 'changes to make' file -- a running list of ideas and modifications to apply during review sessions, preventing rabbit-hole derailment during active creation"
+    },
+    "storage_platform": {
+      "type": "string",
+      "enum": ["local_only", "microsoft_365", "google_docs", "worldbuilding_site", "git_repository", "other"],
+      "description": "Primary storage platform for world files"
+    },
+    "cross_reference_method": {
+      "type": "string",
+      "description": "How cross-references between files are maintained (e.g., 'JSON IDs', 'hyperlinks', 'manual notes')"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Freeform notes on file organization"
+    }
+  },
+  "required": ["folder_structure", "naming_convention", "backup_plan", "changes_file_location"],
+  "x-cross-references": {
+    "world-building-strategy": "Organization should support the strategic scope defined in the Strategy Worksheet",
+    "worldbuilding-goals": "Organization should prioritize elements identified as required in the Goals Worksheet",
+    "review-schedule": "Regular reviews use this organization to systematically check all files"
+  }
+}

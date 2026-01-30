@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "naming-language-brief",
+  "title": "Naming Language Brief",
+  "description": "Brief for creating or commissioning a naming language -- the most practical minimum investment. Defines the feel, tone, and requirements for a culture's language.",
+  "step": 43,
+  "phase": 9,
+  "source_chapter": "V3 Ch8 -- Languages",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "language_name": { "type": "string" },
+    "associated_culture_id": { "type": "string", "x-cross-reference": "culture-profile", "description": "Which culture this language belongs to" },
+    "associated_species_id": { "type": "string", "x-cross-reference": "species-profile" },
+    "setting_description": { "type": "string", "description": "Brief description of the setting context" },
+    "desired_feel": { "type": "string", "description": "Desired tone (guttural, flowing, clipped, musical, harsh, whispered)" },
+    "earth_analogues_for_tone": { "type": "array", "items": { "type": "string" }, "description": "Earth languages to reference for feel (e.g., 'Finnish for flowing vowels')" },
+    "phonology_notes": { "type": "string", "description": "Notes on preferred sounds, avoided sounds, consonant clusters" },
+    "common_prefixes": { "type": "array", "items": { "type": "string" } },
+    "common_suffixes": { "type": "array", "items": { "type": "string" } },
+    "sound_feel": { "type": "string", "description": "Overall sound impression" },
+    "names_needed_count": { "type": "integer" },
+    "name_types_needed": { "type": "array", "items": { "type": "string" }, "description": "People, places, things, titles, etc." },
+    "existing_words": { "type": "array", "items": { "type": "string" }, "description": "Words or phrases already in use that should be consistent" },
+    "example_words": { "type": "array", "items": { "type": "string" }, "description": "Example words showing the desired style" },
+    "deadline": { "type": "string" },
+    "budget": { "type": "string" },
+    "notes": { "type": "string" }
+  },
+  "required": ["language_name", "associated_culture_id", "desired_feel", "sound_feel"],
+  "x-cross-references": {
+    "culture-profile": "This language belongs to a culture",
+    "species-profile": "This language belongs to a species",
+    "naming-convention": "Naming conventions use this language",
+    "language-usage-tracker": "Words created are tracked in the Language Usage Tracker"
+  }
+}
