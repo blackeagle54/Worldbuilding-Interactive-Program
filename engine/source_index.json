@@ -476,20 +476,23 @@
       ]
     },
     "34": {
-      "title": "Design Societal Systems (Education, Health, Legal, Commerce, Information)",
+      "title": "Design Societal Systems (Education, Health, Legal, Commerce, Information, Games)",
       "phase": 6,
       "source_chapter": "V3 Ch10 -- Other Systems",
       "line_ranges": [
         {"start": 7606, "end": 7660, "topic": "Education systems, basic and special education, apprenticeships"},
         {"start": 7660, "end": 7710, "topic": "Health systems, legal systems -- civil, common, religious law"},
         {"start": 7710, "end": 7760, "topic": "Commerce, monetary systems, currency, relative value"},
-        {"start": 7760, "end": 7796, "topic": "Information systems, messengers, town criers, magic communication"}
+        {"start": 7760, "end": 7796, "topic": "Information systems, messengers, town criers, magic communication"},
+        {"start": 6494, "end": 6504, "topic": "Pastimes and games -- inventing sports, card games, modifying Earth games for invented species"},
+        {"start": 8574, "end": 8601, "topic": "Appendix 12 -- Game Template: name, type, teams, players, game play, rules, items, scoring, tournaments"}
       ],
       "key_quotes": [
         {"line": 7606, "context": "Education -- basic, special, apprenticeships"},
         {"line": 7660, "context": "Legal systems -- types, how to create laws, trials, punishments"},
         {"line": 7710, "context": "Commerce -- monetary system, currency conversion, determining value"},
-        {"line": 7760, "context": "Information systems -- how news travels in fantasy vs SF"}
+        {"line": 7760, "context": "Information systems -- how news travels in fantasy vs SF"},
+        {"line": 6502, "context": "Inventing games or sports -- smart world builders take existing games and modify or combine them, substituting invented animals or species with unique abilities that require new rules"}
       ]
     },
     "35": {

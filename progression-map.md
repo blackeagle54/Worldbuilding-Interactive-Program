@@ -624,17 +624,18 @@ This is where the book's volume order gets significantly reordered. Cultures (Vo
 
 ---
 
-### Step 34: Design Societal Systems (Education, Health, Legal, Commerce, Information)
+### Step 34: Design Societal Systems (Education, Health, Legal, Commerce, Information, Games)
 
-**What you do:** For each sovereign power, define five systems at a level appropriate to your story needs:
+**What you do:** For each sovereign power, define six systems at a level appropriate to your story needs:
 
 1. **Education:** Is basic education available? Special education? How do apprenticeships work?
 2. **Health:** What is life expectancy? Is magical healing available? What is the medical knowledge level?
 3. **Legal:** What type of legal system (civil, common, religious)? Create at least 5 moral laws and 5 incident laws. Define trial types and punishments -- leverage your invented creatures and places for unique punishments.
 4. **Commerce:** What currency system exists? Create denominations and names. Use real-world pricing as a baseline (a meal costs X coins, a weapon costs Y coins) and adjust consistently.
 5. **Information:** How does news travel? Messengers, town criers, magic, or technology?
+6. **Games/Sports:** What games and sports exist in your world? Take existing Earth games and modify or combine them, especially by substituting your invented creatures and species. Consider how different species' physical or mental attributes create advantages that require special rules or restrictions (e.g., only one elf per team, dwarves excluded due to height). Decide whether games are recreational, professional, or both. Define the key elements: teams, players, rules, items/equipment, scoring, and tournaments. Even a briefly mentioned game adds cultural texture.
 
-**What it produces:** Completed templates for Education, Health, Legal, Commerce, and Information systems.
+**What it produces:** Completed templates for Education, Health, Legal, Commerce, Information, and Game systems.
 
 **Templates needed:**
 - Education System Template
@@ -642,6 +643,7 @@ This is where the book's volume order gets significantly reordered. Cultures (Vo
 - Legal System Template
 - Commerce System Template
 - Information System Template
+- Game Profile Template
 
 **Dependencies:** Step 25 (government type determines all systems), Steps 29-30 (settlement infrastructure), Step 26 (cultural values influence laws and customs), Step 31 (religious law, healing priests).
 
@@ -1050,44 +1052,45 @@ The following groups of steps can be worked on simultaneously because they have 
 | 44 | Legal System Template | Step 34 | V3 Ch10 |
 | 45 | Commerce System Template | Step 34 | V3 Ch10 |
 | 46 | Information System Template | Step 34 | V3 Ch10 |
-| 47 | Supernatural Prevalence Worksheet | Step 35 | V3 Ch5 |
-| 48 | Supernatural Energy Template | Step 36 | V3 Ch5 |
-| 49 | Magic Path / Supernatural Land Template | Step 36 | V3 Ch5 |
-| 50 | Supernatural Being Template | Step 36 | V3 Ch5 |
-| 51 | Magic System Overview Template | Step 37 | V3 Ch6 |
-| 52 | Magic System Rules Sheet | Step 37 | V3 Ch6 |
-| 53 | Magic Type Detail Template | Step 37 | V3 Ch6 |
-| 54 | Spell Design Template | Step 38 | V3 Ch6 |
-| 55 | Magic Training and Society Template | Step 38 | V3 Ch6 |
-| 56 | Item Profile Template | Step 39 | V3 Ch7 |
-| 57 | Magic Item Detail Sheet | Step 39 | V3 Ch7 |
-| 58 | Technological Item Detail Sheet | Step 39 | V3 Ch7 |
-| 59 | A.I. Profile Template | Step 39 | V3 Ch7 |
-| 60 | Time System Template | Step 40 | V2 Ch10 |
-| 61 | History Entry Template | Step 41 | V2 Ch10 |
-| 62 | World History Timeline | Step 41 | V2 Ch10 |
-| 63 | World Figure Profile Template | Step 42 | V1 Ch4 |
-| 64 | Language Decision Worksheet | Step 43 | V3 Ch8 |
-| 65 | Naming Language Brief | Step 43 | V3 Ch8 |
-| 66 | Language Usage Tracker | Step 43 | V3 Ch8 |
-| 67 | Naming Convention Sheet | Step 44 | V3 Ch9 |
-| 68 | Name Registry | Step 44 | V3 Ch9 |
-| 69 | Place Name Worksheet | Step 45 | V3 Ch9 |
-| 70 | Name Generation Checklist | Step 45 | V3 Ch9 |
-| 71 | Land Travel Calculator Template | Step 46 | V2 Ch7 |
-| 72 | Travel Distance Reference | Step 46 | V2 Ch7 |
-| 73 | Sea Travel Calculator Template | Step 47 | V2 Ch8 |
-| 74 | Ship Profile Template | Step 47 | V2 Ch8 |
-| 75 | Naval Forces Summary | Step 47 | V2 Ch8 |
-| 76 | Spacecraft Profile Template | Step 48 | V2 Ch9 |
-| 77 | Space Travel Reference | Step 48 | V2 Ch9 |
-| 78 | Place of Interest Profile Template | Step 49 | V2 Ch11 |
-| 79 | Shipwreck Profile Template | Step 49 | V2 Ch11 |
-| 80 | Phenomenon Catalog | Step 49 | V2 Ch11 |
-| 81 | Map Creation Checklist -- Continental | Step 50 | V2 Ch12 |
-| 82 | Map Creation Checklist -- Settlement | Step 50 | V2 Ch12 |
-| 83 | Worldbuilding Review Schedule | Step 51 | V3 Ch11 |
-| 84 | Case Study Worksheet | Step 51 | V2 Ch1 |
+| 47 | Game Profile Template | Step 34 | V3 Ch10 |
+| 48 | Supernatural Prevalence Worksheet | Step 35 | V3 Ch5 |
+| 49 | Supernatural Energy Template | Step 36 | V3 Ch5 |
+| 50 | Magic Path / Supernatural Land Template | Step 36 | V3 Ch5 |
+| 51 | Supernatural Being Template | Step 36 | V3 Ch5 |
+| 52 | Magic System Overview Template | Step 37 | V3 Ch6 |
+| 53 | Magic System Rules Sheet | Step 37 | V3 Ch6 |
+| 54 | Magic Type Detail Template | Step 37 | V3 Ch6 |
+| 55 | Spell Design Template | Step 38 | V3 Ch6 |
+| 56 | Magic Training and Society Template | Step 38 | V3 Ch6 |
+| 57 | Item Profile Template | Step 39 | V3 Ch7 |
+| 58 | Magic Item Detail Sheet | Step 39 | V3 Ch7 |
+| 59 | Technological Item Detail Sheet | Step 39 | V3 Ch7 |
+| 60 | A.I. Profile Template | Step 39 | V3 Ch7 |
+| 61 | Time System Template | Step 40 | V2 Ch10 |
+| 62 | History Entry Template | Step 41 | V2 Ch10 |
+| 63 | World History Timeline | Step 41 | V2 Ch10 |
+| 64 | World Figure Profile Template | Step 42 | V1 Ch4 |
+| 65 | Language Decision Worksheet | Step 43 | V3 Ch8 |
+| 66 | Naming Language Brief | Step 43 | V3 Ch8 |
+| 67 | Language Usage Tracker | Step 43 | V3 Ch8 |
+| 68 | Naming Convention Sheet | Step 44 | V3 Ch9 |
+| 69 | Name Registry | Step 44 | V3 Ch9 |
+| 70 | Place Name Worksheet | Step 45 | V3 Ch9 |
+| 71 | Name Generation Checklist | Step 45 | V3 Ch9 |
+| 72 | Land Travel Calculator Template | Step 46 | V2 Ch7 |
+| 73 | Travel Distance Reference | Step 46 | V2 Ch7 |
+| 74 | Sea Travel Calculator Template | Step 47 | V2 Ch8 |
+| 75 | Ship Profile Template | Step 47 | V2 Ch8 |
+| 76 | Naval Forces Summary | Step 47 | V2 Ch8 |
+| 77 | Spacecraft Profile Template | Step 48 | V2 Ch9 |
+| 78 | Space Travel Reference | Step 48 | V2 Ch9 |
+| 79 | Place of Interest Profile Template | Step 49 | V2 Ch11 |
+| 80 | Shipwreck Profile Template | Step 49 | V2 Ch11 |
+| 81 | Phenomenon Catalog | Step 49 | V2 Ch11 |
+| 82 | Map Creation Checklist -- Continental | Step 50 | V2 Ch12 |
+| 83 | Map Creation Checklist -- Settlement | Step 50 | V2 Ch12 |
+| 84 | Worldbuilding Review Schedule | Step 51 | V3 Ch11 |
+| 85 | Case Study Worksheet | Step 51 | V2 Ch1 |
 
 ---
 

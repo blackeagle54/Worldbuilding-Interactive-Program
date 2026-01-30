@@ -31,7 +31,7 @@
 - [x] Memory system research (memory-research.md)
 - [x] RLM research (rlm-research.md)
 - [x] Orchestration research (orchestration-research.md)
-- [x] Progression map created (52 steps, 12 phases, 84 templates)
+- [x] Progression map created (52 steps, 12 phases, 85 templates)
 
 ## Phase 1d: Additional Research
 - [x] Retrieval at scale research (retrieval-research.md)
@@ -40,7 +40,7 @@
 
 ## Phase 2: Progression System Design
 ### Sprint 1 (Complete)
-- [x] Task A: Create all 84 JSON schema templates (templates/)
+- [x] Task A: Create all 85 JSON schema templates (templates/)
 - [x] Task B: Set up user-world data structure (user-world/)
 - [x] Task D: Build reference database index (engine/reference_index.json, engine/source_index.json)
 

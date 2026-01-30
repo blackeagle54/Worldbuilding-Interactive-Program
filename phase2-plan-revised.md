@@ -1,6 +1,6 @@
 # Phase 2 Implementation Plan -- REVISED
 
-**Purpose:** Turn the 52-step progression map and 84 template list into a working system that guides a user through worldbuilding with intelligent reference support, option generation, canon consistency checking, and full bookkeeping.
+**Purpose:** Turn the 52-step progression map and 85 template list into a working system that guides a user through worldbuilding with intelligent reference support, option generation, canon consistency checking, and full bookkeeping.
 
 **Date:** January 30, 2026 (Revised)
 **Revises:** `phase2-plan.md` (original)
@@ -44,7 +44,7 @@ These are complete and will not be touched:
 
 | Deliverable | Location | Description |
 |---|---|---|
-| 84 JSON schema templates | `templates/phase01-foundation/` through `templates/phase12-integration/` | One schema per template, defining fields, types, required fields, and cross-references via `x-cross-reference` |
+| 85 JSON schema templates | `templates/phase01-foundation/` through `templates/phase12-integration/` | One schema per template, defining fields, types, required fields, and cross-references via `x-cross-reference` |
 | User-world folder structure | `user-world/` | Entity folders by type (gods, species, settlements, etc.), worksheets, registries, timelines, travel, maps |
 | State tracking file | `user-world/state.json` | Tracks current step, completed steps, entity index, session log |
 | Reference database index | `engine/reference_index.json` | Maps each of the 52 steps to the relevant sections in all 16 reference databases |
@@ -62,7 +62,7 @@ C:\Worldbuilding-Interactive-Program\
 |   |-- mythologies\                         # 10 mythology databases
 |   |-- authors\                             # 6 author databases
 |
-|-- templates\                               # [SPRINT 1 - DONE] 84 JSON schema files
+|-- templates\                               # [SPRINT 1 - DONE] 85 JSON schema files
 |   |-- phase01-foundation\ ... phase12-integration\
 |
 |-- user-world\                              # [SPRINT 1 - DONE] Where user data lives
@@ -77,7 +77,7 @@ C:\Worldbuilding-Interactive-Program\
 |-- engine\                                  # [SPRINT 1 PARTIAL + SPRINT 2]
 |   |-- reference_index.json                 # [DONE] Step -> DB section mapping
 |   |-- source_index.json                    # [DONE] Step -> source-text line ranges
-|   |-- template_registry.json               # [SPRINT 2] Master list of all 84 templates
+|   |-- template_registry.json               # [SPRINT 2] Master list of all 85 templates
 |   |-- chunk_puller.py                      # [SPRINT 2] Three-layer guidance generator
 |   |-- fair_representation.py               # [SPRINT 2] Balanced DB sampling
 |   |-- option_generator.py                  # [SPRINT 2] Divergent-convergent option pipeline
@@ -121,7 +121,7 @@ C:\Worldbuilding-Interactive-Program\
 |
 |-- tests\                                   # [SPRINT 4] Automated test suite
 |   |-- smoke\                               # Quick health checks (< 30 seconds)
-|   |-- schemas\                             # Validate all 84 schemas
+|   |-- schemas\                             # Validate all 85 schemas
 |   |-- integration\                         # Full workflow tests
 |   |-- consistency\                         # Contradiction detection tests
 |
@@ -147,7 +147,7 @@ C:\Worldbuilding-Interactive-Program\
 
 ### Task 2A: Template Registry
 
-**What it is:** A master JSON file that lists all 84 templates with their metadata, so any script can look up what templates belong to which step.
+**What it is:** A master JSON file that lists all 85 templates with their metadata, so any script can look up what templates belong to which step.
 
 **What it produces:** `engine/template_registry.json`
 
@@ -177,7 +177,7 @@ C:\Worldbuilding-Interactive-Program\
 - `minimum_count`: How many entities are recommended before moving on.
 - `entity_folder`: Where instances of this template are stored in `user-world/`.
 
-**How to build it:** A Python script reads all 84 template JSON files from `templates/`, extracts their metadata (`$id`, `step`, `phase`, cross-references), and writes the registry.
+**How to build it:** A Python script reads all 85 template JSON files from `templates/`, extracts their metadata (`$id`, `step`, `phase`, cross-references), and writes the registry.
 
 ---
 
@@ -910,13 +910,13 @@ OPTION GENERATION RULES:
 | Category | What It Tests | Location | Run Time |
 |---|---|---|---|
 | **Smoke tests** | Database connects, schemas load, search works, backup runs, hooks fire | `tests/smoke/` | < 30 seconds |
-| **Schema validation** | All 84 schemas accept valid data and reject invalid data | `tests/schemas/` | < 60 seconds |
+| **Schema validation** | All 85 schemas accept valid data and reject invalid data | `tests/schemas/` | < 60 seconds |
 | **Integration tests** | Full workflow: create entity -> validate -> store -> retrieve -> search | `tests/integration/` | < 2 minutes |
 | **Consistency tests** | Feed known-bad data with specific contradictions -> verify they are caught | `tests/consistency/` | < 2 minutes |
 
 **Smoke test as startup check:** The session_start hook runs the smoke test suite before anything else. If any smoke test fails, Claude tells the user: "I found a problem with the worldbuilding system. Let me fix it before we continue." and auto-repairs if possible.
 
-**Test data factory:** A module (`tests/factory.py`) that generates realistic test entities covering all 84 schema types, producing both valid and deliberately invalid entities for testing.
+**Test data factory:** A module (`tests/factory.py`) that generates realistic test entities covering all 85 schema types, producing both valid and deliberately invalid entities for testing.
 
 ---
 
@@ -990,7 +990,7 @@ The user can ask "Is everything working?" and Claude runs the health check.
 
 ```
 SPRINT 1 (COMPLETE)
-  [A] 84 Templates
+  [A] 85 Templates
   [B] User-World Structure + state.json
   [D] Reference Index + Source Index
       |
