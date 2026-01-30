@@ -1,0 +1,731 @@
+{
+  "meta": {
+    "description": "Source Index for the Worldbuilding Interactive Program. Maps each of the 52 progression steps to the relevant line ranges in source-text.txt.",
+    "version": "1.0.0",
+    "source_file": "source-text.txt",
+    "total_lines": 8677,
+    "structure_note": "source-text.txt contains three copies of the content: (1) brief ToC/outline at lines 1-397, (2) section outline at lines 398-872 and 873-1238, (3) chapter summaries at lines 1538-2533, and (4) FULL TEXT starting at Volume 1 line 2534, Volume 2 line 3779, Volume 3 line 6103. This index references the full text version.",
+    "generated": "2026-01-30"
+  },
+  "volume_boundaries": {
+    "volume_1": {
+      "title": "Creating Life",
+      "start_line": 2534,
+      "end_line": 3778,
+      "chapters": {
+        "ch1": {"title": "Why Build A World?", "start": 2599, "end": 2665},
+        "ch2": {"title": "Creating Gods", "start": 2666, "end": 2782},
+        "ch3": {"title": "Creating a Species", "start": 2783, "end": 3077},
+        "ch4": {"title": "Creating World Figures", "start": 3078, "end": 3148},
+        "ch5": {"title": "Creating Monsters", "start": 3149, "end": 3220},
+        "ch6": {"title": "Creating Plants and Animals", "start": 3221, "end": 3342},
+        "ch7": {"title": "Creating Undead", "start": 3343, "end": 3778}
+      }
+    },
+    "volume_2": {
+      "title": "Creating Places",
+      "start_line": 3779,
+      "end_line": 6102,
+      "chapters": {
+        "ch1": {"title": "Case Studies", "start": 3857, "end": 3929},
+        "ch2": {"title": "Creating a Planet", "start": 3930, "end": 4161},
+        "ch3": {"title": "Creating a Continent", "start": 4162, "end": 4243},
+        "ch4": {"title": "Creating Land Features", "start": 4244, "end": 4423},
+        "ch5": {"title": "Creating a Sovereign Power", "start": 4424, "end": 4820},
+        "ch6": {"title": "Creating a Settlement", "start": 4821, "end": 5094},
+        "ch7": {"title": "Travel Over Land", "start": 5095, "end": 5287},
+        "ch8": {"title": "Travel by Water", "start": 5288, "end": 5498},
+        "ch9": {"title": "Travel in Space", "start": 5499, "end": 5582},
+        "ch10": {"title": "Creating Time and History", "start": 5583, "end": 5712},
+        "ch11": {"title": "Creating Places of Interest", "start": 5713, "end": 5782},
+        "ch12": {"title": "Drawing Maps", "start": 5783, "end": 6102}
+      }
+    },
+    "volume_3": {
+      "title": "Cultures and Beyond",
+      "start_line": 6103,
+      "end_line": 8677,
+      "chapters": {
+        "ch1": {"title": "Cultures", "start": 6177, "end": 6538},
+        "ch2": {"title": "Organizations", "start": 6539, "end": 6596},
+        "ch3": {"title": "Armed Forces", "start": 6597, "end": 6787},
+        "ch4": {"title": "Religions", "start": 6788, "end": 6924},
+        "ch5": {"title": "The Supernatural", "start": 6925, "end": 6992},
+        "ch6": {"title": "Magic Systems", "start": 6993, "end": 7293},
+        "ch7": {"title": "Items", "start": 7294, "end": 7357},
+        "ch8": {"title": "Languages", "start": 7358, "end": 7417},
+        "ch9": {"title": "Names", "start": 7418, "end": 7605},
+        "ch10": {"title": "Other Systems", "start": 7606, "end": 7796},
+        "ch11": {"title": "Conclusion", "start": 7797, "end": 8677}
+      }
+    }
+  },
+  "steps": {
+    "1": {
+      "title": "Define Your World Building Scope and Strategy",
+      "phase": 1,
+      "source_chapter": "V1 Ch1 -- Why Build a World?",
+      "line_ranges": [
+        {"start": 2599, "end": 2620, "topic": "Why build a world, using analogues, career decisions"},
+        {"start": 2621, "end": 2650, "topic": "One world vs many worlds, depth vs breadth"},
+        {"start": 2651, "end": 2665, "topic": "Problem of exposition, show vs tell"}
+      ],
+      "key_quotes": [
+        {"line": 2600, "context": "The motivation for world building and when it is voluntary vs expected"},
+        {"line": 2605, "context": "Using analogues -- Earth-based sources modified for originality"},
+        {"line": 2621, "context": "One world for one story vs one world for many stories"}
+      ]
+    },
+    "2": {
+      "title": "Learn and Practice the Rule of Three",
+      "phase": 1,
+      "source_chapter": "V1 Ch1 -- Why Build a World?",
+      "line_ranges": [
+        {"start": 2605, "end": 2620, "topic": "Using analogues and the Rule of Three"}
+      ],
+      "key_quotes": [
+        {"line": 2607, "context": "Xenoi example -- recognizable analogues and how to disguise them"},
+        {"line": 2609, "context": "The Rule of Three -- make at least three significant changes"}
+      ]
+    },
+    "3": {
+      "title": "Establish Your Naming Philosophy",
+      "phase": 1,
+      "source_chapter": "V1 Ch1 -- Why Build a World?",
+      "line_ranges": [
+        {"start": 2599, "end": 2620, "topic": "What's in a name -- naming considerations when modifying analogues"}
+      ],
+      "key_quotes": [
+        {"line": 2605, "context": "When to keep known terms vs invent new ones"}
+      ]
+    },
+    "4": {
+      "title": "Set Your World Building Goals",
+      "phase": 1,
+      "source_chapter": "V3 Ch11 -- Conclusion",
+      "line_ranges": [
+        {"start": 7797, "end": 7815, "topic": "Goals, time commitment, what to prioritize"}
+      ],
+      "key_quotes": [
+        {"line": 7801, "context": "Having a goal helps reduce tasks and decide depth of world building"},
+        {"line": 7802, "context": "Goal-setting questions for world builders"}
+      ]
+    },
+    "5": {
+      "title": "Set Up Your File Organization",
+      "phase": 1,
+      "source_chapter": "V3 Ch11 -- Conclusion",
+      "line_ranges": [
+        {"start": 7816, "end": 8677, "topic": "File storage, approaches, organization, folder structure"}
+      ],
+      "key_quotes": [
+        {"line": 7816, "context": "Abide by rules -- modern audiences notice inconsistency"}
+      ]
+    },
+    "6": {
+      "title": "Design Your Pantheon Structure",
+      "phase": 2,
+      "source_chapter": "V1 Ch2 -- Creating Gods",
+      "line_ranges": [
+        {"start": 2666, "end": 2700, "topic": "Pantheons, power hierarchy, god organization"},
+        {"start": 2700, "end": 2720, "topic": "Children, demigods, half gods"}
+      ],
+      "key_quotes": [
+        {"line": 2666, "context": "Creating gods -- in science fiction and fantasy"},
+        {"line": 2670, "context": "Pantheon structures and organizing gods"}
+      ]
+    },
+    "7": {
+      "title": "Create Individual God Profiles",
+      "phase": 2,
+      "source_chapter": "V1 Ch2 -- Creating Gods",
+      "line_ranges": [
+        {"start": 2700, "end": 2740, "topic": "God characteristics -- alignment, identifiers, symbols, appearance"},
+        {"start": 2740, "end": 2760, "topic": "God behavior -- reputation, interaction, creations"},
+        {"start": 2760, "end": 2782, "topic": "Where to start with god creation, using analogues vs attributes"}
+      ],
+      "key_quotes": [
+        {"line": 2700, "context": "Relationships, vulnerability, lifespan of gods"},
+        {"line": 2720, "context": "Characteristics -- alignment, identifiers, titles, patronage, symbols"}
+      ]
+    },
+    "8": {
+      "title": "Write Creation and End-of-World Myths",
+      "phase": 2,
+      "source_chapter": "V1 Ch2 -- Creating Gods",
+      "line_ranges": [
+        {"start": 2690, "end": 2710, "topic": "Mythology -- creation myths, end of world myths, analogues"}
+      ],
+      "key_quotes": [
+        {"line": 2690, "context": "Creation myths and how to use analogues for mythology"}
+      ]
+    },
+    "9": {
+      "title": "Write Additional Myths",
+      "phase": 2,
+      "source_chapter": "V1 Ch2 -- Creating Gods",
+      "line_ranges": [
+        {"start": 2695, "end": 2720, "topic": "Other mythological stories involving gods and mortals"}
+      ],
+      "key_quotes": [
+        {"line": 2695, "context": "Mythology stories and how they connect to species, cultures, religions"}
+      ]
+    },
+    "10": {
+      "title": "Define Your Planet",
+      "phase": 2,
+      "source_chapter": "V2 Ch2 -- Creating a Planet",
+      "line_ranges": [
+        {"start": 3930, "end": 4000, "topic": "Planet rotation, sun, moon, tidal effects, seasons"},
+        {"start": 4000, "end": 4080, "topic": "Stars, constellations, understanding climates"},
+        {"start": 4080, "end": 4161, "topic": "Climate zones, prevailing winds, rain shadows"}
+      ],
+      "key_quotes": [
+        {"line": 3930, "context": "Creating an Earth-like planet -- rotation, sun, moon impacts"},
+        {"line": 4080, "context": "Climate zones and their characteristics"}
+      ]
+    },
+    "11": {
+      "title": "Create Constellations",
+      "phase": 2,
+      "source_chapter": "V2 Ch2 -- Creating a Planet",
+      "line_ranges": [
+        {"start": 4000, "end": 4040, "topic": "Stars, constellations, dark constellations, comets"}
+      ],
+      "key_quotes": [
+        {"line": 4010, "context": "Constellations and how to associate them with gods and figures"}
+      ]
+    },
+    "12": {
+      "title": "Design Your Continent Shape and Position",
+      "phase": 3,
+      "source_chapter": "V2 Ch3 -- Creating a Continent",
+      "line_ranges": [
+        {"start": 4162, "end": 4200, "topic": "Multiple continents, hemispheres, seasonal issues"},
+        {"start": 4200, "end": 4243, "topic": "Plate tectonics, seas vs oceans, bays, islands"}
+      ],
+      "key_quotes": [
+        {"line": 4162, "context": "Continent shape, hemisphere placement, latitude range"},
+        {"line": 4200, "context": "Plate tectonics and how they create mountains and volcanoes"}
+      ]
+    },
+    "13": {
+      "title": "Place Mountains and Determine Rain Shadows",
+      "phase": 3,
+      "source_chapter": "V2 Ch4 -- Creating Land Features",
+      "line_ranges": [
+        {"start": 4244, "end": 4300, "topic": "Mountain ranges, volcanoes, characterizing mountains"},
+        {"start": 4300, "end": 4320, "topic": "Rain shadows and their effect on vegetation"}
+      ],
+      "key_quotes": [
+        {"line": 4244, "context": "Mountain placement based on plate boundaries"},
+        {"line": 4300, "context": "Rain shadow effect -- windward lush, leeward dry"}
+      ]
+    },
+    "14": {
+      "title": "Place Rivers, Lakes, and Water Features",
+      "phase": 3,
+      "source_chapter": "V2 Ch4 -- Creating Land Features",
+      "line_ranges": [
+        {"start": 4320, "end": 4360, "topic": "Rivers, lakes, water flow patterns"}
+      ],
+      "key_quotes": [
+        {"line": 4320, "context": "Rivers flow from mountains to sea -- young rivers vs old rivers"}
+      ]
+    },
+    "15": {
+      "title": "Place Forests, Grasslands, Deserts, and Wetlands",
+      "phase": 3,
+      "source_chapter": "V2 Ch4 -- Creating Land Features",
+      "line_ranges": [
+        {"start": 4340, "end": 4423, "topic": "Forests, grasslands, deserts, wetlands -- types and placement"}
+      ],
+      "key_quotes": [
+        {"line": 4340, "context": "Forest types, desert types (80% rocky not sandy), wetland types"}
+      ]
+    },
+    "16": {
+      "title": "Decide on Species Strategy",
+      "phase": 4,
+      "source_chapter": "V1 Ch3 -- Creating a Species",
+      "line_ranges": [
+        {"start": 2783, "end": 2830, "topic": "Species vs race, should we create species, public domain vs original"}
+      ],
+      "key_quotes": [
+        {"line": 2783, "context": "Species or Race? The terms and bio-diversity"},
+        {"line": 2800, "context": "Should we create species -- in SF vs fantasy"}
+      ]
+    },
+    "17": {
+      "title": "Define Species Habitats and Core Traits",
+      "phase": 4,
+      "source_chapter": "V1 Ch3 -- Creating a Species",
+      "line_ranges": [
+        {"start": 2830, "end": 2870, "topic": "Habitat, terrain, climate, isolated vs joint settlements, disposition"}
+      ],
+      "key_quotes": [
+        {"line": 2830, "context": "Habitat as the most influential factor in species design"},
+        {"line": 2850, "context": "Disposition -- good, evil, complex"}
+      ]
+    },
+    "18": {
+      "title": "Design Species Appearance and Senses",
+      "phase": 4,
+      "source_chapter": "V1 Ch3 -- Creating a Species",
+      "line_ranges": [
+        {"start": 2870, "end": 2930, "topic": "Appearance, head, body, humanoid vs non-humanoid, senses"}
+      ],
+      "key_quotes": [
+        {"line": 2870, "context": "Physical appearance -- head, body, uniformity issue"},
+        {"line": 2900, "context": "Senses -- the five senses, sixth sense, other senses"}
+      ]
+    },
+    "19": {
+      "title": "Write Species World Views",
+      "phase": 4,
+      "source_chapter": "V1 Ch3 -- Creating a Species",
+      "line_ranges": [
+        {"start": 2930, "end": 2960, "topic": "World view -- the most important species differentiator"}
+      ],
+      "key_quotes": [
+        {"line": 2930, "context": "World view is the most important differentiator from humans"}
+      ]
+    },
+    "20": {
+      "title": "Define Species Society, Language, and Customs",
+      "phase": 4,
+      "source_chapter": "V1 Ch3 -- Creating a Species",
+      "line_ranges": [
+        {"start": 2960, "end": 3040, "topic": "Society, languages, customs, characteristics, technology"}
+      ],
+      "key_quotes": [
+        {"line": 2960, "context": "Society, language, customs, and how they shape species identity"},
+        {"line": 2990, "context": "Characteristics -- intelligence, wisdom, charisma, strength, etc."}
+      ]
+    },
+    "21": {
+      "title": "Map Species Relationships",
+      "phase": 4,
+      "source_chapter": "V1 Ch3 -- Creating a Species",
+      "line_ranges": [
+        {"start": 3040, "end": 3077, "topic": "Relationships between species, stereotypes, historical events"}
+      ],
+      "key_quotes": [
+        {"line": 3040, "context": "Species relationships -- allies, enemies, neutral, complicated"}
+      ]
+    },
+    "22": {
+      "title": "Create Plants and Animals (Purpose-Driven)",
+      "phase": 4,
+      "source_chapter": "V1 Ch6 -- Creating Plants and Animals",
+      "line_ranges": [
+        {"start": 3221, "end": 3280, "topic": "Should you create plants and animals, classification, lifecycle"},
+        {"start": 3280, "end": 3342, "topic": "Purpose -- decoration, food, medicinal, domestication, products list"}
+      ],
+      "key_quotes": [
+        {"line": 3221, "context": "Creating plants and animals -- start with a products list"},
+        {"line": 3280, "context": "Purpose-driven creation -- what do inhabitants need?"}
+      ]
+    },
+    "23": {
+      "title": "Create Monsters",
+      "phase": 4,
+      "source_chapter": "V1 Ch5 -- Creating Monsters",
+      "line_ranges": [
+        {"start": 3149, "end": 3190, "topic": "Defining monsters, origins -- accidental vs designed vs evolved"},
+        {"start": 3190, "end": 3220, "topic": "Habitat, motivation, characteristics, physical appearance, skills"}
+      ],
+      "key_quotes": [
+        {"line": 3149, "context": "Monsters vs species vs animals -- the distinction"},
+        {"line": 3170, "context": "Monster origins -- accidental, by design, by evolution"},
+        {"line": 3190, "context": "Motivation -- isolation, hoarding, food, security, revenge"}
+      ]
+    },
+    "24": {
+      "title": "Create Undead (If Applicable)",
+      "phase": 4,
+      "source_chapter": "V1 Ch7 -- Creating Undead",
+      "line_ranges": [
+        {"start": 3343, "end": 3420, "topic": "Undead types, the mind, classification, sentient vs non-sentient"},
+        {"start": 3420, "end": 3500, "topic": "Prerequisites, prevention, origins -- accidental vs by design"},
+        {"start": 3500, "end": 3600, "topic": "Goals, appearance, traits, speech, touch, movement"},
+        {"start": 3600, "end": 3778, "topic": "Residence, death methods, spirits vs corporeal"}
+      ],
+      "key_quotes": [
+        {"line": 3343, "context": "Should we create undead? Types and classification"},
+        {"line": 3420, "context": "Prerequisites for becoming undead -- these become burial customs"},
+        {"line": 3500, "context": "Undead goals -- unfinished business, regaining life, causing torment"}
+      ]
+    },
+    "25": {
+      "title": "Create Sovereign Powers (Nations)",
+      "phase": 5,
+      "source_chapter": "V2 Ch5 -- Creating a Sovereign Power",
+      "line_ranges": [
+        {"start": 4424, "end": 4550, "topic": "Sovereignty, government types, roles, branches"},
+        {"start": 4550, "end": 4700, "topic": "Democracies, federations, monarchies, oligarchies, theocracies"},
+        {"start": 4700, "end": 4820, "topic": "Population, world view, language, customs, relationships, identifiers"}
+      ],
+      "key_quotes": [
+        {"line": 4424, "context": "Sovereignty -- external and internal, how gained and lost"},
+        {"line": 4550, "context": "Government types and their characteristics"},
+        {"line": 4700, "context": "Population, world view, language, relationships, symbols"}
+      ]
+    },
+    "26": {
+      "title": "Define Cultures for Each Sovereign Power",
+      "phase": 5,
+      "source_chapter": "V3 Ch1 -- Cultures",
+      "line_ranges": [
+        {"start": 6177, "end": 6220, "topic": "What is culture, cultural scope, the ideas"},
+        {"start": 6220, "end": 6280, "topic": "Morals and values, beliefs, cultural vision"}
+      ],
+      "key_quotes": [
+        {"line": 6181, "context": "What is culture -- abstract concept, lifestyle, expectations"},
+        {"line": 6185, "context": "Cultural scope -- sovereign power, regional, settlement, social group"}
+      ]
+    },
+    "27": {
+      "title": "Design Cultural Details -- Greetings, Dining, Clothing, Daily Life",
+      "phase": 5,
+      "source_chapter": "V3 Ch1 -- Cultures",
+      "line_ranges": [
+        {"start": 6280, "end": 6400, "topic": "Culture depictions -- visible, audible, performed"},
+        {"start": 6400, "end": 6538, "topic": "Greetings, clothing, daily life, rituals, festivals, architecture"}
+      ],
+      "key_quotes": [
+        {"line": 6280, "context": "Culture manifestations -- body language, hair, gestures, clothing"},
+        {"line": 6400, "context": "Daily life -- dining, bathing, sleeping, employment, transportation"}
+      ]
+    },
+    "28": {
+      "title": "Plan Cultural Clashes",
+      "phase": 5,
+      "source_chapter": "V3 Ch1 -- Cultures",
+      "line_ranges": [
+        {"start": 6177, "end": 6200, "topic": "Cultural clashes -- encountering different customs, judgment"}
+      ],
+      "key_quotes": [
+        {"line": 6179, "context": "Characters encountering customs different from their own"}
+      ]
+    },
+    "29": {
+      "title": "Create Settlements -- Major Cities and Towns",
+      "phase": 5,
+      "source_chapter": "V2 Ch6 -- Creating a Settlement",
+      "line_ranges": [
+        {"start": 4821, "end": 4900, "topic": "Location, climate, terrain, water supply, neighbors"},
+        {"start": 4900, "end": 4980, "topic": "Population, species, leaders, quarters, zoning, settlement types"},
+        {"start": 4980, "end": 5094, "topic": "Defense, fortifications, history, reputation, products, secrets"}
+      ],
+      "key_quotes": [
+        {"line": 4821, "context": "Settlement location determines character more than builders realize"},
+        {"line": 4900, "context": "Population considerations, species breakdown, leadership"},
+        {"line": 4980, "context": "Defense, fortifications, local lore, reputation"}
+      ]
+    },
+    "30": {
+      "title": "Create a Settlement Master Spreadsheet",
+      "phase": 5,
+      "source_chapter": "V2 Ch6 -- Creating a Settlement",
+      "line_ranges": [
+        {"start": 5060, "end": 5094, "topic": "How many places to create, master spreadsheet approach"}
+      ],
+      "key_quotes": [
+        {"line": 5060, "context": "Tracking all settlements in a master reference"}
+      ]
+    },
+    "31": {
+      "title": "Create Religions",
+      "phase": 6,
+      "source_chapter": "V3 Ch4 -- Religions",
+      "line_ranges": [
+        {"start": 6788, "end": 6850, "topic": "Religion history, creation, destruction, beliefs"},
+        {"start": 6850, "end": 6924, "topic": "Followers, worship, holidays, clergy, sects, afterlife"}
+      ],
+      "key_quotes": [
+        {"line": 6788, "context": "Religion formation -- prophetic figure, founding event"},
+        {"line": 6850, "context": "Worship practices, holidays, clergy structure, afterlife"}
+      ]
+    },
+    "32": {
+      "title": "Create Organizations",
+      "phase": 6,
+      "source_chapter": "V3 Ch2 -- Organizations",
+      "line_ranges": [
+        {"start": 6539, "end": 6596, "topic": "Group types, goals, power structure, joining and leaving"}
+      ],
+      "key_quotes": [
+        {"line": 6539, "context": "Forces for good and evil, common traits, goals"},
+        {"line": 6560, "context": "Joining and leaving organizations -- evil vs good group dynamics"}
+      ]
+    },
+    "33": {
+      "title": "Create Armed Forces",
+      "phase": 6,
+      "source_chapter": "V3 Ch3 -- Armed Forces",
+      "line_ranges": [
+        {"start": 6597, "end": 6670, "topic": "Location, terrain, transportation, weapons, armor"},
+        {"start": 6670, "end": 6720, "topic": "Enlisting, prerequisites, training, ranks"},
+        {"start": 6720, "end": 6787, "topic": "Relationships, history, world view, customs, place in society"}
+      ],
+      "key_quotes": [
+        {"line": 6597, "context": "Armed forces -- terrain specialization, weapons, defenses"},
+        {"line": 6670, "context": "The road to enlisting -- prerequisites, initiation, training"},
+        {"line": 6720, "context": "Military relationships, famous deeds, lore and myths"}
+      ]
+    },
+    "34": {
+      "title": "Design Societal Systems (Education, Health, Legal, Commerce, Information)",
+      "phase": 6,
+      "source_chapter": "V3 Ch10 -- Other Systems",
+      "line_ranges": [
+        {"start": 7606, "end": 7660, "topic": "Education systems, basic and special education, apprenticeships"},
+        {"start": 7660, "end": 7710, "topic": "Health systems, legal systems -- civil, common, religious law"},
+        {"start": 7710, "end": 7760, "topic": "Commerce, monetary systems, currency, relative value"},
+        {"start": 7760, "end": 7796, "topic": "Information systems, messengers, town criers, magic communication"}
+      ],
+      "key_quotes": [
+        {"line": 7606, "context": "Education -- basic, special, apprenticeships"},
+        {"line": 7660, "context": "Legal systems -- types, how to create laws, trials, punishments"},
+        {"line": 7710, "context": "Commerce -- monetary system, currency conversion, determining value"},
+        {"line": 7760, "context": "Information systems -- how news travels in fantasy vs SF"}
+      ]
+    },
+    "35": {
+      "title": "Decide Supernatural Prevalence",
+      "phase": 7,
+      "source_chapter": "V3 Ch5 -- The Supernatural",
+      "line_ranges": [
+        {"start": 6925, "end": 6960, "topic": "Supernatural energy, magic paths, alternate realities"},
+        {"start": 6960, "end": 6992, "topic": "Prevalence, impact on society, industries, professions"}
+      ],
+      "key_quotes": [
+        {"line": 6925, "context": "Supernatural elements in fantasy and SF -- energy, paths, beings"},
+        {"line": 6960, "context": "How prevalent is the supernatural and what impact does it have?"}
+      ]
+    },
+    "36": {
+      "title": "Define Supernatural Elements (Energies, Paths, Beings)",
+      "phase": 7,
+      "source_chapter": "V3 Ch5 -- The Supernatural",
+      "line_ranges": [
+        {"start": 6925, "end": 6992, "topic": "Supernatural energy, magic paths, supernatural beings, demi-gods, familiars"}
+      ],
+      "key_quotes": [
+        {"line": 6930, "context": "Supernatural energy properties -- appearance, temperature, detection"},
+        {"line": 6940, "context": "Magic paths and alternate realities"}
+      ]
+    },
+    "37": {
+      "title": "Design Your Magic System(s)",
+      "phase": 7,
+      "source_chapter": "V3 Ch6 -- Magic Systems",
+      "line_ranges": [
+        {"start": 6993, "end": 7080, "topic": "Principles, Sanderson's Laws, soft vs hard magic, local laws"},
+        {"start": 7080, "end": 7160, "topic": "Ellefson's Seven Laws of Magic"},
+        {"start": 7160, "end": 7220, "topic": "Types of magic, prevalence, sources, cost of magic"}
+      ],
+      "key_quotes": [
+        {"line": 6993, "context": "Principles of good magic systems"},
+        {"line": 7080, "context": "Ellefson's Seven Laws -- possible/impossible, who can perform, types, failure, etc."},
+        {"line": 7160, "context": "Types of magic -- white, black, alchemy, witchcraft, necromancy, psionics"}
+      ]
+    },
+    "38": {
+      "title": "Create Spells and Magic Training",
+      "phase": 7,
+      "source_chapter": "V3 Ch6 -- Magic Systems",
+      "line_ranges": [
+        {"start": 7220, "end": 7293, "topic": "Spells, training, the life of magic-users, limits, inventing spells"}
+      ],
+      "key_quotes": [
+        {"line": 7220, "context": "Are spells needed? Spell creation -- gestures, ingredients, words"},
+        {"line": 7250, "context": "Training -- how the ability is gained and lost, height of power"}
+      ]
+    },
+    "39": {
+      "title": "Create Significant Items (Magic, Technological, and Regular)",
+      "phase": 7,
+      "source_chapter": "V3 Ch7 -- Items",
+      "line_ranges": [
+        {"start": 7294, "end": 7330, "topic": "Ownership, regular items, magic items -- properties, origins, form"},
+        {"start": 7330, "end": 7357, "topic": "Technological items, creating an A.I., personality, limits"}
+      ],
+      "key_quotes": [
+        {"line": 7294, "context": "Item significance through ownership, association, and properties"},
+        {"line": 7330, "context": "Technological items and A.I. creation"}
+      ]
+    },
+    "40": {
+      "title": "Create Your Time System",
+      "phase": 8,
+      "source_chapter": "V2 Ch10 -- Creating Time and History",
+      "line_ranges": [
+        {"start": 5583, "end": 5630, "topic": "Why create history, measuring time, minutes, hours, days, weeks"},
+        {"start": 5630, "end": 5660, "topic": "Months, universal calendar, benefits, challenges, creating ages"}
+      ],
+      "key_quotes": [
+        {"line": 5583, "context": "Why create history -- cultural clashes, famous items, world figures"},
+        {"line": 5630, "context": "Universal calendar, measuring time, creating named ages"}
+      ]
+    },
+    "41": {
+      "title": "Write World History",
+      "phase": 8,
+      "source_chapter": "V2 Ch10 -- Creating Time and History",
+      "line_ranges": [
+        {"start": 5660, "end": 5712, "topic": "Historical event categories -- gods, tech, supernatural, wars, artifacts, missions"}
+      ],
+      "key_quotes": [
+        {"line": 5660, "context": "Historical event categories checklist"},
+        {"line": 5680, "context": "Rise and fall of sovereign powers, wars, groups forming"}
+      ]
+    },
+    "42": {
+      "title": "Create World Figures (Heroes, Villains, Martyrs)",
+      "phase": 8,
+      "source_chapter": "V1 Ch4 -- Creating World Figures",
+      "line_ranges": [
+        {"start": 3078, "end": 3110, "topic": "Types of world figures, fame, dead or alive, possessions"},
+        {"start": 3110, "end": 3148, "topic": "Relationships, family, species, history, training, deeds"}
+      ],
+      "key_quotes": [
+        {"line": 3078, "context": "World figures -- heroes, villains, martyrs as cultural reference points"},
+        {"line": 3110, "context": "A figure's deeds define them more than traits"}
+      ]
+    },
+    "43": {
+      "title": "Decide Your Language Approach",
+      "phase": 9,
+      "source_chapter": "V3 Ch8 -- Languages",
+      "line_ranges": [
+        {"start": 7358, "end": 7417, "topic": "Should we create a language, the medium matters, how to hire someone"}
+      ],
+      "key_quotes": [
+        {"line": 7358, "context": "Creating a language -- the most challenging aspect of world building"},
+        {"line": 7380, "context": "Options for language creation -- ignore, ad hoc, naming language, full conlang"}
+      ]
+    },
+    "44": {
+      "title": "Establish Naming Conventions by Culture",
+      "phase": 9,
+      "source_chapter": "V3 Ch9 -- Names",
+      "line_ranges": [
+        {"start": 7418, "end": 7480, "topic": "People names, given names, surnames, compound surnames"},
+        {"start": 7480, "end": 7520, "topic": "Place names, uniqueness, leveraging existing names"}
+      ],
+      "key_quotes": [
+        {"line": 7418, "context": "People names -- how many names, given names, surnames"},
+        {"line": 7480, "context": "Place names -- using events, people, suffixes and prefixes"}
+      ]
+    },
+    "45": {
+      "title": "Name Everything",
+      "phase": 9,
+      "source_chapter": "V3 Ch9 -- Names",
+      "line_ranges": [
+        {"start": 7520, "end": 7605, "topic": "Naming techniques, tips, inventing names, name generators"}
+      ],
+      "key_quotes": [
+        {"line": 7520, "context": "General tips -- keep it short, keep it simple, avoid similarities"},
+        {"line": 7550, "context": "Techniques -- silent letters, vowel substitution, foreign languages, breaking words"}
+      ]
+    },
+    "46": {
+      "title": "Calculate Land Travel Times",
+      "phase": 10,
+      "source_chapter": "V2 Ch7 -- Travel Over Land",
+      "line_ranges": [
+        {"start": 5095, "end": 5160, "topic": "Mode of travel -- walking, riding, flying, obstacles"},
+        {"start": 5160, "end": 5230, "topic": "Terrain modifiers, base miles per day, calculation preparation"},
+        {"start": 5230, "end": 5287, "topic": "Calculations, pre-set, custom, template, area sizing"}
+      ],
+      "key_quotes": [
+        {"line": 5095, "context": "Travel modes and their base speeds"},
+        {"line": 5160, "context": "Terrain modifiers and how to calculate travel time"},
+        {"line": 5230, "context": "Template for organizing travel calculations"}
+      ]
+    },
+    "47": {
+      "title": "Calculate Sea Travel Times",
+      "phase": 10,
+      "source_chapter": "V2 Ch8 -- Travel by Water",
+      "line_ranges": [
+        {"start": 5288, "end": 5370, "topic": "Ship terms, types, long ships, round ships"},
+        {"start": 5370, "end": 5440, "topic": "Ship speeds, weapons, alternatives to cannon"},
+        {"start": 5440, "end": 5498, "topic": "Ship personnel, warriors, wizards, species considerations"}
+      ],
+      "key_quotes": [
+        {"line": 5288, "context": "Ship types and their characteristics"},
+        {"line": 5370, "context": "Ship speeds by oars and sails, river travel"},
+        {"line": 5440, "context": "Ship personnel and combat at sea"}
+      ]
+    },
+    "48": {
+      "title": "Define Space Travel (If Applicable)",
+      "phase": 10,
+      "source_chapter": "V2 Ch9 -- Travel in Space",
+      "line_ranges": [
+        {"start": 5499, "end": 5540, "topic": "Realities of space, propulsion types"},
+        {"start": 5540, "end": 5582, "topic": "Jump drive, hyper drive, warp drive, ship structure"}
+      ],
+      "key_quotes": [
+        {"line": 5499, "context": "The realities of space travel and propulsion options"},
+        {"line": 5540, "context": "FTL travel types -- jump, hyper, warp drives and their limitations"}
+      ]
+    },
+    "49": {
+      "title": "Create Places of Interest",
+      "phase": 11,
+      "source_chapter": "V2 Ch11 -- Creating Places of Interest",
+      "line_ranges": [
+        {"start": 5713, "end": 5750, "topic": "Ordinary places, catacombs, monuments, graves"},
+        {"start": 5750, "end": 5782, "topic": "Extraordinary places, phenomena, ruins, shipwrecks, event sites"}
+      ],
+      "key_quotes": [
+        {"line": 5713, "context": "Ordinary locations can acquire significance through stories"},
+        {"line": 5750, "context": "Extraordinary places -- ruins, phenomena, shipwrecks"}
+      ]
+    },
+    "50": {
+      "title": "Draw Maps",
+      "phase": 11,
+      "source_chapter": "V2 Ch12 -- Drawing Maps",
+      "line_ranges": [
+        {"start": 5783, "end": 5850, "topic": "Continental maps -- should you draw one, how to create one"},
+        {"start": 5850, "end": 5950, "topic": "Settlement maps, dungeon and ship maps"},
+        {"start": 5950, "end": 6102, "topic": "Map generation software, drawing process"}
+      ],
+      "key_quotes": [
+        {"line": 5783, "context": "Drawing maps is optional but helps visualization"},
+        {"line": 5850, "context": "Settlement maps -- water first, then Old Town, then expand outward"}
+      ]
+    },
+    "51": {
+      "title": "Review and Cross-Reference All Files",
+      "phase": 12,
+      "source_chapter": "V3 Ch11 -- Conclusion; V2 Ch1 -- Case Studies",
+      "line_ranges": [
+        {"start": 7797, "end": 7820, "topic": "Goals, abiding by rules, consistency"},
+        {"start": 3857, "end": 3929, "topic": "Case studies -- tracing geographic features through political consequences"}
+      ],
+      "key_quotes": [
+        {"line": 7816, "context": "Abide by rules -- audiences notice inconsistency"},
+        {"line": 3857, "context": "Case studies show how land features lead to alliances and enemies"}
+      ]
+    },
+    "52": {
+      "title": "Establish a Review Cycle",
+      "phase": 12,
+      "source_chapter": "V3 Ch11 -- Conclusion",
+      "line_ranges": [
+        {"start": 7797, "end": 8677, "topic": "Conclusion -- approaches, file storage, review, world building coalitions"}
+      ],
+      "key_quotes": [
+        {"line": 7797, "context": "Final thoughts on goals, approaches, managing files"},
+        {"line": 7814, "context": "Always be willing to jot down ideas -- reuse unused ones"}
+      ]
+    }
+  }
+}
