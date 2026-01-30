@@ -37,3 +37,12 @@ Each progression step delivers a guided experience with three layers:
 2. **Synthesized Reference Material**: Pull relevant examples from ALL mythology and author databases, synthesized into a coherent picture. Not just "here's what Greek mythology did" — but a cross-referenced synthesis showing patterns, contrasts, and creative options drawn from all sources with fair representation.
 3. **Actionable Output**: What the user needs to decide, create, or fill out for their specific world. Templates, prompts, and guided questions.
 - This three-layer approach is the core user experience of the entire program.
+
+## 2026-01-30: Core Design Decision — Option Generation (Most Important)
+- At each progression step, after synthesizing all reference material AND reviewing the user's existing world state (canon, drafts, prior decisions), Claude generates **2-4 unique, fully fleshed out, standalone options** for the user to choose from.
+- Each option is NOT a vague suggestion — it is a **complete, thought-through choice** that's ready to be adopted into the world as-is.
+- Each option should be inspired by different combinations of mythologies and authors, ensuring variety and creative range.
+- Each option must account for everything already established in the user's world (prior decisions, existing entities, established lore).
+- The user can: pick one as-is, combine elements from multiple options, request new options, or go fully custom.
+- The chosen option (or hybrid) becomes canon in the user's world and informs all future option generation.
+- **This is the single most important feature of the entire program.** Everything else (templates, hooks, knowledge graph, databases) exists to make this option generation as informed and coherent as possible.
