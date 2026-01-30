@@ -1,0 +1,32 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "command": "python C:/Worldbuilding-Interactive-Program/hooks/session_start.py"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "command": "python C:/Worldbuilding-Interactive-Program/hooks/inject_step_context.py"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "command": "python C:/Worldbuilding-Interactive-Program/hooks/validate_writes.py"
+      },
+      {
+        "command": "python C:/Worldbuilding-Interactive-Program/hooks/check_completion.py"
+      }
+    ],
+    "PreCompact": [
+      {
+        "command": "python C:/Worldbuilding-Interactive-Program/hooks/save_checkpoint.py"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "command": "python C:/Worldbuilding-Interactive-Program/hooks/end_session.py"
+      }
+    ]
+  }
+}

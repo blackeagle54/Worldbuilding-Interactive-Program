@@ -5,6 +5,11 @@ Handles all entity creation, reading, updating, validation, search, and
 cross-reference resolution. Every other system in the program calls the
 DataManager rather than reading/writing entity files directly.
 
+Also provides lore sync capabilities: every entity carries a ``_prose`` field
+containing a human-readable narrative paragraph derived from the structured
+fields.  The prose is auto-regenerated on every create/update unless the
+user has supplied custom prose (indicated by ``_prose_custom: true``).
+
 Usage:
     from engine.data_manager import DataManager
 
@@ -173,6 +178,806 @@ def _extract_canon_claims(entity_data: dict, template_schema: dict) -> list:
             claims.append({"claim": claim_text, "references": []})
 
     return claims
+
+
+# ---------------------------------------------------------------------------
+# Prose generation helpers (module-level, called by DataManager methods)
+# ---------------------------------------------------------------------------
+
+def _safe_get(data: dict, *keys, default=""):
+    """Safely traverse nested dicts, returning *default* if any key is missing."""
+    current = data
+    for k in keys:
+        if isinstance(current, dict):
+            current = current.get(k, default)
+        else:
+            return default
+    if current is None:
+        return default
+    return current
+
+
+def _join_list(items: list | None, conjunction: str = "and") -> str:
+    """Join a list of strings with commas and a final conjunction."""
+    if not items:
+        return ""
+    items = [str(i) for i in items if i]
+    if not items:
+        return ""
+    if len(items) == 1:
+        return items[0]
+    if len(items) == 2:
+        return f"{items[0]} {conjunction} {items[1]}"
+    return ", ".join(items[:-1]) + f", {conjunction} {items[-1]}"
+
+
+def _prose_for_god(data: dict) -> str:
+    """Generate a prose paragraph for a god-profile entity."""
+    name = data.get("name", "An unnamed god")
+    titles = data.get("titles")
+    domain_primary = data.get("domain_primary", "")
+    domains_secondary = data.get("domains_secondary", [])
+    alignment = data.get("alignment", "")
+    personality = data.get("personality", "")
+    appearance = data.get("appearance", "")
+    god_type = data.get("god_type", "god")
+    power_level = data.get("power_level", "")
+    origin = data.get("origin", "")
+    patronage = data.get("patronage", "")
+    pantheon_id = data.get("pantheon_id", "")
+    mortal_interaction = data.get("mortal_interaction", "")
+    reputation = data.get("reputation_among_mortals", "")
+    symbol = data.get("symbol", "")
+    residence = data.get("residence", "")
+
+    parts = []
+
+    # Opening: name + titles + type + domain
+    opening = name
+    if titles:
+        opening += f", known as {_join_list(titles)},"
+    type_label = god_type.replace("_", " ") if god_type else "god"
+    if power_level:
+        opening += f" is a {power_level} {type_label}"
+    else:
+        opening += f" is a {type_label}"
+    if domain_primary:
+        opening += f" of {domain_primary}"
+    if domains_secondary:
+        opening += f" who also holds dominion over {_join_list(domains_secondary)}"
+    opening += "."
+    parts.append(opening)
+
+    # Personality + appearance
+    if personality:
+        parts.append(f"{personality.rstrip('.')}.")
+    if appearance:
+        app = appearance.rstrip(".")
+        parts.append(f"{name} manifests as {app[0].lower()}{app[1:]}." if app else "")
+
+    # Origin
+    if origin:
+        parts.append(f"{name} came into being through {origin.rstrip('.')}.")
+
+    # Patronage
+    if patronage:
+        parts.append(f"{name} is the patron of {patronage.rstrip('.')}.")
+
+    # Relationships (brief)
+    relationships = data.get("relationships", [])
+    if relationships:
+        rel_parts = []
+        for rel in relationships[:4]:  # cap to keep it concise
+            target = rel.get("target_id", "another god")
+            rtype = rel.get("relationship_type", "related to")
+            desc = rel.get("description", "")
+            if desc:
+                rel_parts.append(desc.rstrip("."))
+            else:
+                rel_parts.append(f"{rtype} of {target}")
+        if rel_parts:
+            parts.append(f"{name} is {_join_list(rel_parts)}.")
+
+    # Alignment + pantheon
+    tail = ""
+    if pantheon_id:
+        # Avoid "the The ..." if pantheon name already starts with "The"
+        article = "" if pantheon_id.lower().startswith("the ") else "the "
+        tail += f"{name} belongs to {article}{pantheon_id} pantheon"
+    if alignment:
+        if tail:
+            tail += f" and is aligned with the forces of {alignment}"
+        else:
+            tail += f"{name} is aligned with the forces of {alignment}"
+    if tail:
+        parts.append(tail.rstrip(".") + ".")
+
+    # Symbol
+    if symbol:
+        parts.append(f"The symbol of {name} is {symbol.rstrip('.')}.")
+
+    # Mortal interaction + reputation
+    if mortal_interaction:
+        interaction_map = {
+            "active": "actively intervenes in mortal affairs",
+            "distant": "remains distant from mortal affairs",
+            "forbidden": "is forbidden from interacting with mortals",
+            "selective": "selectively engages with mortal affairs",
+            "disguised": "walks among mortals in disguise",
+        }
+        desc = interaction_map.get(mortal_interaction, mortal_interaction)
+        parts.append(f"{name} {desc}.")
+    if reputation:
+        parts.append(f"Among mortals, {name} is {reputation.rstrip('.')}.")
+
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_settlement(data: dict) -> str:
+    """Generate a prose paragraph for a settlement-profile entity."""
+    name = data.get("name", "An unnamed settlement")
+    stype = data.get("type", "settlement")
+    population = data.get("population")
+    location = data.get("location", "")
+    terrain = data.get("terrain", "")
+    climate = data.get("climate", "")
+    sovereign = data.get("sovereign_power_id", "")
+    reputation = data.get("reputation", "")
+    fortifications = data.get("fortifications", "")
+    slogan = data.get("slogan", "")
+    setting = data.get("setting", "")
+    general = data.get("general", "")
+
+    parts = []
+
+    # Opening: name + type + population + location
+    opening = f"{name} is a"
+    if stype:
+        label = stype.replace("_", " ")
+        if label[0] in "aeiou":
+            opening = f"{name} is an"
+        opening += f" {label}"
+    if population:
+        opening += f" of {population:,} inhabitants" if isinstance(population, int) else f" of {population} inhabitants"
+    if location:
+        opening += f", {location.rstrip('.')}"
+    opening += "."
+    parts.append(opening)
+
+    # Setting / terrain / climate
+    if setting:
+        parts.append(setting.rstrip(".") + ".")
+    elif terrain or climate:
+        env = ""
+        if terrain:
+            env += f"The surrounding terrain is {terrain.rstrip('.')}"
+        if climate:
+            if env:
+                env += f", with a {climate.rstrip('.')} climate"
+            else:
+                env = f"The climate is {climate.rstrip('.')}"
+        parts.append(env + ".")
+
+    # Sovereign
+    if sovereign:
+        parts.append(f"It belongs to {sovereign}.")
+
+    # Leadership
+    leadership = data.get("leadership")
+    if isinstance(leadership, dict):
+        leader_name = leadership.get("leader_name", "")
+        leader_title = leadership.get("leader_title", "")
+        if leader_name and leader_title:
+            parts.append(f"It is governed by {leader_title} {leader_name}.")
+        elif leader_name:
+            parts.append(f"It is governed by {leader_name}.")
+
+    # Reputation
+    if reputation:
+        parts.append(f"{name} is known for {reputation.rstrip('.')}.")
+
+    # Fortifications
+    if fortifications:
+        parts.append(f"Its defenses include {fortifications.rstrip('.')}.")
+
+    # History (first event)
+    history = data.get("history", [])
+    if history and isinstance(history, list) and len(history) > 0:
+        first = history[0]
+        if isinstance(first, dict):
+            event = first.get("event", "")
+            date = first.get("date", "")
+            if event:
+                hist = f"Founded"
+                if date:
+                    hist += f" {date}"
+                hist += f", {event.rstrip('.')}."
+                parts.append(hist)
+
+    # General description
+    if general:
+        parts.append(general.rstrip(".") + ".")
+
+    # Slogan
+    if slogan:
+        parts.append(f'Its motto is "{slogan.rstrip(".")}."')
+
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_species(data: dict) -> str:
+    """Generate a prose paragraph for a species-profile entity."""
+    name = data.get("name", "An unnamed species")
+    famous_for = data.get("famous_for", "")
+    disposition = data.get("disposition", "")
+    disp_detail = data.get("disposition_detail", "")
+    world_view = data.get("world_view", "")
+    classification = data.get("classification", "species")
+    general_desc = data.get("general_description", "")
+    creator_god = data.get("creator_god", "")
+    nicknames = data.get("nicknames", [])
+
+    parts = []
+
+    # Opening
+    opening = f"The {name}"
+    if nicknames:
+        opening += f" (also called {_join_list(nicknames)})"
+    opening += f" are a"
+    if disposition:
+        opening += f" {disposition}"
+    label = classification if classification else "species"
+    opening += f" {label}"
+    if famous_for:
+        opening += f" known for {famous_for.rstrip('.')}"
+    opening += "."
+    parts.append(opening)
+
+    # Appearance
+    appearance = data.get("appearance")
+    if isinstance(appearance, dict):
+        summary = appearance.get("summary", "")
+        if summary:
+            parts.append(summary.rstrip(".") + ".")
+        body = appearance.get("body")
+        if isinstance(body, dict):
+            height = body.get("height_range", "")
+            build = body.get("build", "")
+            features = body.get("distinguishing_features", "")
+            body_parts = []
+            if height:
+                body_parts.append(height)
+            if build:
+                body_parts.append(build)
+            if features:
+                body_parts.append(features)
+            if body_parts:
+                parts.append(f"Physically, they are {_join_list(body_parts)}.")
+
+    # Habitat
+    habitat = data.get("habitat")
+    if isinstance(habitat, dict):
+        preferred = habitat.get("preferred_terrain", "")
+        settle = habitat.get("settlement_type", "")
+        if preferred:
+            parts.append(f"They prefer {preferred.rstrip('.')} terrain.")
+        if settle:
+            settle_map = {
+                "isolated": "tend to live in isolated communities of their own kind",
+                "joint": "commonly live alongside other species",
+                "nomadic": "lead a nomadic existence",
+                "mixed": "are found in both their own communities and mixed settlements",
+            }
+            desc = settle_map.get(settle, settle)
+            parts.append(f"They {desc}.")
+
+    # World view (key differentiator)
+    if world_view:
+        wv = world_view.rstrip(".")
+        # Keep it to a sentence or two for the prose field
+        if len(wv) > 200:
+            wv = wv[:200].rsplit(" ", 1)[0] + "..."
+        parts.append(wv + ".")
+
+    # General description
+    if general_desc:
+        parts.append(general_desc.rstrip(".") + ".")
+
+    # Creator god
+    if creator_god:
+        parts.append(f"They were created by {creator_god}.")
+
+    # Disposition detail
+    if disp_detail:
+        parts.append(disp_detail.rstrip(".") + ".")
+
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_religion(data: dict) -> str:
+    """Generate a prose paragraph for a religion-profile entity."""
+    name = data.get("name", "An unnamed religion")
+    gods = data.get("gods_worshiped", [])
+    founding = data.get("founding_story", "")
+    symbols = data.get("symbols", [])
+    afterlife = data.get("afterlife_belief", "")
+    place = data.get("place_in_society", "")
+    clergy = data.get("clergy_structure", "")
+    famous = data.get("famous_for", "")
+    world_view = data.get("world_view", "")
+    nicknames = data.get("nicknames", [])
+    followers = data.get("followers", "")
+
+    parts = []
+
+    # Opening
+    opening = f"{name}"
+    if nicknames:
+        opening += f" (also known as {_join_list(nicknames)})"
+    opening += " is a"
+    if gods:
+        if len(gods) == 1:
+            opening += f" religion devoted to {gods[0]}"
+        else:
+            opening += f" religion devoted to {_join_list(gods)}"
+    else:
+        opening += " religion"
+    opening += "."
+    parts.append(opening)
+
+    # Famous for
+    if famous:
+        parts.append(f"It is famous for {famous.rstrip('.')}.")
+
+    # Founding story (brief)
+    if founding:
+        fs = founding.rstrip(".")
+        if len(fs) > 250:
+            fs = fs[:250].rsplit(" ", 1)[0] + "..."
+        parts.append(f"Its founding story recounts how {fs[0].lower()}{fs[1:]}.")
+
+    # Symbols
+    if symbols:
+        parts.append(f"Its sacred symbols include {_join_list(symbols)}.")
+
+    # Afterlife
+    if afterlife:
+        parts.append(f"Followers believe that {afterlife.rstrip('.')}.")
+
+    # Clergy
+    if clergy:
+        parts.append(f"The clergy is organized as {clergy.rstrip('.')}.")
+
+    # World view
+    if world_view:
+        parts.append(world_view.rstrip(".") + ".")
+
+    # Place in society
+    if place:
+        parts.append(f"In society, the religion {place.rstrip('.')}.")
+
+    # Followers
+    if followers:
+        parts.append(f"Its followers are {followers.rstrip('.')}.")
+
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_culture(data: dict) -> str:
+    """Generate a prose paragraph for a culture-profile entity."""
+    name = data.get("name", "An unnamed culture")
+    desc = data.get("description", data.get("general_description", ""))
+    values = data.get("core_values", data.get("values", []))
+    customs = data.get("customs", "")
+    language = data.get("language", "")
+    arts = data.get("arts", data.get("art_forms", ""))
+    famous = data.get("famous_for", "")
+
+    parts = [f"{name} is a distinct cultural tradition."]
+    if desc:
+        parts.append(desc.rstrip(".") + ".")
+    if values:
+        if isinstance(values, list):
+            parts.append(f"Its core values include {_join_list(values)}.")
+        else:
+            parts.append(f"Its core values center on {str(values).rstrip('.')}.")
+    if customs:
+        parts.append(customs.rstrip(".") + ".")
+    if famous:
+        parts.append(f"It is famous for {famous.rstrip('.')}.")
+    if arts:
+        if isinstance(arts, list):
+            parts.append(f"Its artistic traditions include {_join_list(arts)}.")
+        else:
+            parts.append(str(arts).rstrip(".") + ".")
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_organization(data: dict) -> str:
+    """Generate a prose paragraph for an organization-profile entity."""
+    name = data.get("name", "An unnamed organization")
+    org_type = data.get("type", data.get("organization_type", ""))
+    purpose = data.get("purpose", data.get("mission", ""))
+    leader = data.get("leader", data.get("leader_name", ""))
+    members = data.get("membership", data.get("members", ""))
+    famous = data.get("famous_for", data.get("reputation", ""))
+    history = data.get("history", data.get("founding", ""))
+
+    parts = [f"{name} is"]
+    if org_type:
+        parts[0] += f" a {org_type}"
+    else:
+        parts[0] += " an organization"
+    parts[0] += "."
+    if purpose:
+        parts.append(f"Its purpose is {purpose.rstrip('.')}.")
+    if leader:
+        if isinstance(leader, str):
+            parts.append(f"It is led by {leader}.")
+    if famous:
+        parts.append(f"It is known for {str(famous).rstrip('.')}.")
+    if history:
+        parts.append(str(history).rstrip(".") + ".")
+    if members:
+        parts.append(f"Its membership consists of {str(members).rstrip('.')}.")
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_armed_forces(data: dict) -> str:
+    """Generate a prose paragraph for an armed-forces entity."""
+    name = data.get("name", "An unnamed military force")
+    force_type = data.get("type", data.get("force_type", ""))
+    commander = data.get("commander", data.get("leader", ""))
+    size = data.get("size", data.get("strength", ""))
+    sovereign = data.get("sovereign_power_id", "")
+    tactics = data.get("tactics", "")
+    reputation = data.get("reputation", data.get("famous_for", ""))
+
+    parts = [f"{name} is"]
+    if force_type:
+        parts[0] += f" a {force_type}"
+    else:
+        parts[0] += " a military force"
+    if sovereign:
+        parts[0] += f" serving {sovereign}"
+    parts[0] += "."
+    if size:
+        parts.append(f"It numbers {size} strong." if isinstance(size, (int, float)) else f"Its strength is {str(size).rstrip('.')}.")
+    if commander:
+        parts.append(f"It is commanded by {str(commander).rstrip('.')}.")
+    if tactics:
+        parts.append(f"They are known for {tactics.rstrip('.')}.")
+    if reputation:
+        parts.append(f"{str(reputation).rstrip('.')}.")
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_monster(data: dict) -> str:
+    """Generate a prose paragraph for a monster-profile entity."""
+    name = data.get("name", "An unnamed creature")
+    desc = data.get("description", data.get("general_description", ""))
+    habitat = data.get("habitat", "")
+    danger = data.get("danger_level", data.get("threat_level", ""))
+    abilities = data.get("abilities", data.get("special_abilities", []))
+    appearance = data.get("appearance", "")
+    behavior = data.get("behavior", "")
+
+    parts = [f"{name} is a"]
+    if danger:
+        parts[0] += f" {danger}"
+    parts[0] += " creature."
+    if desc:
+        parts.append(desc.rstrip(".") + ".")
+    elif appearance:
+        if isinstance(appearance, str):
+            parts.append(appearance.rstrip(".") + ".")
+    if habitat:
+        if isinstance(habitat, str):
+            parts.append(f"It inhabits {habitat.rstrip('.')}.")
+        elif isinstance(habitat, dict):
+            pref = habitat.get("preferred_terrain", "")
+            if pref:
+                parts.append(f"It inhabits {pref.rstrip('.')} regions.")
+    if abilities:
+        if isinstance(abilities, list):
+            parts.append(f"Its abilities include {_join_list(abilities)}.")
+        else:
+            parts.append(f"It possesses {str(abilities).rstrip('.')}.")
+    if behavior:
+        parts.append(behavior.rstrip(".") + ".")
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_magic_system(data: dict) -> str:
+    """Generate a prose paragraph for a magic-system entity."""
+    name = data.get("name", "An unnamed magic system")
+    desc = data.get("description", data.get("general_description", data.get("overview", "")))
+    source = data.get("source", data.get("magic_source", ""))
+    limitations = data.get("limitations", data.get("costs", ""))
+    practitioners = data.get("practitioners", data.get("users", ""))
+    famous = data.get("famous_for", "")
+
+    parts = [f"{name} is a system of magic."]
+    if desc:
+        parts.append(desc.rstrip(".") + ".")
+    if source:
+        parts.append(f"Its power is drawn from {str(source).rstrip('.')}.")
+    if limitations:
+        parts.append(f"Its limitations include {str(limitations).rstrip('.')}.")
+    if practitioners:
+        parts.append(f"It is practiced by {str(practitioners).rstrip('.')}.")
+    if famous:
+        parts.append(f"It is famous for {famous.rstrip('.')}.")
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_world_figure(data: dict) -> str:
+    """Generate a prose paragraph for a world-figure entity."""
+    name = data.get("name", "An unnamed figure")
+    title = data.get("title", data.get("titles", ""))
+    role = data.get("role", data.get("occupation", ""))
+    species = data.get("species", data.get("species_id", ""))
+    desc = data.get("description", data.get("general_description", ""))
+    famous = data.get("famous_for", "")
+    personality = data.get("personality", "")
+
+    parts = []
+    opening = name
+    if title:
+        if isinstance(title, list):
+            opening += f", {_join_list(title)},"
+        else:
+            opening += f", {title},"
+    opening += " is"
+    if role:
+        opening += f" a {role}"
+    else:
+        opening += " a notable figure"
+    if species:
+        opening += f" of the {species}"
+    opening += "."
+    parts.append(opening)
+    if desc:
+        parts.append(desc.rstrip(".") + ".")
+    if personality:
+        parts.append(personality.rstrip(".") + ".")
+    if famous:
+        parts.append(f"They are famous for {famous.rstrip('.')}.")
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_item(data: dict) -> str:
+    """Generate a prose paragraph for an item-profile entity."""
+    name = data.get("name", "An unnamed item")
+    item_type = data.get("type", data.get("item_type", ""))
+    desc = data.get("description", data.get("general_description", ""))
+    creator = data.get("creator", data.get("created_by", ""))
+    powers = data.get("powers", data.get("abilities", data.get("magical_properties", "")))
+    history = data.get("history", "")
+    famous = data.get("famous_for", "")
+
+    parts = []
+    opening = f"{name} is"
+    if item_type:
+        opening += f" a {item_type}"
+    else:
+        opening += " an item"
+    if creator:
+        opening += f" created by {creator}"
+    opening += "."
+    parts.append(opening)
+    if desc:
+        parts.append(desc.rstrip(".") + ".")
+    if powers:
+        if isinstance(powers, list):
+            parts.append(f"It possesses {_join_list(powers)}.")
+        else:
+            parts.append(f"It possesses {str(powers).rstrip('.')}.")
+    if history:
+        parts.append(str(history).rstrip(".") + ".")
+    if famous:
+        parts.append(f"It is famous for {famous.rstrip('.')}.")
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_undead(data: dict) -> str:
+    """Generate a prose paragraph for an undead entity."""
+    name = data.get("name", "An unnamed undead")
+    desc = data.get("description", data.get("general_description", ""))
+    origin = data.get("origin", data.get("creation_method", ""))
+    abilities = data.get("abilities", data.get("special_abilities", []))
+    danger = data.get("danger_level", data.get("threat_level", ""))
+
+    parts = [f"{name} is"]
+    if danger:
+        parts[0] += f" a {danger}"
+    parts[0] += " undead creature."
+    if desc:
+        parts.append(desc.rstrip(".") + ".")
+    if origin:
+        parts.append(f"They arise through {str(origin).rstrip('.')}.")
+    if abilities:
+        if isinstance(abilities, list):
+            parts.append(f"They possess {_join_list(abilities)}.")
+        else:
+            parts.append(f"They possess {str(abilities).rstrip('.')}.")
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_plant(data: dict) -> str:
+    """Generate a prose paragraph for a plant entity."""
+    name = data.get("name", "An unnamed plant")
+    desc = data.get("description", data.get("general_description", ""))
+    habitat = data.get("habitat", "")
+    uses = data.get("uses", data.get("properties", []))
+    appearance = data.get("appearance", "")
+
+    parts = [f"{name} is a plant"]
+    if habitat:
+        if isinstance(habitat, str):
+            parts[0] += f" found in {habitat.rstrip('.')}"
+        elif isinstance(habitat, dict):
+            pref = habitat.get("preferred_terrain", habitat.get("biome", ""))
+            if pref:
+                parts[0] += f" found in {pref.rstrip('.')}"
+    parts[0] += "."
+    if desc:
+        parts.append(desc.rstrip(".") + ".")
+    elif appearance:
+        parts.append(str(appearance).rstrip(".") + ".")
+    if uses:
+        if isinstance(uses, list):
+            parts.append(f"It is used for {_join_list(uses)}.")
+        else:
+            parts.append(f"It is used for {str(uses).rstrip('.')}.")
+    return " ".join(p for p in parts if p)
+
+
+def _prose_for_animal(data: dict) -> str:
+    """Generate a prose paragraph for an animal entity."""
+    name = data.get("name", "An unnamed animal")
+    desc = data.get("description", data.get("general_description", ""))
+    habitat = data.get("habitat", "")
+    behavior = data.get("behavior", "")
+    domesticated = data.get("domesticated", data.get("is_domesticated", None))
+    uses = data.get("uses", [])
+
+    parts = [f"{name} is"]
+    if domesticated is True:
+        parts[0] += " a domesticated animal"
+    elif domesticated is False:
+        parts[0] += " a wild animal"
+    else:
+        parts[0] += " an animal"
+    parts[0] += "."
+    if desc:
+        parts.append(desc.rstrip(".") + ".")
+    if habitat:
+        if isinstance(habitat, str):
+            parts.append(f"It is found in {habitat.rstrip('.')}.")
+        elif isinstance(habitat, dict):
+            pref = habitat.get("preferred_terrain", habitat.get("biome", ""))
+            if pref:
+                parts.append(f"It is found in {pref.rstrip('.')} regions.")
+    if behavior:
+        parts.append(behavior.rstrip(".") + ".")
+    if uses:
+        if isinstance(uses, list):
+            parts.append(f"It is valued for {_join_list(uses)}.")
+        else:
+            parts.append(f"It is valued for {str(uses).rstrip('.')}.")
+    return " ".join(p for p in parts if p)
+
+
+def _prose_generic(data: dict, template_id: str) -> str:
+    """Generate a generic prose paragraph for any entity type without a
+    specific prose builder.  Lists all populated string fields in readable
+    sentences."""
+    name = data.get("name", template_id.replace("-", " ").title())
+
+    type_label = template_id.replace("-profile", "").replace("-template", "")
+    type_label = type_label.replace("-worksheet", "").replace("-catalog", "")
+    type_label = type_label.replace("-overview", "").replace("-detail", "")
+    type_label = type_label.replace("-", " ")
+    parts = [f"{name} is a {type_label}."]
+
+    # Prioritise commonly meaningful fields
+    priority_fields = [
+        "description", "general_description", "overview", "general",
+        "famous_for", "reputation", "summary",
+    ]
+    used = {"name", "id", "_meta", "canon_claims", "_prose", "_prose_custom"}
+
+    for field in priority_fields:
+        val = data.get(field)
+        if val and isinstance(val, str) and field not in used:
+            parts.append(val.rstrip(".") + ".")
+            used.add(field)
+
+    # Then iterate remaining populated string fields
+    for key, val in data.items():
+        if key in used or key.startswith("_"):
+            continue
+        if isinstance(val, str) and val.strip():
+            label = key.replace("_", " ")
+            parts.append(f"Its {label} is {val.rstrip('.')}.")
+            used.add(key)
+        elif isinstance(val, list) and val and all(isinstance(i, str) for i in val):
+            label = key.replace("_", " ")
+            parts.append(f"Its {label} includes {_join_list(val)}.")
+            used.add(key)
+
+        # Keep the prose to a reasonable length
+        if len(" ".join(parts)) > 800:
+            break
+
+    return " ".join(p for p in parts if p)
+
+
+# Registry mapping template-id keywords to prose builders
+_PROSE_BUILDERS: dict[str, callable] = {
+    "god": _prose_for_god,
+    "settlement": _prose_for_settlement,
+    "species": _prose_for_species,
+    "religion": _prose_for_religion,
+    "culture": _prose_for_culture,
+    "organization": _prose_for_organization,
+    "armed-forces": _prose_for_armed_forces,
+    "monster": _prose_for_monster,
+    "undead": _prose_for_undead,
+    "plant": _prose_for_plant,
+    "animal": _prose_for_animal,
+    "magic-system": _prose_for_magic_system,
+    "world-figure": _prose_for_world_figure,
+    "item": _prose_for_item,
+}
+
+
+def _detect_entity_type_key(template_id: str) -> str | None:
+    """Match a template_id to the closest prose builder key.
+
+    For example:
+        "god-profile"           -> "god"
+        "settlement-profile"    -> "settlement"
+        "magic-system-profile"  -> "magic-system"
+        "armed-forces-profile"  -> "armed-forces"
+    """
+    if not template_id:
+        return None
+    # Try exact prefix match from longest keys first
+    for key in sorted(_PROSE_BUILDERS.keys(), key=len, reverse=True):
+        if template_id.startswith(key):
+            return key
+        # Also try contains (e.g. "undead-monster-profile" -> "undead")
+        if key in template_id:
+            return key
+    return None
+
+
+def _validate_prose_against_data(prose: str, data: dict) -> list[str]:
+    """Check whether user-written prose contradicts structured fields.
+
+    Returns a list of warning strings.  This is a best-effort heuristic
+    check -- it flags obvious mismatches (name mismatch, missing name) but
+    does not attempt deep semantic analysis (that is left to the Layer 3
+    LLM consistency checker in Sprint 3).
+    """
+    warnings: list[str] = []
+    prose_lower = prose.lower()
+    name = data.get("name", "")
+    if name and name.lower() not in prose_lower:
+        warnings.append(
+            f"The custom prose does not mention the entity's name ('{name}'). "
+            f"This may confuse readers."
+        )
+    # Check that alignment or disposition matches if present
+    alignment = data.get("alignment", data.get("disposition", ""))
+    if alignment and alignment.lower() not in prose_lower:
+        warnings.append(
+            f"The custom prose does not mention the entity's alignment/disposition "
+            f"('{alignment}'). Consider including it for consistency."
+        )
+    return warnings
 
 
 # ---------------------------------------------------------------------------
@@ -345,6 +1150,72 @@ class DataManager:
         return None
 
     # ------------------------------------------------------------------
+    # Prose generation (Lore Sync -- Task 3D)
+    # ------------------------------------------------------------------
+
+    def generate_prose(self, entity_data: dict, template_id: str) -> str:
+        """Generate a human-readable prose paragraph from structured entity data.
+
+        Parameters
+        ----------
+        entity_data : dict
+            The entity's field values (excluding ``_meta``, ``id``,
+            ``canon_claims``, and other internal fields).
+        template_id : str
+            The template ``$id`` (e.g. ``"god-profile"``).
+
+        Returns
+        -------
+        str
+            A readable narrative paragraph summarising the entity.
+        """
+        # Strip internal fields so prose builders only see content
+        clean = {
+            k: v for k, v in entity_data.items()
+            if not k.startswith("_") and k not in ("id", "canon_claims")
+        }
+        return self._build_prose_for_type(clean, template_id)
+
+    @staticmethod
+    def _build_prose_for_type(data: dict, template_id: str) -> str:
+        """Dispatch to the appropriate prose builder based on *template_id*.
+
+        Falls back to the generic builder for unrecognised entity types.
+        """
+        key = _detect_entity_type_key(template_id)
+        if key and key in _PROSE_BUILDERS:
+            return _PROSE_BUILDERS[key](data)
+        return _prose_generic(data, template_id)
+
+    def _apply_prose(self, entity_doc: dict, template_id: str) -> None:
+        """Add or regenerate the ``_prose`` field on *entity_doc* in-place.
+
+        Rules:
+        - If ``_prose_custom`` is True **and** ``_prose`` already has
+          content, the existing prose is preserved (user override).
+          A best-effort validation is run; any warnings are stored in
+          ``_prose_warnings``.
+        - Otherwise, ``_prose`` is auto-generated from the structured
+          fields and ``_prose_custom`` is set to False.
+        """
+        if entity_doc.get("_prose_custom") is True and entity_doc.get("_prose"):
+            # Custom prose -- validate but do not overwrite
+            warnings = _validate_prose_against_data(
+                entity_doc["_prose"], entity_doc,
+            )
+            entity_doc["_prose_warnings"] = warnings
+            return
+
+        # Auto-generate prose from structured fields
+        clean = {
+            k: v for k, v in entity_doc.items()
+            if not k.startswith("_") and k not in ("id", "canon_claims")
+        }
+        entity_doc["_prose"] = self._build_prose_for_type(clean, template_id)
+        entity_doc["_prose_custom"] = False
+        entity_doc.pop("_prose_warnings", None)
+
+    # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
 
@@ -418,6 +1289,13 @@ class DataManager:
 
         # Extract canon claims
         entity_doc["canon_claims"] = _extract_canon_claims(data, schema)
+
+        # --- Lore Sync: generate or preserve _prose ---
+        # If the incoming data already has custom _prose, carry it through
+        if "_prose" in data and data.get("_prose"):
+            entity_doc["_prose"] = data["_prose"]
+            entity_doc["_prose_custom"] = data.get("_prose_custom", True)
+        self._apply_prose(entity_doc, template_id)
 
         # Write entity file
         _safe_write_json(str(file_path_abs), entity_doc)
@@ -502,6 +1380,13 @@ class DataManager:
 
         # Re-extract canon claims
         merged["canon_claims"] = _extract_canon_claims(validation_data, schema)
+
+        # --- Lore Sync: regenerate or preserve _prose ---
+        # If the update data explicitly sets custom _prose, honour it
+        if "_prose" in data and data.get("_prose"):
+            merged["_prose"] = data["_prose"]
+            merged["_prose_custom"] = data.get("_prose_custom", True)
+        self._apply_prose(merged, template_id)
 
         # Write updated entity
         _safe_write_json(file_path, merged)

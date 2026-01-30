@@ -59,11 +59,11 @@
 - [x] All 3 volume analyses verified (zero fabrications found)
 - [x] New template created: 85-game-profile.json (from V3 Appendix 12)
 
-### Sprint 3: The Intelligence Layer (Not Started)
-- [ ] Task 3A: SQLite sync engine (engine/sqlite_sync.py + runtime/)
-- [ ] Task 3B: Three-layer consistency checker (engine/consistency_checker.py)
-- [ ] Task 3C: Hook scripts — 6 scripts (hooks/)
-- [ ] Task 3D: Lore sync / prose generation (updates to data_manager.py)
+### Sprint 3: The Intelligence Layer (Complete)
+- [x] Task 3A: SQLite sync engine (engine/sqlite_sync.py + runtime/)
+- [x] Task 3B: Three-layer consistency checker (engine/consistency_checker.py)
+- [x] Task 3C: Hook scripts — 6 scripts (hooks/) + .claude/settings.json
+- [x] Task 3D: Lore sync / prose generation (updates to data_manager.py)
 
 ### Sprint 4: The Safety and Polish Layer (Not Started)
 - [ ] Task 4A: Automated backup system (engine/backup_manager.py + backups/)
