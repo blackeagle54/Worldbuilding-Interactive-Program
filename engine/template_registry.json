@@ -1,0 +1,5 @@
+{
+  "description": "Master registry of all 84 worldbuilding templates. Maps template numbers to file paths, steps, phases, and descriptions.",
+  "total_templates": 84,
+  "templates": {}
+}
