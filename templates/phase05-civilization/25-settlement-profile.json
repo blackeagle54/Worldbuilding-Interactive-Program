@@ -183,6 +183,76 @@
       },
       "description": "Allied or enemy neighboring settlements"
     },
+    "alliances": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Alliances this settlement holds with other settlements or powers"
+    },
+    "general": {
+      "type": "string",
+      "description": "General overview of this settlement"
+    },
+    "setting": {
+      "type": "string",
+      "description": "Physical setting and surroundings of the settlement"
+    },
+    "religious_magic_sites": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Notable religious or magic/technological sites in the settlement"
+    },
+    "other_special_sites": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Other special sites of interest in the settlement"
+    },
+    "religion": {
+      "type": "string",
+      "description": "Dominant religion(s) practiced in this settlement"
+    },
+    "nearby_monsters": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Monsters or dangerous creatures found near this settlement"
+    },
+    "religious_temples_and_sites": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Religious temples and sites within the settlement"
+    },
+    "festivals_and_holidays": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Notable festivals and holidays observed in this settlement"
+    },
+    "taverns_and_inns": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Notable taverns and inns in the settlement"
+    },
+    "guilds": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Guilds operating in this settlement"
+    },
+    "equipment_shops": {
+      "type": "object",
+      "properties": {
+        "weapons": { "type": "string" },
+        "armor": { "type": "string" },
+        "clothing": { "type": "string" },
+        "general_gear": { "type": "string" }
+      },
+      "description": "Equipment shops available in the settlement"
+    },
+    "supernatural_phenomenon": {
+      "type": "string",
+      "description": "Any supernatural phenomena present in or near the settlement"
+    },
+    "unknown": {
+      "type": "string",
+      "description": "Unknown or mysterious aspects of this settlement yet to be discovered"
+    },
     "notes": {
       "type": "string",
       "description": "Freeform notes"

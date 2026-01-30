@@ -44,16 +44,26 @@
 - [x] Task B: Set up user-world data structure (user-world/)
 - [x] Task D: Build reference database index (engine/reference_index.json, engine/source_index.json)
 
-### Sprint 2 (Not Started)
-- [ ] Task C: Build chunk-pulling engine (engine/chunk_puller.py)
-- [ ] Build fair representation algorithm (engine/fair_representation.py)
-- [ ] Build cross-reference validator (engine/cross_reference.py)
+### Sprint 2: The Engine Layer (In Progress)
+- [ ] Task 2A: Template registry (engine/template_registry.json)
+- [ ] Task 2B: Data manager (engine/data_manager.py)
+- [ ] Task 2C: Bookkeeping system (engine/bookkeeper.py + bookkeeping/)
+- [ ] Task 2D: In-memory knowledge graph (engine/graph_builder.py)
+- [ ] Task 2E: Chunk puller / three-layer guidance (engine/chunk_puller.py)
+- [ ] Task 2F: Fair representation system (engine/fair_representation.py)
+- [ ] Task 2G: Option generator (engine/option_generator.py + generation/)
 
-### Sprint 3 (Not Started)
-- [ ] Task E: Set up hook scripts (hooks/)
-- [ ] Task F: Populate knowledge graph
-- [ ] Set up bookkeeping event log system
-- [ ] Implement canon consistency checking
+### Sprint 3: The Intelligence Layer (Not Started)
+- [ ] Task 3A: SQLite sync engine (engine/sqlite_sync.py + runtime/)
+- [ ] Task 3B: Three-layer consistency checker (engine/consistency_checker.py)
+- [ ] Task 3C: Hook scripts — 6 scripts (hooks/)
+- [ ] Task 3D: Lore sync / prose generation (updates to data_manager.py)
+
+### Sprint 4: The Safety and Polish Layer (Not Started)
+- [ ] Task 4A: Automated backup system (engine/backup_manager.py + backups/)
+- [ ] Task 4B: Test suite (tests/)
+- [ ] Task 4C: Error recovery system (engine/error_recovery.py)
+- [ ] Task 4D: CLAUDE.md and rules update
 
 ## Phase 3: Build the Tool (Not Started)
 - [ ] Decide on tech stack and user experience

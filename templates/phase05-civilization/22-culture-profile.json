@@ -90,6 +90,10 @@
       "items": { "type": "string" },
       "description": "Cultural elements modified from the parent culture"
     },
+    "language": {
+      "type": "string",
+      "description": "Language(s) associated with this culture"
+    },
     "notes": {
       "type": "string",
       "description": "Freeform notes"

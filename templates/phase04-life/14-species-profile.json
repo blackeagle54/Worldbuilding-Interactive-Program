@@ -48,6 +48,14 @@
         "settlement_characteristics": {
           "type": "string",
           "description": "Architecture, materials, and defenses typical of their settlements"
+        },
+        "homes": {
+          "type": "string",
+          "description": "Where homes are (on land, in trees, underground, underwater), layout, communal or individual, ceremonial rooms, weapon rooms, passed down generations"
+        },
+        "home_materials": {
+          "type": "string",
+          "description": "Materials homes are made of (wood, brick, stone, straw)"
         }
       },
       "description": "Where this species lives and how"
@@ -171,12 +179,23 @@
       "type": "string",
       "description": "Key greetings, ceremonies, taboos, and cultural habits"
     },
+    "ecology": {
+      "type": "object",
+      "properties": {
+        "mating": { "type": "string" },
+        "birth": { "type": "string" },
+        "rearing": { "type": "string" },
+        "lifespan": { "type": "string" }
+      },
+      "description": "Mating, birth, and rearing practices"
+    },
     "history": {
       "type": "object",
       "properties": {
         "place_of_origin": { "type": "string" },
         "major_migrations": { "type": "string" },
         "key_wars": { "type": "string" },
+        "inventions_discoveries": { "type": "string", "description": "Notable inventions and discoveries by this species" },
         "enslavement_history": { "type": "string" }
       },
       "description": "Species history"
@@ -228,6 +247,34 @@
         "x-cross-reference": "race-hierarchy-chart"
       },
       "description": "Race hierarchy chart IDs for this species"
+    },
+    "general_description": {
+      "type": "string",
+      "description": "General description of this species in a few sentences"
+    },
+    "specific_accomplishments": {
+      "type": "string",
+      "description": "Notable accomplishments of this species"
+    },
+    "wars_won_and_lost": {
+      "type": "string",
+      "description": "Major wars this species has won and lost"
+    },
+    "inventions_and_discoveries": {
+      "type": "string",
+      "description": "Major inventions and discoveries made by this species"
+    },
+    "society": {
+      "type": "string",
+      "description": "Overview of this species' social structure and societal organization"
+    },
+    "ecology": {
+      "type": "string",
+      "description": "Ecological role and environmental impact of this species"
+    },
+    "homes_styles_materials": {
+      "type": "string",
+      "description": "Typical home construction styles and building materials used by this species"
     },
     "notes": {
       "type": "string",

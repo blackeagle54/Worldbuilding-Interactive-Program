@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "game-profile",
+  "title": "Game Profile Template",
+  "description": "Defines a game played in the world including its rules, equipment, scoring, and cultural significance. Games reveal cultural values and provide setting color.",
+  "step": 34,
+  "phase": 6,
+  "source_chapter": "V3 Ch10 -- Other Systems",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
+    "name": { "type": "string", "description": "Name of the game" },
+    "earth_analogues": { "type": "string", "description": "Earth games used as inspiration (private notes)" },
+    "type": {
+      "type": "string",
+      "enum": ["sport", "board_game", "card_game", "dice_game", "combat_sport", "racing", "puzzle", "other"],
+      "description": "Type of game"
+    },
+    "details": { "type": "string", "description": "General details and overview of the game" },
+    "teams": { "type": "string", "description": "Team structure -- number of teams, team sizes, how teams are formed" },
+    "players": { "type": "string", "description": "Number of players, player roles, and requirements" },
+    "game_play": { "type": "string", "description": "General description of how the game is played" },
+    "rules": { "type": "string", "description": "Detailed rules of the game" },
+    "items": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Equipment, items, or props required to play"
+    },
+    "umpires_referees": { "type": "string", "description": "Whether umpires or referees are used and their role" },
+    "penalties": { "type": "string", "description": "Penalties for rule violations" },
+    "scoring": { "type": "string", "description": "How points are scored and tracked" },
+    "victory": { "type": "string", "description": "How victory is determined" },
+    "tournaments": { "type": "string", "description": "Tournament structure, famous tournaments, and seasonal play" },
+    "cultural_significance": { "type": "string", "description": "Cultural importance and what the game reveals about the society" },
+    "notes": { "type": "string" }
+  },
+  "required": ["name", "type", "rules", "scoring", "victory"],
+  "x-cross-references": {
+    "culture-profile": "Games reflect cultural values",
+    "settlement-profile": "Games are played in settlements",
+    "sovereign-power-profile": "Games may vary by sovereign power"
+  }
+}

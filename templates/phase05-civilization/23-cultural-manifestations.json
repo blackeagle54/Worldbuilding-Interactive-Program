@@ -130,6 +130,18 @@
       },
       "description": "Holidays, festivals, and ceremonies"
     },
+    "rituals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "occasion": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      },
+      "description": "Cultural rituals and ceremonies (birth, coming-of-age, marriage, death, seasonal)"
+    },
     "folklore": {
       "type": "string",
       "description": "Verbal, material, and customary folklore traditions"

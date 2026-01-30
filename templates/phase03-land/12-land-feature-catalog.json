@@ -61,7 +61,12 @@
     },
     "canopy_density": {
       "type": "string",
-      "description": "For forests: percentage of canopy coverage and underbrush density"
+      "description": "For forests: percentage of canopy coverage (woodland ~30-60%, forest ~60-100%, rainforest near 100%). Denser canopy blocks sunlight and reduces underbrush."
+    },
+    "underbrush_density": {
+      "type": "string",
+      "enum": ["none", "sparse", "moderate", "dense", "impenetrable"],
+      "description": "For forests: density of ground-level vegetation. Rainforests have very little underbrush (canopy blocks light), woodlands have sparse underbrush, jungles have impenetrable underbrush. Affects travel difficulty, ambush opportunities, and ability to ride mounts through the area."
     },
     "water_characteristics": {
       "type": "object",
@@ -96,6 +101,48 @@
         }
       },
       "description": "For deserts: specific characteristics"
+    },
+    "wetland_characteristics": {
+      "type": "object",
+      "properties": {
+        "wetland_type": {
+          "type": "string",
+          "enum": ["bog", "fen", "marsh", "swamp"],
+          "description": "Specific type: bogs form in depressions with acidic peat water; fens are grass-covered meadow-like mires fed by ground water; marshes form along slow rivers with grasses and reeds; swamps are wetland forests near large rivers/lakes"
+        },
+        "water_source": {
+          "type": "string",
+          "enum": ["rainfall_only", "surface_water", "groundwater", "mixed"],
+          "description": "Primary water source. Bogs rely on rainfall; fens on groundwater; marshes and swamps on surface water."
+        },
+        "water_type": {
+          "type": "string",
+          "enum": ["freshwater", "saltwater", "brackish"],
+          "description": "Type of water in the wetland"
+        },
+        "products": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Products sourced from this wetland (e.g., peat for fuel, rice, honey, sugar, natural medicines, dyes, textiles, fish)"
+        }
+      },
+      "description": "For wetlands (bog, fen, marsh, swamp): specific characteristics including type, water source, and products"
+    },
+    "mountain_formation": {
+      "type": "string",
+      "enum": ["tectonic_convergent", "tectonic_divergent", "volcanic_hotspot", "glacial", "erosion", "mixed", "unknown"],
+      "description": "For mountains: the geological process that formed them. Tectonic convergent boundaries create the tallest ranges; volcanic hotspots create standalone peaks (potentially enormous like Olympus Mons on Mars); glacial processes create cirques, glacial horns, and parallel valleys."
+    },
+    "sub_ranges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      },
+      "description": "For mountain ranges: regional sub-ranges within a larger range. A long range (1000+ miles) is likely multiple sub-ranges with different names, separated by passes or offsets (e.g., the Blue Ridge and White Mountains are sub-ranges of the Appalachians)."
     },
     "description": {
       "type": "string",

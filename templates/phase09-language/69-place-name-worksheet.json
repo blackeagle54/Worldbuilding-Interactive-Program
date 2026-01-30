@@ -22,6 +22,8 @@
     "culture_that_named_it": { "type": "string", "x-cross-reference": "culture-profile" },
     "when_named": { "type": "string" },
     "previous_names": { "type": "array", "items": { "type": "string" } },
+    "reason_for_name_change": { "type": "string", "description": "Why the name changed (conquest, commemorating an event/person, weather phenomena, cultural shift)" },
+    "named_after_person": { "type": "string", "description": "If named after a person, who and why -- can retroactively create a world figure" },
     "pronunciation": { "type": "string" },
     "notes": { "type": "string" }
   },

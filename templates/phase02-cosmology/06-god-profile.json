@@ -63,6 +63,11 @@
       "type": "string",
       "description": "Core personality traits and behavioral tendencies"
     },
+    "god_type": {
+      "type": "string",
+      "enum": ["god", "demigod", "half_god"],
+      "description": "Whether this being is a full god, a demigod (lesser divine being, possibly elevated from mortal), or a half god (offspring of a god and a mortal species member, possibly not immortal)"
+    },
     "power_level": {
       "type": "string",
       "enum": ["supreme", "greater", "intermediate", "lesser", "demigod"],
@@ -151,6 +156,36 @@
         "x-cross-reference": "mythology-worksheet"
       },
       "description": "Mythology worksheets that feature this god"
+    },
+    "mortal_punishment_methods": {
+      "type": "string",
+      "description": "How this god punishes mortals who offend them. Options include death, a nasty afterlife, misfortune, removing talent (like magical ability), curses, etc. Also note what offenses trigger punishment (swearing with god's name, failing a promised mission, not defending a temple, destroying a temple)."
+    },
+    "overview": {
+      "type": "string",
+      "description": "Brief overview of this god's role and significance"
+    },
+    "famous_for": {
+      "type": "string",
+      "description": "What this god is most famous for"
+    },
+    "general_description": {
+      "type": "string",
+      "description": "General description of this god beyond just appearance"
+    },
+    "other_identifiers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Other identifying features, associations, or markers beyond the primary symbol"
+    },
+    "history_and_myths": {
+      "type": "string",
+      "description": "General narrative of this god's history and associated myths"
+    },
+    "conflicts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Conflicts this god is involved in (with other gods, species, or forces)"
     },
     "worship_notes": {
       "type": "string",

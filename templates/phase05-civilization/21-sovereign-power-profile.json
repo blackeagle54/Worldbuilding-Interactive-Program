@@ -197,9 +197,76 @@
       },
       "description": "Other major settlements"
     },
+    "religions_practiced": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "x-cross-reference": "religion-profile"
+      },
+      "description": "Religions practiced in this sovereign power"
+    },
+    "who_really_rules": {
+      "type": "string",
+      "description": "The real power behind the throne (shadow government, advisors, secret organizations, etc.)"
+    },
+    "history": {
+      "type": "string",
+      "description": "Narrative history of this sovereign power"
+    },
+    "famous_for": {
+      "type": "string",
+      "description": "What this sovereign power is most famous for"
+    },
+    "unique_places": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Unique or notable places within this sovereign power"
+    },
+    "organizations": {
+      "type": "array",
+      "items": { "type": "string", "x-cross-reference": "organization-profile" },
+      "description": "Organizations operating within this sovereign power"
+    },
+    "specific_accomplishments": {
+      "type": "string",
+      "description": "Notable accomplishments of this sovereign power"
+    },
+    "inventions_and_discoveries": {
+      "type": "string",
+      "description": "Inventions and discoveries originating from this sovereign power"
+    },
+    "places_built": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Notable places built by this sovereign power"
+    },
+    "society": {
+      "type": "string",
+      "description": "Overview of society structure and social dynamics"
+    },
+    "armed_forces": {
+      "type": "array",
+      "items": { "type": "string", "x-cross-reference": "armed-forces-profile" },
+      "description": "Armed forces of this sovereign power"
+    },
+    "important_characters": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Important characters associated with this sovereign power"
+    },
+    "festivals_and_holidays": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Notable festivals and holidays observed in this sovereign power"
+    },
+    "notable_buildings_establishments_guilds": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Notable buildings, establishments, and guilds within this sovereign power"
+    },
     "customs": {
       "type": "string",
-      "description": "Key cultural customs, especially greetings and expectations for visitors"
+      "description": "Key cultural customs, especially greetings and expectations for visitors -- customs that cause misunderstanding between powers are most important"
     },
     "notes": {
       "type": "string",

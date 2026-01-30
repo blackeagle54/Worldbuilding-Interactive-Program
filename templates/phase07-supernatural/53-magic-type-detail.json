@@ -24,6 +24,9 @@
     "practitioner_title": { "type": "string", "description": "What practitioners of this type are called" },
     "training_required": { "type": "string", "description": "Training duration and form" },
     "source_of_power": { "type": "string", "description": "Where this type draws power from" },
+    "rarity": { "type": "string", "enum": ["common", "uncommon", "rare", "extremely_rare"], "description": "How rare this type of magic is -- rarity makes it more valuable and feared (source: V3 Ch6 line 7095-7097)" },
+    "rarity_factors": { "type": "string", "description": "Why this type is rare or common -- talent availability, material rarity, danger level, spell book availability" },
+    "good_evil_axis": { "type": "string", "enum": ["white", "black", "grey", "neutral", "varies"], "description": "Whether this type is considered white (beneficial), black (harmful), grey, or neutral magic" },
     "cultural_perception": { "type": "string", "description": "How society views this type of magic" },
     "associated_deity": { "type": "string", "x-cross-reference": "god-profile", "description": "If associated with a specific deity" },
     "notes": { "type": "string" }

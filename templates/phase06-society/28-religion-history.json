@@ -55,7 +55,7 @@
     },
     "end_of_world_myth": { "type": "string", "description": "The religion's end-of-world prophecy" },
     "current_status": { "type": "string", "description": "Current state of the religion (growing, declining, stable, underground)" },
-    "how_religions_die": { "type": "string", "description": "If applicable, what threatens this religion's survival" },
+    "how_religions_die": { "type": "string", "description": "What threatens survival -- people stop believing, state collapses taking state religion with it, supplanted by another religion, foretold event fails to occur, practitioners find faith too hard or teachings too confusing" },
     "notes": { "type": "string" }
   },
   "required": ["religion_id", "founding_event", "major_events", "current_status"],

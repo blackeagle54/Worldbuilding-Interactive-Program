@@ -16,6 +16,11 @@
       "description": "Type of currency system -- units of weight transcend borders; units of value depend on government stability"
     },
     "currency_name": { "type": "string", "description": "Name of the currency" },
+    "unit_basis": {
+      "type": "string",
+      "enum": ["weight", "value", "hybrid"],
+      "description": "Whether currency is a unit of weight (gold valued by weight, transcends borders) or unit of value (denomination stamped, depends on government stability) or hybrid"
+    },
     "denominations": {
       "type": "array",
       "items": {
@@ -31,7 +36,8 @@
     "generic_terms": { "type": "string", "description": "Generic terms for currency (like 'coin' and 'cent')" },
     "conversion_rates": { "type": "string", "description": "Conversion between denominations and to foreign currencies" },
     "banking_system": { "type": "boolean", "description": "Whether a banking system exists" },
-    "government_backed": { "type": "boolean", "description": "Whether currency is government-backed" },
+    "government_backed": { "type": "boolean", "description": "Whether currency is government-backed -- collapse of government destroys value of units of value but not units of weight" },
+    "counterfeiting_controls": { "type": "string", "description": "Anti-counterfeiting measures -- milling on coin edges (shaving detection), touchstones for metal purity, watermarks on bills" },
     "price_reference": {
       "type": "object",
       "properties": {

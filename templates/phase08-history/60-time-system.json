@@ -56,6 +56,30 @@
       "description": "Named historical ages (typically thousands of years)"
     },
     "current_age": { "type": "string", "description": "The current age (may lack a name)" },
+    "week_names": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "associated_concept": { "type": "string", "description": "Element, season, deity, or concept this week is associated with" }
+        }
+      },
+      "description": "Named weeks within a month (e.g., Fireweek, Waterweek -- based on elements, seasons, or other groupings)"
+    },
+    "internal_calendars": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+          "year_one_event": { "type": "string" },
+          "notation": { "type": "string" }
+        }
+      },
+      "description": "Sovereign power-specific calendars -- each power may have its own year-one event (founding, dynasty, cataclysm)"
+    },
+    "hemisphere_naming_issues": { "type": "string", "description": "Avoid seasonal month/week names that only apply to one hemisphere -- use event-based names instead" },
     "how_differences_revealed": { "type": "string", "description": "How time differences are communicated to the audience (dialogue, not exposition)" },
     "notes": { "type": "string" }
   },

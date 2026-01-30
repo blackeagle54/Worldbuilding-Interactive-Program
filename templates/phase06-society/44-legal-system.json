@@ -74,6 +74,8 @@
       },
       "description": "Capital punishment details"
     },
+    "exile_rules": { "type": "string", "description": "Whether exile is used as an alternative to capital punishment -- where they are sent, permanent or temporary" },
+    "corruption": { "type": "string", "description": "How common bribery and corruption are -- can characters resolve or minimize punishment through bribes, connections, or charm" },
     "law_enforcement": { "type": "string", "description": "Who enforces laws and how" },
     "law_publication": { "type": "string", "description": "How people learn about laws" },
     "notes": { "type": "string" }

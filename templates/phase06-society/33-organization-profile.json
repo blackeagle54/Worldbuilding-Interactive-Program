@@ -37,12 +37,21 @@
     "symbol": { "type": "string", "description": "Organization symbol" },
     "colors": { "type": "string", "description": "Organization colors" },
     "identity_markers": { "type": "array", "items": { "type": "string" }, "description": "How members are identified (tattoo, medallion, ring, password, handshake)" },
+    "oath_or_creed": { "type": "string", "description": "An oath or creed repeated at meetings to remind members what they stand for" },
     "headquarters": { "type": "string", "description": "Location of headquarters" },
     "size": { "type": "string", "description": "Membership count or estimate" },
     "public_reputation": { "type": "string", "description": "How the public views this organization" },
     "secret_aspects": { "type": "string", "description": "Hidden truths about the organization" },
     "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile", "description": "Primary sovereign power it operates in" },
     "formation_story": { "type": "string", "description": "When, where, why, and who formed it" },
+    "famous_for": { "type": "string", "description": "What this organization is most famous for" },
+    "traits": { "type": "string", "description": "Key traits and behavioral tendencies of this organization" },
+    "status": { "type": "string", "enum": ["active", "disbanded", "underground", "dormant", "destroyed"], "description": "Current operational status of the organization" },
+    "possessions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Notable possessions, assets, properties, or artifacts held by the organization"
+    },
     "alignment": { "type": "string", "description": "Detailed moral alignment beyond simple good/evil" },
     "notes": { "type": "string" }
   },

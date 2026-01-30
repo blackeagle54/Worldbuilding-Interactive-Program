@@ -12,7 +12,7 @@
     "name": { "type": "string" },
     "type": {
       "type": "string",
-      "enum": ["ruins", "dungeon", "sacred_site", "battlefield", "monument", "natural_wonder", "hidden_location", "cursed_ground", "ancient_structure", "portal", "library", "prison", "graveyard", "other"]
+      "enum": ["ruins", "dungeon", "sacred_site", "battlefield", "monument", "natural_wonder", "hidden_location", "cursed_ground", "ancient_structure", "portal", "library", "prison", "graveyard", "catacombs", "step_well", "underwater_settlement", "floating_settlement", "meteor_impact", "event_site", "mausoleum", "other"]
     },
     "location": {
       "type": "object",
@@ -54,6 +54,9 @@
       "items": { "type": "string" },
       "description": "Treasure, knowledge, magical items, allies"
     },
+    "overgrowth_erosion": { "type": "string", "description": "For ruins: how overgrown or eroded the location is -- climate determines rate (rainforest consumes quickly, desert buries with sand). Material durability matters: stone lasts centuries, wood rots first, roofs collapse first." },
+    "building_material": { "type": "string", "description": "Primary building material and its durability -- stone, wood, advanced technology. Locals may have stolen materials for reuse." },
+    "items_left_behind": { "type": "string", "description": "Magical, technological, or valuable items abandoned here -- who might find them, and are they cursed?" },
     "accessibility": { "type": "string", "description": "How difficult it is to reach or enter" },
     "known_by": {
       "type": "array",

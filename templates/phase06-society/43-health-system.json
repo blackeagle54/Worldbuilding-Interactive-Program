@@ -30,7 +30,9 @@
     "common_diseases": { "type": "array", "items": { "type": "string" }, "description": "Common diseases and plagues" },
     "quack_remedies": { "type": "string", "description": "Prevalent false cures and snake oil" },
     "health_infrastructure": { "type": "string", "description": "Hospitals, clinics, healer networks" },
-    "mental_health_understanding": { "type": "string", "description": "How mental health is understood and treated" },
+    "mental_health_understanding": { "type": "string", "description": "How mental health is understood and treated -- possessed by demons, confined in asylum, or compassionately treated" },
+    "convalescence_norms": { "type": "string", "description": "Whether instant healing is possible or convalescence is required -- removing tension is bad storytelling" },
+    "childhood_survival_rate": { "type": "string", "description": "Percentage reaching adulthood (historically as low as 60%) -- affects family size and marriage age" },
     "common_health_beliefs": {
       "type": "array",
       "items": {

@@ -36,6 +36,20 @@
       },
       "description": "Notable possessions (limit to 1-2 to maintain impact)"
     },
+    "broken_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item_name": { "type": "string" },
+          "who_broke_it": { "type": "string" },
+          "why": { "type": "string" },
+          "pieces_status": { "type": "string", "description": "Can it be reassembled? Are pieces lost?" },
+          "consequences": { "type": "string" }
+        }
+      },
+      "description": "Famous broken items -- who broke them, why, and can they be restored? Broken items create quests and legends."
+    },
     "steed_or_ship": {
       "type": "object",
       "properties": {
@@ -68,6 +82,24 @@
         }
       },
       "description": "How different species view this figure -- a hero to one may be a villain to another"
+    },
+    "traits": {
+      "type": "string",
+      "description": "Personality traits and behavioral tendencies of this figure"
+    },
+    "characteristics": {
+      "type": "object",
+      "properties": {
+        "intelligence": { "type": "string" },
+        "wisdom": { "type": "string" },
+        "charisma": { "type": "string" },
+        "strength": { "type": "string" },
+        "constitution": { "type": "string" },
+        "agility": { "type": "string" },
+        "dexterity": { "type": "string" },
+        "morale": { "type": "string" }
+      },
+      "description": "Core characteristics rated or described"
     },
     "origin": { "type": "string", "description": "Continent, kingdom, social class" },
     "training": { "type": "string", "description": "Academy, apprentice, self-taught, field experience" },

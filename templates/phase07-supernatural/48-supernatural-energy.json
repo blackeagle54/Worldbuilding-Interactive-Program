@@ -40,6 +40,12 @@
       },
       "description": "Historical incidents involving this energy"
     },
+    "type": { "type": "string", "description": "Type or classification of this supernatural energy" },
+    "availability": { "type": "string", "description": "How available or accessible this energy is" },
+    "feel": { "type": "string", "description": "What this energy feels like when encountered (tingling, warmth, dread, etc.)" },
+    "intensity": { "type": "string", "description": "Intensity levels and how they manifest" },
+    "special": { "type": "string", "description": "Special properties or unique characteristics of this energy" },
+    "uses": { "type": "array", "items": { "type": "string" }, "description": "Known uses for this energy" },
     "current_status": { "type": "string", "description": "Current state of this energy" },
     "notes": { "type": "string" }
   },

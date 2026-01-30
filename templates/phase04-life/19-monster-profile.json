@@ -141,13 +141,25 @@
       "type": "string",
       "description": "Does it hate one species specifically? Leave others alone?"
     },
+    "society_impact": {
+      "type": "string",
+      "description": "Impact on nearby society -- how is it thought of? Does it affect life there, such as people not traveling in its direction or taking special precautions?"
+    },
     "language": {
       "type": "string",
-      "description": "Can it speak? Which languages?"
+      "description": "Can it speak? Which languages? Can it read and write? If so, who taught it?"
+    },
+    "customs": {
+      "type": "string",
+      "description": "Habits or customs the monster exhibits -- stacking bones, displaying victims, attacking at certain times of month/year/decade"
     },
     "combat": {
       "type": "string",
       "description": "How it fights, special attacks, defensive abilities"
+    },
+    "the_supernatural": {
+      "type": "string",
+      "description": "Is the monster supernatural in any way? Can it perform magic? Is it afraid of magic? Does it have or utilize a supernatural place nearby?"
     },
     "reproduction": {
       "type": "string",
@@ -164,6 +176,15 @@
         "x-cross-reference": "mythology-worksheet"
       },
       "description": "Myths that feature or reference this monster"
+    },
+    "skills": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Specific skills beyond supernatural abilities -- what is unusual and what is normal for a creature with its limbs and features"
+    },
+    "ecology": {
+      "type": "string",
+      "description": "Reproduction capability, offspring, ecological role"
     },
     "notes": {
       "type": "string",

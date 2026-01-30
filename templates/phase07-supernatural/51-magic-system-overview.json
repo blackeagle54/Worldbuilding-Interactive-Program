@@ -24,10 +24,51 @@
     "how_ability_lost": { "type": "string", "description": "How one can lose the ability to use magic" },
     "spells_needed": { "type": "boolean", "description": "Whether formal spells are needed or willpower suffices" },
     "multiple_types_possible": { "type": "string", "description": "Whether one practitioner can use multiple magic types" },
+    "failure_effects": { "type": "string", "description": "Ellefson's 4th Law: What happens when magic fails -- nothing, accidental result, energy release, catastrophe, or situation-dependent" },
+    "local_laws": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sovereign_power_id": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
+          "laws": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "description": "Ellefson's 5th Law: Local laws governing magic use per sovereign power (permits, bans, registration, restricted zones, penalties)"
+    },
     "anti_magic": { "type": "string", "description": "Anti-magic measures (zones, devices, substances)" },
+    "social_customs": { "type": "string", "description": "Social customs arising from magic -- casting on dates, power disparity with non-magic users, bullying via magic, communities rejecting magic" },
+    "naming_terminology": {
+      "type": "object",
+      "properties": {
+        "generic_term": { "type": "string", "description": "Generic term for magic users (e.g., 'magic user')" },
+        "specific_terms": { "type": "array", "items": { "type": "string" }, "description": "Distinct terms for practitioner types (wizard, mage, sorcerer, magician, warlock)" },
+        "charlatan_term": { "type": "string", "description": "Term for non-magical illusionists or charlatans (e.g., 'trickster', 'illusionist')" }
+      },
+      "description": "Naming terminology for magic users -- distinguish real practitioners from charlatans"
+    },
+    "symbols_and_colors": { "type": "string", "description": "Symbols and colors associated with this magic system" },
+    "famous_for": { "type": "string", "description": "What this magic system is most famous for" },
+    "general_description": { "type": "string", "description": "General description of how this magic system works" },
+    "locations": { "type": "array", "items": { "type": "string" }, "description": "Locations where this magic system is practiced or concentrated" },
+    "special_sites": { "type": "array", "items": { "type": "string" }, "description": "Special sites associated with this magic system" },
+    "lore": { "type": "string", "description": "Legends and lore associated with this magic system" },
+    "history": { "type": "string", "description": "History of this magic system" },
+    "world_view": { "type": "string", "description": "Worldview and philosophy of practitioners" },
+    "place_in_society": { "type": "string", "description": "The role of this magic system in society" },
+    "languages": { "type": "array", "items": { "type": "string" }, "description": "Languages associated with this magic system" },
+    "who_rules": { "type": "string", "description": "Who governs or leads practitioners of this magic system" },
+    "who_they_are": { "type": "string", "description": "General characterization of practitioners" },
+    "relations_with_species": { "type": "string", "description": "How different species relate to this magic system" },
+    "relations_with_other_groups": { "type": "string", "description": "How this magic system relates to other groups (religions, military, organizations)" },
+    "important_characters": { "type": "array", "items": { "type": "string" }, "description": "Important characters in this magic system" },
+    "requirements": { "type": "string", "description": "Requirements to become a practitioner" },
+    "symbols_of_acceptance": { "type": "string", "description": "Symbols given upon acceptance (medals, robes, staffs, tattoos)" },
+    "arms": { "type": "string", "description": "Weapons and armor used by practitioners" },
+    "combat": { "type": "string", "description": "How practitioners fight using this magic system" },
     "notes": { "type": "string" }
   },
-  "required": ["name", "type", "source", "possible_effects", "impossible_effects", "who_can_use", "prevalence", "cost"],
+  "required": ["name", "type", "source", "possible_effects", "impossible_effects", "who_can_use", "prevalence", "cost", "failure_effects"],
   "x-cross-references": {
     "magic-system-rules": "Detailed rules in the Magic System Rules Sheet",
     "magic-type-detail": "Individual magic types detailed in Magic Type Detail Templates",

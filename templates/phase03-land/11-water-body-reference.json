@@ -96,6 +96,10 @@
       "type": "string",
       "description": "Tidal behavior specific to this water body"
     },
+    "weather_patterns": {
+      "type": "string",
+      "description": "Notable weather phenomena associated with this water body, including proneness to hurricanes, tropical storms, fog, calmness, or other patterns. Water surface temperature, air temperature, and prevailing winds all factor in. These patterns play into culture and regional viewpoints on the ocean."
+    },
     "significance": {
       "type": "string",
       "description": "Why this water body matters for the world (strategic chokepoint, species origin, historical battle site)"

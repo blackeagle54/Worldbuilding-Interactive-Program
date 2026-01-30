@@ -44,6 +44,31 @@
       "items": { "type": "string" },
       "description": "Known weak spots or areas that need extra attention"
     },
+    "looping_exercises": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "starting_element": { "type": "string", "description": "The element you started with (e.g., a forest, species, organization)" },
+          "files_updated": { "type": "array", "items": { "type": "string" }, "description": "Files updated during the loop" },
+          "connections_made": { "type": "array", "items": { "type": "string" }, "description": "New connections or integrations discovered" },
+          "date": { "type": "string", "format": "date" }
+        }
+      },
+      "description": "Looping exercises: pick an element, describe its relationships, then loop into related files and update them, then loop back (source: V3 Ch11 lines 7826-7832)"
+    },
+    "hedging_language_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rule_stated": { "type": "string" },
+          "hedging_used": { "type": "string", "description": "How flexibility was built in ('usually', 'people believed', character stated it)" },
+          "file_location": { "type": "string" }
+        }
+      },
+      "description": "Track rules stated as absolutes vs. hedged rules -- helps avoid inconsistency while maintaining flexibility (source: V3 Ch11 lines 7817-7821)"
+    },
     "notes": { "type": "string" }
   },
   "required": ["review_frequency", "next_review_date", "review_checklist"],

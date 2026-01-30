@@ -4,5 +4,23 @@
   "completed_steps": [],
   "in_progress_steps": [],
   "entity_index": {},
-  "session_log": []
+  "session_log": [],
+  "reference_usage_counts": {
+    "greek": 2,
+    "roman": 2,
+    "norse": 2,
+    "celtic": 2,
+    "chinese": 2,
+    "japanese": 2,
+    "native-american": 2,
+    "mesopotamian": 2,
+    "hindu": 2,
+    "biblical": 2,
+    "tolkien": 3,
+    "martin": 2,
+    "rothfuss": 2,
+    "berg": 3,
+    "lovecraft": 2,
+    "jordan": 3
+  }
 }

@@ -9,7 +9,8 @@
   "type": "object",
   "properties": {
     "id": { "type": "string", "description": "Unique identifier (auto-generated)" },
-    "name": { "type": "string", "description": "Religion name (and its meaning)" },
+    "name": { "type": "string", "description": "Religion name (and its meaning, e.g. Islam means submission, Buddhism from Buddha means enlightened one)" },
+    "nicknames": { "type": "array", "items": { "type": "string" }, "description": "Alternate names or informal references (e.g. 'the burning faith' for a fire god's religion)" },
     "gods_worshiped": {
       "type": "array",
       "items": { "type": "string", "x-cross-reference": "god-profile" },
@@ -72,16 +73,51 @@
     "afterlife_belief": { "type": "string", "description": "What followers believe about the afterlife" },
     "afterlife_id": { "type": "string", "x-cross-reference": "afterlife-design", "description": "Linked afterlife design" },
     "clergy_structure": { "type": "string", "description": "Overview of clergy organization" },
-    "official_language": { "type": "string", "description": "Official religious language" },
+    "sects_overview": { "type": "string", "description": "Overview of sects that disagree about interpretations of texts -- each sect opposes others and wants them eradicated or drawn into the fold" },
+    "species_relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "species_id": { "type": "string", "x-cross-reference": "species-profile" },
+          "relationship": { "type": "string", "description": "How this species relates to the religion -- drawn to it, repulsed, targeted for conversion, excluded" }
+        }
+      },
+      "description": "How each species relates to this religion -- one may be drawn to it while another is repulsed"
+    },
+    "place_in_society": { "type": "string", "description": "General role in society -- prominent at events, providing hostels, performing marriages, blessing games, administering burials" },
+    "customs": { "type": "string", "description": "Religious customs based on the deity -- greetings, shows of strength, blessings, specific touches or words" },
+    "official_language": { "type": "string", "description": "Official religious language -- typically the prophet's species language, possibly an ancient language no longer spoken" },
     "legal_influence": { "type": "string", "description": "How this religion influences law (if at all)" },
     "sovereign_powers_practiced_in": {
       "type": "array",
       "items": { "type": "string", "x-cross-reference": "sovereign-power-profile" },
       "description": "Where this religion is practiced"
     },
+    "famous_for": { "type": "string", "description": "What this religion is most famous for" },
+    "world_view": { "type": "string", "description": "The religion's worldview and guiding philosophy" },
+    "relations_with_military": { "type": "string", "description": "How this religion relates to military forces" },
+    "relations_with_other_religions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "religion_id": { "type": "string", "x-cross-reference": "religion-profile" },
+          "relationship": { "type": "string" }
+        }
+      },
+      "description": "Relationships with other religions"
+    },
+    "followers": { "type": "string", "description": "General characterization of followers -- who they are, social class, species makeup" },
+    "important_members": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Important current members of this religion"
+    },
+    "combat": { "type": "string", "description": "The religion's stance on combat, warfare, and violence" },
     "notes": { "type": "string", "description": "Freeform notes" }
   },
-  "required": ["name", "gods_worshiped", "founding_story", "symbols", "worship_practices", "afterlife_belief", "clergy_structure"],
+  "required": ["name", "gods_worshiped", "founding_story", "symbols", "worship_practices", "afterlife_belief", "clergy_structure", "place_in_society"],
   "x-cross-references": {
     "god-profile": "Gods worshiped are defined in God Profiles",
     "afterlife-design": "Afterlife details are in the Afterlife Design Sheet",

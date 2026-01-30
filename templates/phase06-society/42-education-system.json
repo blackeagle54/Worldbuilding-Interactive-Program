@@ -38,8 +38,10 @@
       "description": "The apprenticeship system -- a major character-building tool"
     },
     "literacy_rate": { "type": "string", "description": "Estimated literacy rate" },
-    "boarding_schools": { "type": "boolean", "description": "Whether boarding schools exist" },
-    "segregation": { "type": "string", "description": "Whether education is segregated by species, class, or gender" },
+    "boarding_schools": { "type": "boolean", "description": "Whether boarding schools exist -- students separated from parents for semester, year, or until graduation" },
+    "segregation": { "type": "string", "description": "Whether education is segregated by species, race, gender, social class, bloodline, or other factors" },
+    "school_facilities": { "type": "string", "description": "Facilities available -- dorms, gyms, libraries, labs, specialty rooms, whether on-campus or separate" },
+    "truancy_penalties": { "type": "string", "description": "Consequences for skipping school -- who is punished (parent or child) and how" },
     "notable_institutions": {
       "type": "array",
       "items": {
@@ -52,6 +54,13 @@
       },
       "description": "Notable schools, academies, or universities"
     },
+    "institution_type": { "type": "string", "description": "Type of educational institution (public school, private academy, religious school, guild school, etc.)" },
+    "residency_requirements": { "type": "string", "description": "Whether students must reside at the institution and related requirements" },
+    "facilities": { "type": "string", "description": "Description of educational facilities available" },
+    "student_age_requirements": { "type": "string", "description": "Age requirements for students" },
+    "student_gender_requirements": { "type": "string", "description": "Gender-based requirements or restrictions for students" },
+    "student_species_requirements": { "type": "string", "description": "Species or race requirements or restrictions for students" },
+    "fame": { "type": "string", "description": "What the educational system or institution is famous for" },
     "impact_on_characters": { "type": "string", "description": "How the education system shapes character backstories" },
     "notes": { "type": "string" }
   },

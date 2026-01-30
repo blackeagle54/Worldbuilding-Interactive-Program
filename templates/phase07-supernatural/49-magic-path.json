@@ -27,6 +27,22 @@
     "notable_locations_within": { "type": "array", "items": { "type": "string" }, "description": "Notable places within the path/land" },
     "items_or_resources": { "type": "array", "items": { "type": "string" }, "description": "Unique items or resources found here" },
     "regular_users": { "type": "string", "description": "Who uses this regularly and why" },
+    "location": { "type": "string", "description": "Where this supernatural land is located relative to the physical world" },
+    "regions": { "type": "array", "items": { "type": "string" }, "description": "Distinct regions within this supernatural land" },
+    "settlements": { "type": "array", "items": { "type": "string" }, "description": "Settlements within this supernatural land" },
+    "important_buildings": { "type": "array", "items": { "type": "string" }, "description": "Important buildings or structures within this supernatural land" },
+    "inhabitants": {
+      "type": "object",
+      "properties": {
+        "the_ruler": { "type": "string", "description": "Who rules this supernatural land" },
+        "hordes": { "type": "string", "description": "Groups or hordes inhabiting this land" },
+        "mortals": { "type": "string", "description": "Mortal inhabitants or visitors present" },
+        "animals": { "type": "string", "description": "Animals or creatures found in this land" }
+      },
+      "description": "Inhabitants of this supernatural land"
+    },
+    "demise": { "type": "string", "description": "How this supernatural land could end or be destroyed" },
+    "lore": { "type": "string", "description": "Legends and lore associated with this supernatural land" },
     "entry_restrictions": { "type": "string", "description": "Restrictions or requirements for entry" },
     "notes": { "type": "string" }
   },

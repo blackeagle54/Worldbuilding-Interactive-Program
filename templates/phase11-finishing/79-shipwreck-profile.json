@@ -46,7 +46,11 @@
       "description": "Stories, ghost tales, and legends about the wreck"
     },
     "salvage_status": { "type": "string", "enum": ["unsalvaged", "partially_salvaged", "fully_salvaged", "protected", "impossible", "ongoing"] },
-    "current_hazards": { "type": "array", "items": { "type": "string" }, "description": "Monsters, currents, curses, structural collapse" },
+    "fame_reason": { "type": "string", "description": "Why this wreck is famous -- ship's prior reputation, famous captain/crew, cargo, cause of demise, creature now inhabiting it, or combination (limit to 2 reasons)" },
+    "ship_prior_fame": { "type": "string", "description": "Was the ship famous before sinking? Special engine, experimental weapons, fearsome appearance, famous missions" },
+    "current_creature_inhabitant": { "type": "string", "description": "Any creature now inhabiting the wreck -- can it pilot the vessel? Is it the source of the wreck's infamy?" },
+    "crew_fate": { "type": "string", "description": "What happened to the crew -- all dead, captured, marooned, some survived with new lives" },
+    "current_hazards": { "type": "array", "items": { "type": "string" }, "description": "Monsters, currents, curses, structural collapse, radiation, supernatural residue" },
     "notes": { "type": "string" }
   },
   "required": ["ship_name", "location", "sinking_cause", "date", "current_state"],

@@ -12,7 +12,7 @@
     "name": { "type": "string" },
     "type": {
       "type": "string",
-      "enum": ["magical_storm", "dimensional_rift", "time_anomaly", "cursed_zone", "natural_wonder", "aurora", "mirage", "wild_magic_zone", "gravity_anomaly", "seasonal_event", "migration", "other"]
+      "enum": ["magical_storm", "dimensional_rift", "time_anomaly", "cursed_zone", "natural_wonder", "aurora", "mirage", "wild_magic_zone", "gravity_anomaly", "seasonal_event", "migration", "anti_magic_zone", "anti_tech_zone", "supercharged_zone", "gateway_portal", "bermuda_triangle_type", "crop_circle_type", "other"]
     },
     "location": {
       "type": "object",
@@ -35,6 +35,13 @@
     "danger_level": { "type": "string", "enum": ["harmless", "minor", "moderate", "severe", "lethal", "world_ending", "unknown"] },
     "benefits": { "type": "string", "description": "Any positive effects or opportunities the phenomenon provides" },
     "related_mythology_id": { "type": "string", "x-cross-reference": "mythology-worksheet" },
+    "related_phenomena": {
+      "type": "array",
+      "items": { "type": "string", "x-cross-reference": "phenomenon-catalog" },
+      "description": "Other phenomena that may be connected -- seemingly unrelated phenomena can share a hidden origin"
+    },
+    "controllable": { "type": "boolean", "description": "Whether the phenomenon can be controlled, activated, or deactivated -- and by whom" },
+    "compels_approach": { "type": "boolean", "description": "Whether the phenomenon draws people toward it" },
     "scientific_or_magical_explanation": { "type": "string" },
     "notes": { "type": "string" }
   },

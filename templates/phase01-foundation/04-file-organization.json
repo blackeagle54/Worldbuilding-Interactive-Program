@@ -86,6 +86,10 @@
       "type": "string",
       "description": "How cross-references between files are maintained (e.g., 'JSON IDs', 'hyperlinks', 'manual notes')"
     },
+    "integration_methodology": {
+      "type": "string",
+      "description": "The approach used for integrating world elements across files. The source recommends 'looping' -- choosing a land feature or entity, describing it, then opening related files (settlements, species, organizations) to update their relationship to it, and looping back to update the original. Periodic review and update is the key to tying elements together."
+    },
     "notes": {
       "type": "string",
       "description": "Freeform notes on file organization"

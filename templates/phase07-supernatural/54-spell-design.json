@@ -34,6 +34,9 @@
     "safety_features": { "type": "string", "description": "Built-in safety mechanisms" },
     "difficulty": { "type": "string", "enum": ["novice", "apprentice", "journeyman", "master", "grandmaster"], "description": "Skill level required" },
     "training_level_needed": { "type": "string" },
+    "targets": { "type": "string", "description": "Valid targets for this spell (self, single person, area, object, etc.)" },
+    "cost": { "type": "string", "description": "What casting this spell costs the practitioner (energy, materials, life force, etc.)" },
+    "items": { "type": "array", "items": { "type": "string" }, "description": "Items required to cast this spell (wands, staffs, crystals, focus objects)" },
     "known_variations": { "type": "array", "items": { "type": "string" }, "description": "Variant forms of this spell" },
     "notes": { "type": "string" }
   },

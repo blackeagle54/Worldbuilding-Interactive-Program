@@ -1,5 +1,1492 @@
 {
-  "description": "Master registry of all 84 worldbuilding templates. Maps template numbers to file paths, steps, phases, and descriptions.",
-  "total_templates": 84,
-  "templates": {}
+  "templates": [
+    {
+      "number": 1,
+      "id": "world-building-strategy",
+      "title": "World Building Strategy Worksheet",
+      "file": "templates/phase01-foundation/01-world-building-strategy.json",
+      "step": 1,
+      "phase": 1,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "worldbuilding-goals",
+        "file-organization"
+      ]
+    },
+    {
+      "number": 2,
+      "id": "analogue-modification-log",
+      "title": "Analogue Modification Log",
+      "file": "templates/phase01-foundation/02-analogue-modification-log.json",
+      "step": 2,
+      "phase": 1,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "world-building-strategy",
+        "species-profile",
+        "culture-profile",
+        "sovereign-power-profile"
+      ]
+    },
+    {
+      "number": 3,
+      "id": "worldbuilding-goals",
+      "title": "Worldbuilding Goals Worksheet",
+      "file": "templates/phase01-foundation/03-worldbuilding-goals.json",
+      "step": 4,
+      "phase": 1,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "world-building-strategy",
+        "file-organization",
+        "review-schedule"
+      ]
+    },
+    {
+      "number": 4,
+      "id": "file-organization",
+      "title": "File Organization Template",
+      "file": "templates/phase01-foundation/04-file-organization.json",
+      "step": 5,
+      "phase": 1,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "world-building-strategy",
+        "worldbuilding-goals",
+        "review-schedule"
+      ]
+    },
+    {
+      "number": 5,
+      "id": "pantheon-overview",
+      "title": "Pantheon Overview Sheet",
+      "file": "templates/phase02-cosmology/05-pantheon-overview.json",
+      "step": 6,
+      "phase": 2,
+      "entity_type": "pantheon",
+      "entity_folder": "user-world/entities/pantheons/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "god-profile",
+        "mythology-worksheet",
+        "religion-profile",
+        "species-profile"
+      ]
+    },
+    {
+      "number": 6,
+      "id": "god-profile",
+      "title": "God Profile Template",
+      "file": "templates/phase02-cosmology/06-god-profile.json",
+      "step": 7,
+      "phase": 2,
+      "entity_type": "god",
+      "entity_folder": "user-world/entities/gods/",
+      "is_multi_instance": true,
+      "minimum_count": 3,
+      "cross_references": [
+        "pantheon-overview",
+        "mythology-worksheet",
+        "species-profile",
+        "religion-profile",
+        "item-profile"
+      ]
+    },
+    {
+      "number": 7,
+      "id": "mythology-worksheet",
+      "title": "Mythology Worksheet",
+      "file": "templates/phase02-cosmology/07-mythology-worksheet.json",
+      "step": 8,
+      "phase": 2,
+      "entity_type": "myth",
+      "entity_folder": "user-world/entities/myths/",
+      "is_multi_instance": true,
+      "minimum_count": 2,
+      "cross_references": [
+        "god-profile",
+        "pantheon-overview",
+        "species-profile",
+        "religion-profile",
+        "item-profile"
+      ]
+    },
+    {
+      "number": 8,
+      "id": "planet-profile",
+      "title": "Planet Profile Template",
+      "file": "templates/phase02-cosmology/08-planet-profile.json",
+      "step": 10,
+      "phase": 2,
+      "entity_type": "planet",
+      "entity_folder": "user-world/entities/planets/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "climate-zone-reference",
+        "continent-profile",
+        "god-profile",
+        "pantheon-overview"
+      ]
+    },
+    {
+      "number": 9,
+      "id": "climate-zone-reference",
+      "title": "Climate Zone Reference Sheet",
+      "file": "templates/phase02-cosmology/09-climate-zone-reference.json",
+      "step": 10,
+      "phase": 2,
+      "entity_type": "climate-zone",
+      "entity_folder": "user-world/entities/climate-zones/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "planet-profile",
+        "continent-profile",
+        "land-feature-catalog",
+        "species-profile",
+        "settlement-profile"
+      ]
+    },
+    {
+      "number": 10,
+      "id": "continent-profile",
+      "title": "Continent Profile Template",
+      "file": "templates/phase03-land/10-continent-profile.json",
+      "step": 12,
+      "phase": 3,
+      "entity_type": "continent",
+      "entity_folder": "user-world/entities/continents/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "planet-profile",
+        "water-body-reference",
+        "land-feature-catalog",
+        "sovereign-power-profile",
+        "climate-zone-reference"
+      ]
+    },
+    {
+      "number": 11,
+      "id": "water-body-reference",
+      "title": "Water Body Reference Sheet",
+      "file": "templates/phase03-land/11-water-body-reference.json",
+      "step": 12,
+      "phase": 3,
+      "entity_type": "water-body",
+      "entity_folder": "user-world/entities/water-bodies/",
+      "is_multi_instance": true,
+      "minimum_count": 2,
+      "cross_references": [
+        "continent-profile",
+        "settlement-profile",
+        "sovereign-power-profile",
+        "ship-profile",
+        "sea-travel-calculator"
+      ]
+    },
+    {
+      "number": 12,
+      "id": "land-feature-catalog",
+      "title": "Land Feature Catalog Template",
+      "file": "templates/phase03-land/12-land-feature-catalog.json",
+      "step": 13,
+      "phase": 3,
+      "entity_type": "land-feature",
+      "entity_folder": "user-world/entities/land-features/",
+      "is_multi_instance": true,
+      "minimum_count": 3,
+      "cross_references": [
+        "continent-profile",
+        "climate-zone-reference",
+        "species-profile",
+        "settlement-profile",
+        "sovereign-power-profile",
+        "land-travel-calculator"
+      ]
+    },
+    {
+      "number": 13,
+      "id": "race-hierarchy-chart",
+      "title": "Race Hierarchy Chart",
+      "file": "templates/phase04-life/13-race-hierarchy-chart.json",
+      "step": 16,
+      "phase": 4,
+      "entity_type": "race",
+      "entity_folder": "user-world/entities/races/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "species-profile",
+        "species-relationship-matrix",
+        "sovereign-power-profile"
+      ]
+    },
+    {
+      "number": 14,
+      "id": "species-profile",
+      "title": "Species Profile Template",
+      "file": "templates/phase04-life/14-species-profile.json",
+      "step": 17,
+      "phase": 4,
+      "entity_type": "species",
+      "entity_folder": "user-world/entities/species/",
+      "is_multi_instance": true,
+      "minimum_count": 2,
+      "cross_references": [
+        "god-profile",
+        "race-hierarchy-chart",
+        "species-relationship-matrix",
+        "sovereign-power-profile",
+        "settlement-profile",
+        "culture-profile"
+      ]
+    },
+    {
+      "number": 15,
+      "id": "species-relationship-matrix",
+      "title": "Species Relationship Matrix",
+      "file": "templates/phase04-life/15-species-relationship-matrix.json",
+      "step": 21,
+      "phase": 4,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "species-profile",
+        "sovereign-power-profile",
+        "history-entry"
+      ]
+    },
+    {
+      "number": 16,
+      "id": "products-to-source-mapping",
+      "title": "Products-to-Source Mapping Table",
+      "file": "templates/phase04-life/16-products-to-source-mapping.json",
+      "step": 22,
+      "phase": 4,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": true,
+      "minimum_count": 3,
+      "cross_references": [
+        "plant-profile",
+        "animal-profile",
+        "settlement-profile",
+        "sovereign-power-profile",
+        "commerce-system"
+      ]
+    },
+    {
+      "number": 17,
+      "id": "plant-profile",
+      "title": "Plant Profile Template",
+      "file": "templates/phase04-life/17-plant-profile.json",
+      "step": 22,
+      "phase": 4,
+      "entity_type": "plant",
+      "entity_folder": "user-world/entities/plants/",
+      "is_multi_instance": true,
+      "minimum_count": 3,
+      "cross_references": [
+        "products-to-source-mapping",
+        "land-feature-catalog",
+        "climate-zone-reference",
+        "species-profile",
+        "spell-design"
+      ]
+    },
+    {
+      "number": 18,
+      "id": "animal-profile",
+      "title": "Animal Profile Template",
+      "file": "templates/phase04-life/18-animal-profile.json",
+      "step": 22,
+      "phase": 4,
+      "entity_type": "animal",
+      "entity_folder": "user-world/entities/animals/",
+      "is_multi_instance": true,
+      "minimum_count": 3,
+      "cross_references": [
+        "products-to-source-mapping",
+        "land-feature-catalog",
+        "climate-zone-reference",
+        "species-profile",
+        "monster-profile"
+      ]
+    },
+    {
+      "number": 19,
+      "id": "monster-profile",
+      "title": "Monster Profile Template",
+      "file": "templates/phase04-life/19-monster-profile.json",
+      "step": 23,
+      "phase": 4,
+      "entity_type": "monster",
+      "entity_folder": "user-world/entities/monsters/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "god-profile",
+        "mythology-worksheet",
+        "land-feature-catalog",
+        "species-profile",
+        "place-of-interest-profile"
+      ]
+    },
+    {
+      "number": 20,
+      "id": "undead-type-profile",
+      "title": "Undead Type Profile Template",
+      "file": "templates/phase04-life/20-undead-type-profile.json",
+      "step": 24,
+      "phase": 4,
+      "entity_type": "undead",
+      "entity_folder": "user-world/entities/undead/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "god-profile",
+        "afterlife-design",
+        "religion-profile",
+        "species-profile",
+        "culture-profile"
+      ]
+    },
+    {
+      "number": 21,
+      "id": "sovereign-power-profile",
+      "title": "Sovereign Power Profile Template",
+      "file": "templates/phase05-civilization/21-sovereign-power-profile.json",
+      "step": 25,
+      "phase": 5,
+      "entity_type": "sovereign-power",
+      "entity_folder": "user-world/entities/sovereign-powers/",
+      "is_multi_instance": true,
+      "minimum_count": 2,
+      "cross_references": [
+        "continent-profile",
+        "species-profile",
+        "settlement-profile",
+        "culture-profile",
+        "armed-forces-profile",
+        "religion-profile",
+        "legal-system",
+        "commerce-system"
+      ]
+    },
+    {
+      "number": 22,
+      "id": "culture-profile",
+      "title": "Culture Profile Template",
+      "file": "templates/phase05-civilization/22-culture-profile.json",
+      "step": 26,
+      "phase": 5,
+      "entity_type": "culture",
+      "entity_folder": "user-world/entities/cultures/",
+      "is_multi_instance": true,
+      "minimum_count": 2,
+      "cross_references": [
+        "sovereign-power-profile",
+        "cultural-manifestations",
+        "cultural-clash-planner",
+        "species-profile",
+        "religion-profile"
+      ]
+    },
+    {
+      "number": 23,
+      "id": "cultural-manifestations",
+      "title": "Cultural Manifestations Sheet",
+      "file": "templates/phase05-civilization/23-cultural-manifestations.json",
+      "step": 26,
+      "phase": 5,
+      "entity_type": "culture",
+      "entity_folder": "user-world/entities/cultures/",
+      "is_multi_instance": true,
+      "minimum_count": 2,
+      "cross_references": [
+        "culture-profile",
+        "cultural-clash-planner",
+        "religion-profile",
+        "sovereign-power-profile"
+      ]
+    },
+    {
+      "number": 24,
+      "id": "cultural-clash-planner",
+      "title": "Cultural Clash Planner",
+      "file": "templates/phase05-civilization/24-cultural-clash-planner.json",
+      "step": 28,
+      "phase": 5,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "culture-profile",
+        "cultural-manifestations",
+        "sovereign-power-profile"
+      ]
+    },
+    {
+      "number": 25,
+      "id": "settlement-profile",
+      "title": "Settlement Profile Template",
+      "file": "templates/phase05-civilization/25-settlement-profile.json",
+      "step": 29,
+      "phase": 5,
+      "entity_type": "settlement",
+      "entity_folder": "user-world/entities/settlements/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "sovereign-power-profile",
+        "species-profile",
+        "land-feature-catalog",
+        "settlement-master-spreadsheet",
+        "culture-profile"
+      ]
+    },
+    {
+      "number": 26,
+      "id": "settlement-master-spreadsheet",
+      "title": "Settlement Master Spreadsheet",
+      "file": "templates/phase05-civilization/26-settlement-master-spreadsheet.json",
+      "step": 30,
+      "phase": 5,
+      "entity_type": "registry",
+      "entity_folder": "user-world/registries/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "settlement-profile",
+        "sovereign-power-profile"
+      ]
+    },
+    {
+      "number": 27,
+      "id": "religion-profile",
+      "title": "Religion Profile Template",
+      "file": "templates/phase06-society/27-religion-profile.json",
+      "step": 31,
+      "phase": 6,
+      "entity_type": "religion",
+      "entity_folder": "user-world/entities/religions/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "god-profile",
+        "afterlife-design",
+        "clergy-profile",
+        "religion-history",
+        "religion-beliefs-practices",
+        "religion-membership",
+        "sovereign-power-profile"
+      ]
+    },
+    {
+      "number": 28,
+      "id": "religion-history",
+      "title": "Religion History Sheet",
+      "file": "templates/phase06-society/28-religion-history.json",
+      "step": 31,
+      "phase": 6,
+      "entity_type": "religion",
+      "entity_folder": "user-world/entities/religions/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "religion-profile",
+        "mythology-worksheet",
+        "history-entry",
+        "world-figure-profile"
+      ]
+    },
+    {
+      "number": 29,
+      "id": "religion-beliefs-practices",
+      "title": "Religion Beliefs and Practices Template",
+      "file": "templates/phase06-society/29-religion-beliefs-practices.json",
+      "step": 31,
+      "phase": 6,
+      "entity_type": "religion",
+      "entity_folder": "user-world/entities/religions/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "religion-profile",
+        "god-profile",
+        "culture-profile"
+      ]
+    },
+    {
+      "number": 30,
+      "id": "religion-membership",
+      "title": "Religion Membership Sheet",
+      "file": "templates/phase06-society/30-religion-membership.json",
+      "step": 31,
+      "phase": 6,
+      "entity_type": "religion",
+      "entity_folder": "user-world/entities/religions/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "religion-profile",
+        "clergy-profile"
+      ]
+    },
+    {
+      "number": 31,
+      "id": "clergy-profile",
+      "title": "Clergy Profile Template",
+      "file": "templates/phase06-society/31-clergy-profile.json",
+      "step": 31,
+      "phase": 6,
+      "entity_type": "religion",
+      "entity_folder": "user-world/entities/religions/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "religion-profile",
+        "god-profile",
+        "armed-forces-profile"
+      ]
+    },
+    {
+      "number": 32,
+      "id": "afterlife-design",
+      "title": "Afterlife Design Sheet",
+      "file": "templates/phase06-society/32-afterlife-design.json",
+      "step": 31,
+      "phase": 6,
+      "entity_type": "religion",
+      "entity_folder": "user-world/entities/religions/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "religion-profile",
+        "undead-type-profile",
+        "god-profile"
+      ]
+    },
+    {
+      "number": 33,
+      "id": "organization-profile",
+      "title": "Organization Profile Template",
+      "file": "templates/phase06-society/33-organization-profile.json",
+      "step": 32,
+      "phase": 6,
+      "entity_type": "organization",
+      "entity_folder": "user-world/entities/organizations/",
+      "is_multi_instance": true,
+      "minimum_count": 2,
+      "cross_references": [
+        "organization-membership",
+        "organization-history-log",
+        "organization-relationships",
+        "sovereign-power-profile",
+        "religion-profile"
+      ]
+    },
+    {
+      "number": 34,
+      "id": "organization-membership",
+      "title": "Organization Membership Sheet",
+      "file": "templates/phase06-society/34-organization-membership.json",
+      "step": 32,
+      "phase": 6,
+      "entity_type": "organization",
+      "entity_folder": "user-world/entities/organizations/",
+      "is_multi_instance": true,
+      "minimum_count": 2,
+      "cross_references": [
+        "organization-profile"
+      ]
+    },
+    {
+      "number": 35,
+      "id": "organization-history-log",
+      "title": "Organization History Log",
+      "file": "templates/phase06-society/35-organization-history-log.json",
+      "step": 32,
+      "phase": 6,
+      "entity_type": "organization",
+      "entity_folder": "user-world/entities/organizations/",
+      "is_multi_instance": true,
+      "minimum_count": 2,
+      "cross_references": [
+        "organization-profile",
+        "history-entry",
+        "world-figure-profile"
+      ]
+    },
+    {
+      "number": 36,
+      "id": "organization-relationships",
+      "title": "Organization Relationships Matrix",
+      "file": "templates/phase06-society/36-organization-relationships.json",
+      "step": 32,
+      "phase": 6,
+      "entity_type": "organization",
+      "entity_folder": "user-world/entities/organizations/",
+      "is_multi_instance": true,
+      "minimum_count": 2,
+      "cross_references": [
+        "organization-profile",
+        "sovereign-power-profile",
+        "species-profile",
+        "religion-profile"
+      ]
+    },
+    {
+      "number": 37,
+      "id": "armed-forces-profile",
+      "title": "Armed Forces Profile Template",
+      "file": "templates/phase06-society/37-armed-forces-profile.json",
+      "step": 33,
+      "phase": 6,
+      "entity_type": "armed-force",
+      "entity_folder": "user-world/entities/armed-forces/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "sovereign-power-profile",
+        "military-membership-pipeline",
+        "military-rank-structure",
+        "military-relationships",
+        "military-history-lore",
+        "species-profile"
+      ]
+    },
+    {
+      "number": 38,
+      "id": "military-membership-pipeline",
+      "title": "Military Membership Pipeline",
+      "file": "templates/phase06-society/38-military-membership-pipeline.json",
+      "step": 33,
+      "phase": 6,
+      "entity_type": "armed-force",
+      "entity_folder": "user-world/entities/armed-forces/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "armed-forces-profile"
+      ]
+    },
+    {
+      "number": 39,
+      "id": "military-rank-structure",
+      "title": "Military Rank Structure",
+      "file": "templates/phase06-society/39-military-rank-structure.json",
+      "step": 33,
+      "phase": 6,
+      "entity_type": "armed-force",
+      "entity_folder": "user-world/entities/armed-forces/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "armed-forces-profile"
+      ]
+    },
+    {
+      "number": 40,
+      "id": "military-relationships",
+      "title": "Military Relationships Sheet",
+      "file": "templates/phase06-society/40-military-relationships.json",
+      "step": 33,
+      "phase": 6,
+      "entity_type": "armed-force",
+      "entity_folder": "user-world/entities/armed-forces/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "armed-forces-profile",
+        "sovereign-power-profile",
+        "organization-profile"
+      ]
+    },
+    {
+      "number": 41,
+      "id": "military-history-lore",
+      "title": "Military History and Lore Log",
+      "file": "templates/phase06-society/41-military-history-lore.json",
+      "step": 33,
+      "phase": 6,
+      "entity_type": "armed-force",
+      "entity_folder": "user-world/entities/armed-forces/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "armed-forces-profile",
+        "history-entry",
+        "world-figure-profile"
+      ]
+    },
+    {
+      "number": 42,
+      "id": "education-system",
+      "title": "Education System Template",
+      "file": "templates/phase06-society/42-education-system.json",
+      "step": 34,
+      "phase": 6,
+      "entity_type": "sovereign-power",
+      "entity_folder": "user-world/entities/sovereign-powers/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "sovereign-power-profile",
+        "culture-profile",
+        "magic-training-society"
+      ]
+    },
+    {
+      "number": 43,
+      "id": "health-system",
+      "title": "Health System Template",
+      "file": "templates/phase06-society/43-health-system.json",
+      "step": 34,
+      "phase": 6,
+      "entity_type": "sovereign-power",
+      "entity_folder": "user-world/entities/sovereign-powers/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "sovereign-power-profile",
+        "religion-profile",
+        "magic-system-overview"
+      ]
+    },
+    {
+      "number": 44,
+      "id": "legal-system",
+      "title": "Legal System Template",
+      "file": "templates/phase06-society/44-legal-system.json",
+      "step": 34,
+      "phase": 6,
+      "entity_type": "sovereign-power",
+      "entity_folder": "user-world/entities/sovereign-powers/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "sovereign-power-profile",
+        "religion-profile",
+        "culture-profile"
+      ]
+    },
+    {
+      "number": 45,
+      "id": "commerce-system",
+      "title": "Commerce System Template",
+      "file": "templates/phase06-society/45-commerce-system.json",
+      "step": 34,
+      "phase": 6,
+      "entity_type": "sovereign-power",
+      "entity_folder": "user-world/entities/sovereign-powers/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "sovereign-power-profile",
+        "settlement-profile",
+        "products-to-source-mapping"
+      ]
+    },
+    {
+      "number": 46,
+      "id": "information-system",
+      "title": "Information System Template",
+      "file": "templates/phase06-society/46-information-system.json",
+      "step": 34,
+      "phase": 6,
+      "entity_type": "sovereign-power",
+      "entity_folder": "user-world/entities/sovereign-powers/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "sovereign-power-profile",
+        "magic-system-overview",
+        "organization-profile"
+      ]
+    },
+    {
+      "number": 47,
+      "id": "supernatural-prevalence",
+      "title": "Supernatural Prevalence Worksheet",
+      "file": "templates/phase07-supernatural/47-supernatural-prevalence.json",
+      "step": 35,
+      "phase": 7,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "magic-system-overview",
+        "sovereign-power-profile",
+        "species-profile"
+      ]
+    },
+    {
+      "number": 48,
+      "id": "supernatural-energy",
+      "title": "Supernatural Energy Template",
+      "file": "templates/phase07-supernatural/48-supernatural-energy.json",
+      "step": 36,
+      "phase": 7,
+      "entity_type": "supernatural-being",
+      "entity_folder": "user-world/entities/supernatural-beings/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "god-profile",
+        "magic-system-overview",
+        "phenomenon-catalog"
+      ]
+    },
+    {
+      "number": 49,
+      "id": "magic-path",
+      "title": "Magic Path / Supernatural Land Template",
+      "file": "templates/phase07-supernatural/49-magic-path.json",
+      "step": 36,
+      "phase": 7,
+      "entity_type": "phenomenon",
+      "entity_folder": "user-world/entities/phenomena/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "god-profile",
+        "place-of-interest-profile",
+        "land-travel-calculator"
+      ]
+    },
+    {
+      "number": 50,
+      "id": "supernatural-being",
+      "title": "Supernatural Being Template",
+      "file": "templates/phase07-supernatural/50-supernatural-being.json",
+      "step": 36,
+      "phase": 7,
+      "entity_type": "supernatural-being",
+      "entity_folder": "user-world/entities/supernatural-beings/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "god-profile",
+        "species-profile",
+        "magic-system-overview"
+      ]
+    },
+    {
+      "number": 51,
+      "id": "magic-system-overview",
+      "title": "Magic System Overview Template",
+      "file": "templates/phase07-supernatural/51-magic-system-overview.json",
+      "step": 37,
+      "phase": 7,
+      "entity_type": "magic-system",
+      "entity_folder": "user-world/entities/magic-systems/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "magic-system-rules",
+        "magic-type-detail",
+        "spell-design",
+        "magic-training-society",
+        "supernatural-prevalence"
+      ]
+    },
+    {
+      "number": 52,
+      "id": "magic-system-rules",
+      "title": "Magic System Rules Sheet",
+      "file": "templates/phase07-supernatural/52-magic-system-rules.json",
+      "step": 37,
+      "phase": 7,
+      "entity_type": "magic-system",
+      "entity_folder": "user-world/entities/magic-systems/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "magic-system-overview",
+        "sovereign-power-profile"
+      ]
+    },
+    {
+      "number": 53,
+      "id": "magic-type-detail",
+      "title": "Magic Type Detail Template",
+      "file": "templates/phase07-supernatural/53-magic-type-detail.json",
+      "step": 37,
+      "phase": 7,
+      "entity_type": "magic-system",
+      "entity_folder": "user-world/entities/magic-systems/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "magic-system-overview",
+        "spell-design",
+        "god-profile"
+      ]
+    },
+    {
+      "number": 54,
+      "id": "spell-design",
+      "title": "Spell Design Template",
+      "file": "templates/phase07-supernatural/54-spell-design.json",
+      "step": 38,
+      "phase": 7,
+      "entity_type": "spell",
+      "entity_folder": "user-world/entities/spells/",
+      "is_multi_instance": true,
+      "minimum_count": 3,
+      "cross_references": [
+        "magic-type-detail",
+        "plant-profile",
+        "animal-profile"
+      ]
+    },
+    {
+      "number": 55,
+      "id": "magic-training-society",
+      "title": "Magic Training and Society Template",
+      "file": "templates/phase07-supernatural/55-magic-training-society.json",
+      "step": 38,
+      "phase": 7,
+      "entity_type": "magic-system",
+      "entity_folder": "user-world/entities/magic-systems/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "magic-system-overview",
+        "sovereign-power-profile",
+        "education-system"
+      ]
+    },
+    {
+      "number": 56,
+      "id": "item-profile",
+      "title": "Item Profile Template",
+      "file": "templates/phase07-supernatural/56-item-profile.json",
+      "step": 39,
+      "phase": 7,
+      "entity_type": "item",
+      "entity_folder": "user-world/entities/items/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "magic-item-detail",
+        "technological-item-detail",
+        "god-profile",
+        "world-figure-profile",
+        "history-entry"
+      ]
+    },
+    {
+      "number": 57,
+      "id": "magic-item-detail",
+      "title": "Magic Item Detail Sheet",
+      "file": "templates/phase07-supernatural/57-magic-item-detail.json",
+      "step": 39,
+      "phase": 7,
+      "entity_type": "item",
+      "entity_folder": "user-world/entities/items/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "item-profile",
+        "magic-system-overview",
+        "god-profile"
+      ]
+    },
+    {
+      "number": 58,
+      "id": "technological-item-detail",
+      "title": "Technological Item Detail Sheet",
+      "file": "templates/phase07-supernatural/58-technological-item-detail.json",
+      "step": 39,
+      "phase": 7,
+      "entity_type": "item",
+      "entity_folder": "user-world/entities/items/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "item-profile",
+        "species-profile"
+      ]
+    },
+    {
+      "number": 59,
+      "id": "ai-profile",
+      "title": "A.I. Profile Template",
+      "file": "templates/phase07-supernatural/59-ai-profile.json",
+      "step": 39,
+      "phase": 7,
+      "entity_type": "item",
+      "entity_folder": "user-world/entities/items/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "item-profile",
+        "spacecraft-profile",
+        "sovereign-power-profile"
+      ]
+    },
+    {
+      "number": 60,
+      "id": "time-system",
+      "title": "Time System Template",
+      "file": "templates/phase08-history/60-time-system.json",
+      "step": 40,
+      "phase": 8,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "planet-profile",
+        "world-history-timeline",
+        "religion-profile"
+      ]
+    },
+    {
+      "number": 61,
+      "id": "history-entry",
+      "title": "History Entry Template",
+      "file": "templates/phase08-history/61-history-entry.json",
+      "step": 41,
+      "phase": 8,
+      "entity_type": "history-entry",
+      "entity_folder": "user-world/timelines/",
+      "is_multi_instance": true,
+      "minimum_count": 5,
+      "cross_references": [
+        "world-history-timeline",
+        "sovereign-power-profile",
+        "world-figure-profile",
+        "item-profile",
+        "god-profile"
+      ]
+    },
+    {
+      "number": 62,
+      "id": "world-history-timeline",
+      "title": "World History Timeline",
+      "file": "templates/phase08-history/62-world-history-timeline.json",
+      "step": 41,
+      "phase": 8,
+      "entity_type": "timeline",
+      "entity_folder": "user-world/timelines/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "time-system",
+        "history-entry",
+        "world-figure-profile",
+        "sovereign-power-profile"
+      ]
+    },
+    {
+      "number": 63,
+      "id": "world-figure-profile",
+      "title": "World Figure Profile Template",
+      "file": "templates/phase08-history/63-world-figure-profile.json",
+      "step": 42,
+      "phase": 8,
+      "entity_type": "world-figure",
+      "entity_folder": "user-world/entities/world-figures/",
+      "is_multi_instance": true,
+      "minimum_count": 2,
+      "cross_references": [
+        "species-profile",
+        "sovereign-power-profile",
+        "item-profile",
+        "history-entry",
+        "world-history-timeline"
+      ]
+    },
+    {
+      "number": 64,
+      "id": "language-decision",
+      "title": "Language Decision Worksheet",
+      "file": "templates/phase09-language/64-language-decision.json",
+      "step": 43,
+      "phase": 9,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "naming-language-brief",
+        "naming-convention",
+        "culture-profile"
+      ]
+    },
+    {
+      "number": 65,
+      "id": "naming-language-brief",
+      "title": "Naming Language Brief",
+      "file": "templates/phase09-language/65-naming-language-brief.json",
+      "step": 43,
+      "phase": 9,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "culture-profile",
+        "species-profile",
+        "naming-convention",
+        "language-usage-tracker"
+      ]
+    },
+    {
+      "number": 66,
+      "id": "language-usage-tracker",
+      "title": "Language Usage Tracker",
+      "file": "templates/phase09-language/66-language-usage-tracker.json",
+      "step": 43,
+      "phase": 9,
+      "entity_type": "registry",
+      "entity_folder": "user-world/registries/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "naming-language-brief",
+        "name-registry"
+      ]
+    },
+    {
+      "number": 67,
+      "id": "naming-convention",
+      "title": "Naming Convention Sheet",
+      "file": "templates/phase09-language/67-naming-convention.json",
+      "step": 44,
+      "phase": 9,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "culture-profile",
+        "name-registry",
+        "naming-language-brief"
+      ]
+    },
+    {
+      "number": 68,
+      "id": "name-registry",
+      "title": "Name Registry",
+      "file": "templates/phase09-language/68-name-registry.json",
+      "step": 44,
+      "phase": 9,
+      "entity_type": "registry",
+      "entity_folder": "user-world/registries/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "naming-convention",
+        "culture-profile"
+      ]
+    },
+    {
+      "number": 69,
+      "id": "place-name-worksheet",
+      "title": "Place Name Worksheet",
+      "file": "templates/phase09-language/69-place-name-worksheet.json",
+      "step": 45,
+      "phase": 9,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "naming-convention",
+        "name-registry",
+        "settlement-profile",
+        "land-feature-catalog"
+      ]
+    },
+    {
+      "number": 70,
+      "id": "name-generation-checklist",
+      "title": "Name Generation Checklist",
+      "file": "templates/phase09-language/70-name-generation-checklist.json",
+      "step": 45,
+      "phase": 9,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "naming-convention",
+        "name-registry"
+      ]
+    },
+    {
+      "number": 71,
+      "id": "land-travel-calculator",
+      "title": "Land Travel Calculator Template",
+      "file": "templates/phase10-travel/71-land-travel-calculator.json",
+      "step": 46,
+      "phase": 10,
+      "entity_type": "travel",
+      "entity_folder": "user-world/travel/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "settlement-profile",
+        "land-feature-catalog",
+        "travel-distance-reference"
+      ]
+    },
+    {
+      "number": 72,
+      "id": "travel-distance-reference",
+      "title": "Travel Distance Reference",
+      "file": "templates/phase10-travel/72-travel-distance-reference.json",
+      "step": 46,
+      "phase": 10,
+      "entity_type": "travel",
+      "entity_folder": "user-world/travel/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "land-travel-calculator",
+        "settlement-profile"
+      ]
+    },
+    {
+      "number": 73,
+      "id": "sea-travel-calculator",
+      "title": "Sea Travel Calculator Template",
+      "file": "templates/phase10-travel/73-sea-travel-calculator.json",
+      "step": 47,
+      "phase": 10,
+      "entity_type": "travel",
+      "entity_folder": "user-world/travel/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "ship-profile",
+        "water-body-reference",
+        "settlement-profile"
+      ]
+    },
+    {
+      "number": 74,
+      "id": "ship-profile",
+      "title": "Ship Profile Template",
+      "file": "templates/phase10-travel/74-ship-profile.json",
+      "step": 47,
+      "phase": 10,
+      "entity_type": "ship",
+      "entity_folder": "user-world/entities/ships/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "sovereign-power-profile",
+        "naval-forces-summary",
+        "sea-travel-calculator",
+        "shipwreck-profile"
+      ]
+    },
+    {
+      "number": 75,
+      "id": "naval-forces-summary",
+      "title": "Naval Forces Summary",
+      "file": "templates/phase10-travel/75-naval-forces-summary.json",
+      "step": 47,
+      "phase": 10,
+      "entity_type": "armed-force",
+      "entity_folder": "user-world/entities/armed-forces/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "sovereign-power-profile",
+        "ship-profile",
+        "settlement-profile",
+        "armed-forces-profile"
+      ]
+    },
+    {
+      "number": 76,
+      "id": "spacecraft-profile",
+      "title": "Spacecraft Profile",
+      "file": "templates/phase10-travel/76-spacecraft-profile.json",
+      "step": 48,
+      "phase": 10,
+      "entity_type": "spacecraft",
+      "entity_folder": "user-world/entities/spacecraft/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "sovereign-power-profile",
+        "ai-profile",
+        "space-travel-reference",
+        "technological-item-detail"
+      ]
+    },
+    {
+      "number": 77,
+      "id": "space-travel-reference",
+      "title": "Space Travel Reference",
+      "file": "templates/phase10-travel/77-space-travel-reference.json",
+      "step": 48,
+      "phase": 10,
+      "entity_type": "travel",
+      "entity_folder": "user-world/travel/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "spacecraft-profile",
+        "sovereign-power-profile",
+        "planet-profile"
+      ]
+    },
+    {
+      "number": 78,
+      "id": "place-of-interest-profile",
+      "title": "Place of Interest Profile",
+      "file": "templates/phase11-finishing/78-place-of-interest-profile.json",
+      "step": 49,
+      "phase": 11,
+      "entity_type": "place-of-interest",
+      "entity_folder": "user-world/entities/places-of-interest/",
+      "is_multi_instance": true,
+      "minimum_count": 3,
+      "cross_references": [
+        "continent-profile",
+        "sovereign-power-profile",
+        "settlement-profile",
+        "mythology-worksheet",
+        "history-entry",
+        "item-profile"
+      ]
+    },
+    {
+      "number": 79,
+      "id": "shipwreck-profile",
+      "title": "Shipwreck Profile",
+      "file": "templates/phase11-finishing/79-shipwreck-profile.json",
+      "step": 49,
+      "phase": 11,
+      "entity_type": "shipwreck",
+      "entity_folder": "user-world/entities/ships/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "ship-profile",
+        "water-body-reference",
+        "sovereign-power-profile",
+        "item-profile",
+        "place-of-interest-profile"
+      ]
+    },
+    {
+      "number": 80,
+      "id": "phenomenon-catalog",
+      "title": "Phenomenon Catalog",
+      "file": "templates/phase11-finishing/80-phenomenon-catalog.json",
+      "step": 49,
+      "phase": 11,
+      "entity_type": "phenomenon",
+      "entity_folder": "user-world/entities/phenomena/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "continent-profile",
+        "mythology-worksheet",
+        "supernatural-prevalence",
+        "magic-system-overview"
+      ]
+    },
+    {
+      "number": 81,
+      "id": "map-checklist-continental",
+      "title": "Map Checklist -- Continental",
+      "file": "templates/phase11-finishing/81-map-checklist-continental.json",
+      "step": 50,
+      "phase": 11,
+      "entity_type": "map",
+      "entity_folder": "user-world/maps/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "continent-profile",
+        "land-feature-catalog",
+        "water-body-reference",
+        "sovereign-power-profile",
+        "settlement-profile"
+      ]
+    },
+    {
+      "number": 82,
+      "id": "map-checklist-settlement",
+      "title": "Map Checklist -- Settlement",
+      "file": "templates/phase11-finishing/82-map-checklist-settlement.json",
+      "step": 50,
+      "phase": 11,
+      "entity_type": "map",
+      "entity_folder": "user-world/maps/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "settlement-profile",
+        "sovereign-power-profile",
+        "religion-profile",
+        "organization-profile"
+      ]
+    },
+    {
+      "number": 83,
+      "id": "review-schedule",
+      "title": "Review Schedule",
+      "file": "templates/phase12-integration/83-review-schedule.json",
+      "step": 51,
+      "phase": 12,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": false,
+      "minimum_count": 1,
+      "cross_references": [
+        "world-building-strategy",
+        "worldbuilding-goals"
+      ]
+    },
+    {
+      "number": 84,
+      "id": "case-study-worksheet",
+      "title": "Case Study Worksheet",
+      "file": "templates/phase12-integration/84-case-study-worksheet.json",
+      "step": 51,
+      "phase": 12,
+      "entity_type": "worksheet",
+      "entity_folder": "user-world/worksheets/",
+      "is_multi_instance": true,
+      "minimum_count": 1,
+      "cross_references": [
+        "land-feature-catalog",
+        "sovereign-power-profile",
+        "culture-profile",
+        "settlement-profile",
+        "naming-convention",
+        "history-entry"
+      ]
+    }
+  ]
 }

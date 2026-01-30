@@ -137,6 +137,16 @@
       "enum": ["common", "uncommon", "rare", "extremely_rare"],
       "description": "How rare this animal is"
     },
+    "climates": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Climate zones where this animal is found"
+    },
+    "places_found": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Specific places or regions where this animal is found"
+    },
     "notes": {
       "type": "string",
       "description": "Freeform notes"

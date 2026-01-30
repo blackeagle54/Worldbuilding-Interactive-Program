@@ -85,6 +85,27 @@
       "type": "string",
       "description": "General overview of how this pantheon is worshiped (unified religion, separate cults, state religion, etc.)"
     },
+    "includes_demigods": {
+      "type": "boolean",
+      "description": "Whether the pantheon includes demigods -- lesser divine beings that may result from mating between gods, or from a mortal who excelled in life and was elevated in death"
+    },
+    "includes_half_gods": {
+      "type": "boolean",
+      "description": "Whether the pantheon includes half gods -- typically the offspring of a god and a mortal species member, who may live longer than the species but are not immortal"
+    },
+    "demigod_half_god_notes": {
+      "type": "string",
+      "description": "How demigods and half gods come about, their role in the pantheon, their autonomy, and what happens if they disobey a god"
+    },
+    "afterlife_structure": {
+      "type": "string",
+      "description": "Overview of the afterlife(s) associated with this pantheon. There may be more than one -- different deities may have conceived different rewards and punishments and oversee them personally. Describes heaven/hell equivalents, judgment, redemption, and whether the living can visit the dead or vice versa."
+    },
+    "species_specific_gods": {
+      "type": "string",
+      "enum": ["universal_pantheon", "species_specific", "mixed"],
+      "description": "Whether all gods are shared by all species (universal), each species has its own gods (species-specific), or some gods are universal while others are tailored to specific species (mixed)"
+    },
     "notes": {
       "type": "string",
       "description": "Freeform notes about the pantheon"

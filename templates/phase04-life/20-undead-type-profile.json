@@ -118,6 +118,20 @@
       },
       "description": "Where it resides and whether it is bound to a location"
     },
+    "solitary_or_pack": {
+      "type": "string",
+      "enum": ["solitary", "pack", "both"],
+      "description": "Found alone, in groups, or both? If a pack, can they communicate and move as if sharing a mind?"
+    },
+    "prey": {
+      "type": "string",
+      "description": "Does it prey on anyone in particular? The innocent? Those of a certain religion? What does it do to victims -- turn them, feed parasitically, or just kill?"
+    },
+    "places_found": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Specific places this undead is found -- kingdoms, cities, forests, graveyards"
+    },
     "destruction_method": {
       "type": "string",
       "description": "How to permanently destroy this undead"
@@ -154,11 +168,35 @@
       },
       "description": "How different species react to this undead type"
     },
+    "places_found": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Specific places or regions where this undead type is found"
+    },
+    "solitary_or_pack": {
+      "type": "string",
+      "enum": ["solitary", "pack", "horde", "varies"],
+      "description": "Whether this undead type is found alone or in groups"
+    },
+    "characteristics_and_skills": {
+      "type": "object",
+      "properties": {
+        "intelligence": { "type": "string" },
+        "strength": { "type": "string" },
+        "agility": { "type": "string" },
+        "special_skills": { "type": "array", "items": { "type": "string" } }
+      },
+      "description": "Physical and mental characteristics and special skills"
+    },
+    "prey": {
+      "type": "string",
+      "description": "What this undead type hunts or feeds on"
+    },
     "notes": {
       "type": "string",
       "description": "Freeform notes"
     }
-  },
+},
   "required": ["name", "type", "origin_method", "prerequisites", "goals", "behaviors", "destruction_method"],
   "x-cross-references": {
     "god-profile": "Gods may have created or cursed beings into undead",

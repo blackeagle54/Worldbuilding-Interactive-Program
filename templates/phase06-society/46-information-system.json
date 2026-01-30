@@ -27,7 +27,8 @@
     "message_speed": { "type": "string", "description": "How fast can a message travel across the power?" },
     "literacy_impact": { "type": "string", "description": "How literacy rate affects information access" },
     "censorship_level": { "type": "string", "enum": ["none", "light", "moderate", "heavy", "total"], "description": "Government censorship of information" },
-    "messenger_protections": { "type": "string", "description": "Whether messengers have legal protections" },
+    "messenger_protections": { "type": "string", "description": "Whether messengers have legal protections -- distinctive clothing (sash), right to accommodations, penalties for interference" },
+    "mail_system": { "type": "string", "description": "Whether a formal mail system exists -- ships, stagecoaches, riders carrying mail for ordinary people, guarded convoys for royal mail" },
     "hacking_interference": { "type": "string", "description": "Risks of message interception or corruption" },
     "magic_based_communication": { "type": "string", "description": "If magic exists, how it affects communication" },
     "notable_information_networks": {

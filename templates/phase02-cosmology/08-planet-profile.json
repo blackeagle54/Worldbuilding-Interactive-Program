@@ -12,9 +12,37 @@
       "type": "string",
       "description": "Unique identifier for this planet (auto-generated)"
     },
+    "solar_system_name": {
+      "type": "string",
+      "description": "Name of the solar system"
+    },
+    "planets_count": {
+      "type": "integer",
+      "description": "Total number of planets in the solar system"
+    },
+    "galaxy": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the galaxy" },
+        "type": { "type": "string", "description": "Type of galaxy (spiral, elliptical, irregular, etc.)" }
+      },
+      "description": "Galaxy information"
+    },
     "planet_name": {
       "type": "string",
       "description": "The name of the planet"
+    },
+    "planet_type": {
+      "type": "string",
+      "description": "Type of planet (rocky, gas giant, ice giant, etc.)"
+    },
+    "environment": {
+      "type": "string",
+      "description": "General environment description of the planet"
+    },
+    "satellites": {
+      "type": "string",
+      "description": "General description of satellites orbiting this planet"
     },
     "star_type": {
       "type": "string",
@@ -166,6 +194,14 @@
         }
       },
       "description": "Named comets or asteroids with cultural significance"
+    },
+    "seasonal_stability": {
+      "type": "string",
+      "description": "Notes on how the planet's moon(s) stabilize axial tilt and therefore seasons. Without a moon, the planet would wobble chaotically, ending predictable seasons and most life. A moon provides gravitational stability. Note any implications if the world lacks a large moon."
+    },
+    "coastal_temperature_patterns": {
+      "type": "string",
+      "description": "How ocean currents create warmer or colder coasts. On an Earth-like planet rotating counterclockwise, western coasts tend to have colder waters (polar currents flowing toward equator) and eastern coasts warmer waters (equatorial currents flowing poleward). This affects marine life distribution, settlement climate, and which creatures are found on which coast."
     },
     "tidal_notes": {
       "type": "string",

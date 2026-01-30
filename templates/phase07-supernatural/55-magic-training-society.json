@@ -58,7 +58,9 @@
     "cultural_customs": { "type": "string", "description": "Customs among practitioners" },
     "attire_norms": { "type": "string", "description": "What magic users wear (challenging the robe cliche)" },
     "height_of_power": { "type": "string", "description": "What life looks like at peak power (prospects, safety, family)" },
-    "waning_years": { "type": "string", "description": "What happens as ability fades with age" },
+    "waning_years": { "type": "string", "description": "What happens as ability fades with age -- guild protection, apprentice loyalty, retirement strategy" },
+    "power_disparity_dynamics": { "type": "string", "description": "Social dynamics between magic-users and non-magic people -- intimidation, compensation, bullying, hiding inability" },
+    "community_rejection_acceptance": { "type": "string", "description": "Communities that reject magic vs. those that embrace it -- religious, conservative, fear-based, or zealot-driven opposition" },
     "notes": { "type": "string" }
   },
   "required": ["system_id", "training_structure", "curriculum", "ranks", "social_attitudes"],

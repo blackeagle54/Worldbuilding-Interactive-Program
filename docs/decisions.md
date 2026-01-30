@@ -52,3 +52,10 @@ Each progression step delivers a guided experience with three layers:
 - Instead, Claude Code sub-agents handle semantic contradiction detection — no API keys, no external infrastructure
 - Layers 1 and 2 (structural + rule-based) remain as Python scripts in hooks (free, instant)
 - Layer 3 (semantic) is a sub-agent call triggered when layers 1 and 2 pass — uses existing Claude Code tokens
+
+## 2026-01-30: Phase 2 Plan Revised After Research
+- Original phase2-plan.md was written before research was completed
+- Revised to phase2-plan-revised.md integrating all 6 research documents
+- Key changes: MCP Knowledge Graph replaced with NetworkX, bookkeeping system added, SQLite dual-layer added, option generator formalized with divergent-convergent pipeline, backup/test/error recovery systems added
+- Sprint structure changed from 2 sprints (6 tasks) to 3 sprints (15 tasks)
+- Only pip dependencies: jsonschema and networkx — no external APIs or services

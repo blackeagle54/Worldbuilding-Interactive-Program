@@ -767,7 +767,8 @@ The series concludes with practical guidance on setting worldbuilding goals, cho
 - File Storage: Hard Drives (backup strategies, RAID, offsite), Websites (risks, terms of service), Microsoft Office 365 (Navigation Pane, cross-device workflow), Google Docs (free, conversion issues), World Building Sites (pros and cons)
 - Get Organized: Folder Structure (example hierarchy), Suggested Files (single file vs. multiple, spreadsheet overview tabs, avoiding duplication, rabbit hole problem, change-tracking file)
 - Author's Personal Approach (file organization, backup methodology)
-- World Building Coalitions: What Is It, Why Do It, Who Does It, The Covenant, World Types
+- World Building Coalitions: What Is It, Why Do It, Who Does It, The Covenant, World Types, Roles (World Master, World Master Backup, World Building Owner, Continent Master, WBO Regent), Creations (shared vs. owned items, continent ownership, list of shared planetary concerns), Lifecycle (Options 1-9: Perpetuity, Transferred, Suspended, Abandonment, Quitting, Terminated, Expirations, Death, Disbanding), Coordination (Tracking decisions list, Meetings with agenda items, Tools for file sharing)
+- Last Words (reusing world building across settings, Rule of Three for own work, encouragement)
 
 ### Key Discussions
 - Goals help reduce scope and prevent overwhelming yourself
@@ -779,6 +780,11 @@ The series concludes with practical guidance on setting worldbuilding goals, cho
 - A "changes to make" file prevents rabbit-hole derailment during writing
 - Backup strategy: local + network RAID + offsite storage
 - World Building Coalitions allow shared labor but require legal agreements
+- WBC roles include World Master (tie-breaking authority), WM Backup, World Building Owners (voting members), Continent Masters (own a continent), and WBO Regents (temporary stand-ins)
+- WBC creations divide into shared items (continents, oceans, gods, species, moons) decided by vote, and owned items (individual continents/kingdoms) controlled by their Continent Master
+- WBC lifecycle must address nine scenarios: Perpetuity, Transferred ownership, Suspended participation, Abandonment (with defined timeframe like 3 months), Quitting (forfeiting all rights), Terminated (for covenant violation), Expirations (annual renewal), Death (rights transfer to WBC), and Disbanding (end of WBC with continued usage rights)
+- WBC coordination requires tracking decisions, periodic meetings (monthly recommended with defined agenda), and shared file tools (Google Drive suggested)
+- World building can be reused across settings using the Rule of Three applied to your own previous work
 - Periodic file review is the key to long-term consistency and integration
 
 ### Concepts to Internalize
@@ -792,6 +798,8 @@ The series concludes with practical guidance on setting worldbuilding goals, cho
 8. Back up files redundantly (local + RAID + offsite)
 9. If partnering, get a legal agreement specifying rights, roles, and exit terms
 10. World building is iterative -- expect to revisit and refine over months and years
+11. WBC lifecycle planning (especially abandonment, quitting, death scenarios) prevents disputes
+12. Reuse your own world building across settings, applying the Rule of Three to your own previous work
 
 ### Template Suggestions
 
@@ -805,7 +813,7 @@ Fields: World name, Folder structure (life/species/races/gods/continents/settlem
 Fields: File/topic name, Last reviewed date, Next review date, Changes needed (Y/N), Notes, Integration points with other files
 
 **World Building Coalition Agreement Outline**
-Fields: Member names, Shared elements (gods, species, world physics), Owned elements (continents, kingdoms), Decision-making process, Dispute resolution, Severability (what happens when someone leaves), Profit sharing (if applicable), Legal review (Y/N)
+Fields: Member names, Shared elements (gods, species, world physics, continent placement, ocean names, moons), Owned elements (continents, kingdoms), Roles (World Master, WM Backup, Continent Masters, WBO Regent rules), Decision-making process (voting, tie-breaking by WM), Dispute resolution, Lifecycle provisions (Perpetuity/Transferred/Suspended/Abandonment timeframe/Quitting/Terminated conditions/Expiration renewal/Death transfer/Disbanding terms), Coordination plan (decision tracking, meeting schedule and agenda, shared file platform), Profit sharing (if applicable), Legal review (Y/N)
 
 ### Dependencies
 - All previous chapters in Volumes 1, 2, and 3 (this chapter synthesizes the entire series)
@@ -818,7 +826,7 @@ Fields: Member names, Shared elements (gods, species, world physics), Owned elem
 - "Changes to make" file created for capturing ideas
 - Review schedule established (monthly or quarterly)
 - All world elements from previous chapters linked via file cross-references
-- If applicable, coalition agreement drafted and reviewed
+- If applicable, coalition agreement drafted with roles, lifecycle options, and coordination plan reviewed
 
 ---
 

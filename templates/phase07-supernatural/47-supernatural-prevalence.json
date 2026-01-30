@@ -43,6 +43,9 @@
       },
       "description": "How different social classes view the supernatural"
     },
+    "complacency_factor": { "type": "string", "description": "How commonplace supernatural elements affect fear/respect -- even deadly phenomena can elicit indifference if commonplace (source: V3 Ch5 line 6981)" },
+    "daily_life_thought_exercise": { "type": "string", "description": "How the supernatural changes everyday activities -- housekeeping, dining, transportation, employment, housing, personal grooming (source: V3 Ch5 lines 6984-6989)" },
+    "limits_and_restrictions": { "type": "string", "description": "Natural or imposed restrictions on supernatural use -- are they natural limits or imposed by laws/preventive measures?" },
     "laws_governing_use": { "type": "array", "items": { "type": "string" }, "description": "Laws about supernatural use" },
     "notes": { "type": "string" }
   },

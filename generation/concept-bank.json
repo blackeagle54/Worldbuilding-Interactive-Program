@@ -1,0 +1,207 @@
+{
+  "metadata": {
+    "description": "Curated bank of evocative words and concepts for random injection during option generation. 1-2 concepts are selected at random per generation cycle to push creativity into unexpected directions.",
+    "version": "1.0.0",
+    "total_concepts": 750,
+    "categories": [
+      "nature", "human", "abstract", "material", "action",
+      "celestial", "temporal", "architecture", "emotion",
+      "myth_motif", "sound", "color_light", "creature",
+      "geography", "social", "transformation"
+    ]
+  },
+  "concepts": {
+    "nature": [
+      "erosion", "crystallization", "migration", "symbiosis", "drought",
+      "bloom", "permafrost", "spore", "thorn", "canopy",
+      "undertow", "tide pool", "mycelium", "watershed", "estuary",
+      "dormancy", "pollination", "metamorphosis", "fossilization", "petrification",
+      "germination", "photosynthesis", "predation", "camouflage", "hibernation",
+      "decomposition", "sedimentation", "stalactite", "geode", "wildfire",
+      "tsunami", "avalanche", "monsoon", "aurora", "eclipse",
+      "bioluminescence", "coral", "lichen", "pollen", "resin",
+      "glacier", "delta", "rapids", "sinkhole", "geyser",
+      "mangrove", "savanna", "tundra", "archipelago", "atoll"
+    ],
+    "human": [
+      "exile", "inheritance", "betrayal", "pilgrimage", "feast",
+      "oath", "ransom", "dowry", "vendetta", "apprenticeship",
+      "vigil", "testimony", "abdication", "coronation", "census",
+      "tribunal", "pardon", "conscription", "tithe", "emancipation",
+      "eulogy", "baptism", "excommunication", "martyrdom", "apostasy",
+      "diaspora", "homecoming", "fosterage", "patronage", "vassalage",
+      "mercenary", "refugee", "hermit", "prophet", "usurper",
+      "foundling", "widow", "orphan", "prodigy", "pariah",
+      "midwife", "gravedigger", "cartographer", "apothecary", "scribe",
+      "ambassador", "hostage", "defector", "zealot", "heretic"
+    ],
+    "abstract": [
+      "silence", "symmetry", "paradox", "threshold", "echo",
+      "decay", "infinity", "entropy", "resonance", "equilibrium",
+      "dissonance", "convergence", "divergence", "recursion", "fractal",
+      "liminal", "ephemeral", "immutable", "inevitable", "contingent",
+      "absence", "duality", "trinity", "void", "plenitude",
+      "stasis", "flux", "singularity", "plurality", "ambiguity",
+      "irony", "hubris", "nemesis", "catharsis", "anagnorisis",
+      "taboo", "sacrifice", "transgression", "redemption", "absolution",
+      "prophecy", "omen", "curse", "blessing", "covenant",
+      "riddle", "enigma", "labyrinth", "cipher", "revelation"
+    ],
+    "material": [
+      "obsidian", "amber", "mercury", "ivory", "rust",
+      "silk", "basalt", "jade", "quicksilver", "pewter",
+      "brine", "charcoal", "parchment", "lacquer", "tallow",
+      "wax", "pitch", "linen", "bronze", "iron",
+      "copper", "tin", "silver", "gold", "lead",
+      "clay", "granite", "marble", "sandstone", "limestone",
+      "quartz", "mica", "feldspar", "flint", "slate",
+      "hemp", "wool", "leather", "bone", "antler",
+      "coral", "pearl", "nacre", "sap", "resin",
+      "ash", "soot", "salt", "sulfur", "phosphorus"
+    ],
+    "action": [
+      "forge", "shatter", "weave", "descend", "illuminate",
+      "consume", "bury", "unearth", "kindle", "quench",
+      "sever", "bind", "anoint", "distill", "ferment",
+      "temper", "calcify", "dissolve", "sublimate", "transmute",
+      "erode", "corrode", "polish", "carve", "engrave",
+      "suture", "graft", "transplant", "inoculate", "cauterize",
+      "consecrate", "profane", "invoke", "banish", "summon",
+      "exile", "imprison", "liberate", "besiege", "fortify",
+      "excavate", "dredge", "harvest", "thresh", "mill",
+      "smelt", "alloy", "cast", "anneal", "quench"
+    ],
+    "celestial": [
+      "zenith", "nadir", "solstice", "equinox", "perihelion",
+      "aphelion", "conjunction", "opposition", "retrograde", "transit",
+      "occultation", "corona", "penumbra", "umbra", "parallax",
+      "precession", "nebula", "pulsar", "quasar", "supernova",
+      "constellation", "asterism", "meridian", "azimuth", "declination",
+      "ascension", "celestial pole", "ecliptic", "zodiac", "firmament",
+      "comet", "meteor", "asteroid", "satellite", "orbit",
+      "phase", "crescent", "gibbous", "waning", "waxing",
+      "dawn", "dusk", "twilight", "midnight sun", "polar night",
+      "starfall", "moonrise", "sundial", "astrolabe", "orrery"
+    ],
+    "temporal": [
+      "epoch", "era", "aeon", "cycle", "interregnum",
+      "jubilee", "sabbatical", "vigil", "matins", "vespers",
+      "solstice", "harvest", "sowing", "thaw", "first frost",
+      "centennial", "millennial", "primordial", "antediluvian", "postdiluvian",
+      "ancestral", "generational", "ephemeral", "perennial", "immortal",
+      "nascent", "waning", "resurgent", "moribund", "eternal",
+      "yesterday", "tomorrow", "fortnight", "sennight", "lustrum",
+      "chronology", "anachronism", "synchronicity", "simultaneity", "succession",
+      "countdown", "culmination", "inception", "cessation", "recurrence",
+      "twilight years", "golden age", "dark age", "renaissance", "decline"
+    ],
+    "architecture": [
+      "keystone", "buttress", "vault", "nave", "apse",
+      "minaret", "parapet", "crenellation", "portcullis", "drawbridge",
+      "aqueduct", "cistern", "granary", "forge", "kiln",
+      "amphitheater", "coliseum", "ziggurat", "pyramid", "obelisk",
+      "lighthouse", "watchtower", "bastion", "rampart", "battlement",
+      "cloister", "scriptorium", "refectory", "dormitory", "infirmary",
+      "throne room", "great hall", "dungeon", "catacomb", "ossuary",
+      "courtyard", "atrium", "colonnade", "arcade", "loggia",
+      "spire", "dome", "cupola", "turret", "belltower",
+      "foundation", "cornerstone", "lintel", "threshold", "archway"
+    ],
+    "emotion": [
+      "yearning", "dread", "awe", "melancholy", "euphoria",
+      "reverence", "contempt", "nostalgia", "anguish", "serenity",
+      "fury", "tenderness", "defiance", "resignation", "wonder",
+      "grief", "ecstasy", "shame", "pride", "remorse",
+      "longing", "foreboding", "elation", "desolation", "rapture",
+      "indignation", "compassion", "envy", "gratitude", "despair",
+      "resolve", "ambivalence", "bewilderment", "exhilaration", "trepidation",
+      "wistfulness", "bitterness", "adoration", "loathing", "contentment",
+      "restlessness", "tranquility", "agitation", "solace", "torment",
+      "devotion", "apathy", "fervor", "languor", "exaltation"
+    ],
+    "myth_motif": [
+      "the flood", "the tree of life", "the underworld journey", "the stolen fire", "the trickster",
+      "the world serpent", "the dying god", "the sacred marriage", "the cosmic egg", "the primordial waters",
+      "the forbidden fruit", "the tower to heaven", "the labyrinth", "the golden age", "the twilight of the gods",
+      "the chosen one", "the wise fool", "the shapeshifter", "the oath-breaker", "the eternal return",
+      "the shadow self", "the threshold guardian", "the night sea journey", "the divine twins", "the weaver of fate",
+      "the wild hunt", "the sleeping king", "the lost paradise", "the world tree", "the bridge between worlds",
+      "the dragon hoard", "the magic mirror", "the enchanted sleep", "the impossible task", "the transforming bride",
+      "the animal bridegroom", "the descent into madness", "the return from death", "the naming of things", "the first song",
+      "the shattered vessel", "the unbreakable chain", "the face beneath the mask", "the price of knowledge", "the weight of the crown",
+      "the map to nowhere", "the voice in the well", "the last light", "the first lie", "the forgotten name"
+    ],
+    "sound": [
+      "resonance", "dissonance", "harmony", "cacophony", "murmur",
+      "thunderclap", "whisper", "tolling", "keening", "chanting",
+      "drumbeat", "birdsong", "howling", "silence", "reverberation",
+      "echo", "hum", "drone", "crescendo", "diminuendo",
+      "lament", "anthem", "dirge", "hymn", "battle cry",
+      "death rattle", "heartbeat", "footfall", "cracking ice", "rushing water",
+      "rustling leaves", "grinding stone", "ringing steel", "snapping bone", "hissing flame",
+      "rumbling earth", "sighing wind", "dripping water", "crackling fire", "rolling thunder",
+      "chime", "gong", "horn", "flute", "lyre",
+      "war drum", "funeral bell", "dawn chorus", "night song", "the great silence"
+    ],
+    "color_light": [
+      "crimson", "azure", "viridian", "ochre", "indigo",
+      "vermillion", "cerulean", "chartreuse", "umber", "sienna",
+      "burnished", "iridescent", "opalescent", "luminous", "phosphorescent",
+      "shadowed", "dappled", "mottled", "prismatic", "monochrome",
+      "gilded", "tarnished", "bleached", "stained", "suffused",
+      "corona", "halo", "penumbra", "afterglow", "gloom",
+      "radiance", "glimmer", "shimmer", "gleam", "flicker",
+      "blaze", "smolder", "glow", "spark", "flash",
+      "darkness", "brightness", "twilight", "shadowplay", "sunbeam",
+      "moonlight", "starlight", "firelight", "candlelight", "balefire"
+    ],
+    "creature": [
+      "leviathan", "behemoth", "chimera", "hydra", "phoenix",
+      "basilisk", "manticore", "griffin", "wyrm", "kraken",
+      "golem", "djinn", "ifrit", "naga", "kitsune",
+      "tengu", "oni", "rakshasa", "garuda", "makara",
+      "thunderbird", "wendigo", "skinwalker", "coyote", "raven",
+      "stag", "boar", "wolf", "serpent", "eagle",
+      "owl", "spider", "scorpion", "moth", "beetle",
+      "whale", "octopus", "shark", "eel", "jellyfish",
+      "salamander", "chameleon", "tortoise", "crocodile", "monitor",
+      "swarm", "pack", "flock", "hive", "colony"
+    ],
+    "geography": [
+      "caldera", "fjord", "mesa", "gorge", "plateau",
+      "isthmus", "peninsula", "strait", "crevasse", "escarpment",
+      "moraine", "alluvial plain", "karst", "badlands", "steppe",
+      "taiga", "moor", "heath", "fen", "bog",
+      "oasis", "wadi", "dune sea", "salt flat", "obsidian field",
+      "volcanic island", "barrier reef", "sea cave", "tidal flat", "mangrove coast",
+      "alpine meadow", "treeline", "snowfield", "ice shelf", "permafrost plain",
+      "hot spring", "fumarole", "lava tube", "crater lake", "thermal vent",
+      "river delta", "oxbow lake", "waterfall", "rapids", "confluence",
+      "headwater", "watershed", "aquifer", "underground river", "subterranean lake"
+    ],
+    "social": [
+      "caste", "guild", "clan", "tribe", "dynasty",
+      "council", "senate", "court", "parliament", "conclave",
+      "uprising", "revolution", "coup", "rebellion", "secession",
+      "alliance", "treaty", "embargo", "blockade", "truce",
+      "festival", "procession", "tournament", "pilgrimage", "carnival",
+      "market", "bazaar", "auction", "trade fair", "port of call",
+      "census", "taxation", "conscription", "corvee", "tribute",
+      "coronation", "investiture", "abdication", "exile", "amnesty",
+      "trial by combat", "trial by ordeal", "blood oath", "wergild", "hospitality rite",
+      "rite of passage", "coming of age", "marriage rite", "funeral rite", "ancestor worship"
+    ],
+    "transformation": [
+      "metamorphosis", "chrysalis", "molting", "shedding", "rebirth",
+      "transmutation", "alchemy", "catalysis", "fermentation", "distillation",
+      "calcination", "dissolution", "separation", "conjunction", "coagulation",
+      "petrification", "vitrification", "ossification", "crystallization", "sublimation",
+      "apotheosis", "deification", "incarnation", "transfiguration", "ascension",
+      "corruption", "purification", "sanctification", "desecration", "consecration",
+      "awakening", "enlightenment", "initiation", "ordination", "investiture",
+      "decay", "renewal", "restoration", "ruination", "genesis",
+      "evolution", "devolution", "mutation", "adaptation", "extinction",
+      "fusion", "fission", "synthesis", "analysis", "transcendence"
+    ]
+  }
+}

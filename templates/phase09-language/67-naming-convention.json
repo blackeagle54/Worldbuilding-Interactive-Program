@@ -18,10 +18,18 @@
     "common_suffixes": { "type": "array", "items": { "type": "string" } },
     "common_letter_combinations": { "type": "array", "items": { "type": "string" } },
     "compound_surname_rules": { "type": "string", "description": "How compound surnames work (father-mother order, hyphenation)" },
-    "name_change_triggers": { "type": "array", "items": { "type": "string" }, "description": "Events that cause name changes (coming of age, marriage, gaining magic, immigration)" },
+    "surname_sources": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["place", "occupation", "patronymic", "nickname", "employer", "physical_trait", "personal_trait", "ancestor", "event", "other"] },
+      "description": "Where surnames come from in this culture (places, occupations, father's name, nicknames, employer names)"
+    },
+    "articles_used": { "type": "array", "items": { "type": "string" }, "description": "Articles placed before surnames (e.g., 'de', 'd'', 'von', 'al-') -- not every name should have them" },
+    "nickname_conventions": { "type": "string", "description": "How nicknames become surnames -- unflattering nicknames for those who refuse to choose a surname, or names from nature/traits" },
+    "name_change_triggers": { "type": "array", "items": { "type": "string" }, "description": "Events that cause name changes (coming of age, marriage, gaining magic, immigration, conquest)" },
     "forbidden_names": { "type": "array", "items": { "type": "string" }, "description": "Names that are restricted or forbidden" },
     "naming_inspirations": { "type": "string", "description": "What inspires names (traits, occupations, places, ancestors)" },
     "syllable_target": { "type": "string", "description": "Target syllable count (1-3 ideal, rarely exceed 4)" },
+    "gender_suffix_rules": { "type": "string", "description": "Gender-based name suffixes (e.g., adding 'a' for females as in Russian convention)" },
     "notes": { "type": "string" }
   },
   "required": ["culture_id", "name_order", "typical_name_count", "common_suffixes"],

@@ -78,6 +78,7 @@
       },
       "description": "Species composition and special roles (elves as healers, dwarves as artillery)"
     },
+    "place_in_society": { "type": "string", "description": "How society views this group -- reverence, fear, suspicion, taken for granted. Impacts ceremonies, gifts, shops catering to them" },
     "skills": { "type": "string", "description": "Hand-to-hand combat, martial arts, special skills" },
     "identifiers": {
       "type": "object",
@@ -88,6 +89,57 @@
         "acceptance_symbols": { "type": "string", "description": "Medals, uniforms, special transport" }
       },
       "description": "How the force is identified"
+    },
+    "famous_for": { "type": "string", "description": "What this armed force is most famous for" },
+    "general_description": { "type": "string", "description": "General description of this armed force" },
+    "lore": { "type": "string", "description": "Legends and lore associated with this armed force" },
+    "history": { "type": "string", "description": "Narrative history of this armed force" },
+    "world_view": { "type": "string", "description": "Worldview and guiding philosophy of this armed force" },
+    "place_in_society": { "type": "string", "description": "The role and standing of this armed force in society" },
+    "languages": { "type": "array", "items": { "type": "string" }, "description": "Languages used by this armed force" },
+    "who_rules": { "type": "string", "description": "Who commands this armed force and the command structure" },
+    "who_they_are": { "type": "string", "description": "General characterization of members -- where they come from, what kind of people they are" },
+    "important_characters": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Important characters associated with this armed force"
+    },
+    "ceremony": { "type": "string", "description": "Acceptance ceremony and related rituals" },
+    "combat": {
+      "type": "object",
+      "properties": {
+        "on_foot": { "type": "string" },
+        "against_species": { "type": "string" },
+        "on_a_steed": { "type": "string" },
+        "special_attacks": { "type": "string" },
+        "special_defenses": { "type": "string" }
+      },
+      "description": "Combat techniques and specializations"
+    },
+    "formal": {
+      "type": "object",
+      "properties": {
+        "tournaments_and_contests": { "type": "string" },
+        "challenges_and_duels": { "type": "string" }
+      },
+      "description": "Formal combat events -- tournaments, challenges, duels"
+    },
+    "war_role": { "type": "string", "description": "Their role in wartime" },
+    "famous_battles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Famous battles this force has fought in"
+    },
+    "missions": { "type": "string", "description": "Types of missions undertaken" },
+    "major_accomplishments": {
+      "type": "object",
+      "properties": {
+        "general": { "type": "string" },
+        "inventions_and_discoveries": { "type": "string" },
+        "special_famous_failed_missions": { "type": "string" },
+        "unknown_missions": { "type": "string" }
+      },
+      "description": "Major accomplishments of this armed force"
     },
     "notes": { "type": "string" }
   },

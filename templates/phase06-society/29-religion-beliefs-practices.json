@@ -24,16 +24,20 @@
     "required_practices": { "type": "array", "items": { "type": "string" }, "description": "Required daily/weekly/annual practices" },
     "forbidden_foods": { "type": "array", "items": { "type": "string" }, "description": "Dietary restrictions" },
     "fasting_requirements": { "type": "string", "description": "Fasting rules and schedule" },
+    "worship_location": { "type": "string", "description": "Where worship occurs -- church/mosque, shrine, home, sacred grove, wilderness site" },
+    "worship_timing": { "type": "string", "description": "When worship occurs -- morning, night, weekly formal attendance, daily informal" },
     "prayer_practices": {
       "type": "object",
       "properties": {
         "frequency": { "type": "string" },
-        "posture": { "type": "string" },
-        "tools": { "type": "string" },
+        "posture": { "type": "string", "description": "Kneel, stand, use a mat (material, decoration, symbols)" },
+        "tools": { "type": "string", "description": "Talismans used in prayer -- cross, rosary beads, sacred cloth or mat" },
         "language": { "type": "string" }
       },
       "description": "Prayer practices"
     },
+    "hymns": { "type": "string", "description": "Religious songs -- language, when sung, any notable hymn lines" },
+    "sacrifice": { "type": "string", "description": "Whether sacrifice is practiced -- animal life, humanoid species, symbolic sacrifice of lifestyle or possessions" },
     "holy_texts": { "type": "string", "description": "Sacred texts, their form and language" },
     "holidays": {
       "type": "array",
