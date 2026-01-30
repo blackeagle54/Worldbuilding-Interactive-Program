@@ -22,3 +22,11 @@
 - Created docs/decisions.md (this file) and docs/progress.md for persistent context
 - Set up .claude/rules/ directory for scoped instructions
 - Researched MCP memory servers, hook-based systems, and file-based strategies
+
+## 2026-01-30: Core Design Decision — Intelligent Reference Querying
+- When guiding the user through worldbuilding steps, the system must query ALL 16 reference databases (10 mythologies + 6 authors) to find the most relevant information for the current creation task
+- **Fair representation**: No single mythology or author should dominate suggestions. The system should pull diverse examples from across all databases, giving the user a broad palette of inspiration
+- Examples: When creating gods, show how Greek, Norse, Hindu, Mesopotamian, etc. each handled pantheons differently, alongside how Tolkien, Jordan, Martin, etc. approached divine beings in fiction
+- The goal is informed, guided creativity — not just a blank template, but options and patterns drawn from real mythological and literary traditions
+- This querying will be powered by hooks (UserPromptSubmit) + a knowledge graph (MCP) that auto-inject relevant references based on the current progression step and what the user is discussing
+- Implementation deferred until Phase 2 when templates and data structures are defined
