@@ -99,6 +99,8 @@ def safe_append_jsonl(path, record):
     line = json.dumps(record, ensure_ascii=False) + "\n"
     with open(path, "a", encoding="utf-8") as fh:
         fh.write(line)
+        fh.flush()
+        os.fsync(fh.fileno())
 
 
 # ---------------------------------------------------------------------------

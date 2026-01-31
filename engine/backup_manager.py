@@ -400,6 +400,18 @@ class BackupManager:
                 for member in zf.namelist():
                     if member == "manifest.json":
                         continue
+                    # ZIP Slip protection: ensure extracted path stays
+                    # within the destination directory.
+                    target_path = os.path.realpath(
+                        os.path.join(tmp_extract_dir, member)
+                    )
+                    if not target_path.startswith(
+                        os.path.realpath(tmp_extract_dir) + os.sep
+                    ):
+                        raise RuntimeError(
+                            f"Blocked path traversal attempt in backup "
+                            f"archive: '{member}'"
+                        )
                     zf.extract(member, tmp_extract_dir)
         except (zipfile.BadZipFile, OSError) as exc:
             # Clean up the partial extraction

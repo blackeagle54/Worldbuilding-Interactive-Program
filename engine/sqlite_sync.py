@@ -522,7 +522,8 @@ class SQLiteSyncEngine:
     _DANGEROUS_KEYWORDS = frozenset({
         "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE",
         "REPLACE", "ATTACH", "DETACH", "REINDEX", "VACUUM",
-        "PRAGMA", "LOAD_EXTENSION",
+        "PRAGMA", "LOAD_EXTENSION", "SAVEPOINT", "RELEASE",
+        "ROLLBACK", "COMMIT", "BEGIN",
     })
 
     def advanced_query(self, sql: str, params: tuple | list | None = None) -> list[dict]:
@@ -577,8 +578,16 @@ class SQLiteSyncEngine:
 
         if params is None:
             params = ()
-        rows = self._conn.execute(sql, params).fetchall()
-        return [dict(r) for r in rows]
+        # Open a separate read-only connection for user-supplied queries
+        # to prevent any write operations even if the keyword filter is bypassed.
+        db_path = str(self.db_path)
+        ro_conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+        ro_conn.row_factory = sqlite3.Row
+        try:
+            rows = ro_conn.execute(sql, params).fetchall()
+            return [dict(r) for r in rows]
+        finally:
+            ro_conn.close()
 
     def query_entities(
         self,

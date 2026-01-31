@@ -25,6 +25,7 @@ import os
 import re
 import copy
 import secrets
+import threading
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
@@ -996,6 +997,8 @@ class DataManager:
         self._state: dict = self._load_state()
         # Lazy-loaded Pydantic model factory
         self._model_factory: _ModelFactory | None = None
+        # Lock to protect state read-modify-write cycles
+        self._state_lock = threading.RLock()
 
     def _get_model_factory(self) -> _ModelFactory:
         """Return the shared Pydantic ModelFactory (lazy-loaded)."""
@@ -1283,17 +1286,18 @@ class DataManager:
         # Write entity file
         _safe_write_json(str(file_path_abs), entity_doc)
 
-        # Update state.json entity index
-        self._state.setdefault("entity_index", {})[entity_id] = {
-            "template_id": template_id,
-            "entity_type": entity_type,
-            "name": data.get("name", entity_id),
-            "status": "draft",
-            "file_path": file_path_rel,
-            "created_at": now,
-            "updated_at": now,
-        }
-        self._save_state()
+        # Update state.json entity index (locked to prevent concurrent corruption)
+        with self._state_lock:
+            self._state.setdefault("entity_index", {})[entity_id] = {
+                "template_id": template_id,
+                "entity_type": entity_type,
+                "name": data.get("name", entity_id),
+                "status": "draft",
+                "file_path": file_path_rel,
+                "created_at": now,
+                "updated_at": now,
+            }
+            self._save_state()
 
         return entity_id
 
@@ -1374,13 +1378,14 @@ class DataManager:
         # Write updated entity
         _safe_write_json(file_path, merged)
 
-        # Update state index
-        index_entry = self._state.get("entity_index", {}).get(entity_id, {})
-        index_entry["updated_at"] = now
-        if "name" in data:
-            index_entry["name"] = data["name"]
-        self._state.setdefault("entity_index", {})[entity_id] = index_entry
-        self._save_state()
+        # Update state index (locked to prevent concurrent corruption)
+        with self._state_lock:
+            index_entry = self._state.get("entity_index", {}).get(entity_id, {})
+            index_entry["updated_at"] = now
+            if "name" in data:
+                index_entry["name"] = data["name"]
+            self._state.setdefault("entity_index", {})[entity_id] = index_entry
+            self._save_state()
 
     def get_entity(self, entity_id: str) -> dict:
         """Load and return a single entity by ID.

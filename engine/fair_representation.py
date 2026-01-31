@@ -14,7 +14,10 @@ Usage counters are persisted in user-world/state.json under
 
 import json
 import random
+import threading
 from pathlib import Path
+
+from engine.utils import safe_write_json as _safe_write_json
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -55,6 +58,7 @@ class FairRepresentationManager:
 
     def __init__(self, state_file_path):
         self.state_file_path = Path(state_file_path)
+        self._lock = threading.Lock()
         self._state = self._load_state()
         self._usage = self._state.setdefault("reference_usage_counts", {})
         self._ensure_all_counters()
@@ -121,19 +125,18 @@ class FairRepresentationManager:
         The counters are written under the key ``reference_usage_counts``
         inside the existing state file.  All other state data is preserved.
         """
-        # Re-read the file to avoid clobbering concurrent changes to other
-        # keys (e.g. current_step modified by another module).
-        try:
-            with open(self.state_file_path, "r", encoding="utf-8") as fh:
-                on_disk = json.load(fh)
-        except (FileNotFoundError, json.JSONDecodeError):
-            on_disk = {}
+        with self._lock:
+            # Re-read the file to avoid clobbering concurrent changes to other
+            # keys (e.g. current_step modified by another module).
+            try:
+                with open(self.state_file_path, "r", encoding="utf-8") as fh:
+                    on_disk = json.load(fh)
+            except (FileNotFoundError, json.JSONDecodeError):
+                on_disk = {}
 
-        on_disk["reference_usage_counts"] = dict(self._usage)
+            on_disk["reference_usage_counts"] = dict(self._usage)
 
-        self.state_file_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.state_file_path, "w", encoding="utf-8") as fh:
-            json.dump(on_disk, fh, indent=2, ensure_ascii=False)
+            _safe_write_json(str(self.state_file_path), on_disk)
 
     def select_option_sources(self, num_options):
         """Assign unique source-database combinations to each option.

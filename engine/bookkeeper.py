@@ -25,6 +25,8 @@ import glob
 from datetime import datetime, timezone
 from pathlib import Path
 
+from engine.utils import safe_write_json as _safe_write_json
+
 
 class BookkeepingManager:
     """Manages event logging, derived indexes, and session summaries.
@@ -139,10 +141,8 @@ class BookkeepingManager:
             return None
 
     def _write_json(self, path, data):
-        """Write *data* as pretty-printed JSON to *path*."""
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as fh:
-            json.dump(data, fh, indent=2, ensure_ascii=False)
+        """Write *data* as pretty-printed JSON to *path* using atomic write."""
+        _safe_write_json(str(path), data)
 
     def log_event(self, event_type, data):
         """Append an event to the JSONL log and in-memory session list.

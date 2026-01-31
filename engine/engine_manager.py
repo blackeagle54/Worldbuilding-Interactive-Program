@@ -15,9 +15,12 @@ Usage:
     em.with_lock("data_manager", lambda dm: dm.get_entity("some-id"))
 """
 
+import logging
 import os
 import threading
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 class EngineManager:
@@ -196,7 +199,7 @@ class EngineManager:
             try:
                 sqlite.close()
             except Exception:
-                pass
+                logger.warning("Error closing SQLite connection during shutdown", exc_info=True)
 
     # ------------------------------------------------------------------
     # Internal
