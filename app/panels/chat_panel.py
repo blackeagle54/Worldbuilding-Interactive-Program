@@ -29,6 +29,8 @@ from app.services.event_bus import EventBus
 
 logger = logging.getLogger(__name__)
 
+MAX_HISTORY = 50
+
 # CSS for message bubbles inside the QTextEdit
 _CHAT_CSS = """
 body {
@@ -376,6 +378,7 @@ class ChatPanel(QWidget):
 
         # Track in conversation history
         self._conversation_history.append({"role": "user", "content": text})
+        self._conversation_history = self._conversation_history[-MAX_HISTORY:]
 
         # Send via AgentWorker if available
         if self._worker is not None:
@@ -391,6 +394,10 @@ class ChatPanel(QWidget):
                 "Claude is not connected. Configure the API key or "
                 "Claude CLI to enable AI assistance."
             )
+
+    def focus_input(self) -> None:
+        """Set focus to the chat input field."""
+        self._input.setFocus()
 
     def _on_stop(self) -> None:
         """Handle stop button click."""

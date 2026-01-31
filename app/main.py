@@ -13,8 +13,10 @@ Usage::
 
 from __future__ import annotations
 
-import logging
 import os
+os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
+
+import logging
 import sys
 import traceback
 
@@ -79,9 +81,6 @@ def main() -> int:
     # On first frozen run, copy bundled data to user data dir
     if is_frozen():
         ensure_user_data(get_bundle_dir(), get_user_data_dir())
-
-    # Enable high-DPI scaling
-    os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
 
     # Must create QApplication before anything else Qt-related
     from PySide6.QtWidgets import QApplication

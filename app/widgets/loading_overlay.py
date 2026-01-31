@@ -7,7 +7,7 @@ loading data, and a small inline spinner label for lighter indicators.
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import QEvent, Qt, QTimer
 from PySide6.QtGui import QPainter, QColor
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
@@ -29,6 +29,7 @@ class LoadingOverlay(QWidget):
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
         self.setVisible(False)
+        parent.installEventFilter(self)
 
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -78,7 +79,15 @@ class LoadingOverlay(QWidget):
         super().paintEvent(event)
 
     def resizeEvent(self, event) -> None:
+        if self.isVisible() and self.parent():
+            self.setGeometry(self.parent().rect())
         super().resizeEvent(event)
+
+    def eventFilter(self, obj, event) -> bool:
+        if obj is self.parent() and event.type() == QEvent.Type.Resize:
+            if self.isVisible():
+                self.setGeometry(self.parent().rect())
+        return super().eventFilter(obj, event)
 
 
 class SpinnerLabel(QLabel):

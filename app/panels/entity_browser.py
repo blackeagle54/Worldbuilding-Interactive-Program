@@ -198,13 +198,22 @@ class EntityBrowserPanel(QWidget):
         self._table.customContextMenuRequested.connect(self._on_context_menu)
 
         # EventBus -- react to external changes
-        self._bus.entity_created.connect(lambda _: self.refresh())
-        self._bus.entity_updated.connect(lambda _: self.refresh())
-        self._bus.entity_deleted.connect(lambda _: self.refresh())
+        self._refresh_timer = QTimer(self)
+        self._refresh_timer.setSingleShot(True)
+        self._refresh_timer.setInterval(100)
+        self._refresh_timer.timeout.connect(self.refresh)
+
+        self._bus.entity_created.connect(lambda _: self._schedule_refresh())
+        self._bus.entity_updated.connect(lambda _: self._schedule_refresh())
+        self._bus.entity_deleted.connect(lambda _: self._schedule_refresh())
 
     # ------------------------------------------------------------------
     # Data loading
     # ------------------------------------------------------------------
+
+    def _schedule_refresh(self) -> None:
+        """Debounce refresh calls with a 100ms timer."""
+        self._refresh_timer.start()
 
     def refresh(self) -> None:
         """Reload the entity list from the engine."""
@@ -213,7 +222,6 @@ class EntityBrowserPanel(QWidget):
 
         self._loading.show_loading("Loading entities...")
         try:
-            dm = self._engine.data_manager
             entities = self._engine.with_lock("data_manager", lambda d: d.list_entities())
         except Exception:
             logger.exception("Failed to load entity list")
@@ -335,6 +343,10 @@ class EntityBrowserPanel(QWidget):
     # ------------------------------------------------------------------
     # External selection (from other panels)
     # ------------------------------------------------------------------
+
+    def focus_search(self) -> None:
+        """Set focus to the search input field."""
+        self._search.setFocus()
 
     def select_entity(self, entity_id: str) -> None:
         """Highlight a specific entity row (called from other panels)."""

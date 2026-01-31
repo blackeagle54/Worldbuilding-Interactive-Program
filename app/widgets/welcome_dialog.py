@@ -52,7 +52,7 @@ def _check_api_key() -> tuple[bool, str]:
     """Check if the Anthropic API key is set."""
     key = os.environ.get("ANTHROPIC_API_KEY", "")
     if key:
-        masked = f"{key[:8]}...{key[-4:]}" if len(key) > 12 else "***"
+        masked = f"***{key[-4:]}" if len(key) >= 4 else "***"
         return True, f"Set ({masked})"
     return False, "ANTHROPIC_API_KEY not set"
 

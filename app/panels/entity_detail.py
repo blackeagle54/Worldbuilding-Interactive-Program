@@ -151,7 +151,6 @@ class EntityDetailView(QDialog):
         # Load template schema
         if self._engine and self._template_id:
             try:
-                dm = self._engine.data_manager
                 schema = self._engine.with_lock(
                     "data_manager",
                     lambda d: d._get_template_schema(self._template_id),
@@ -236,9 +235,10 @@ class EntityDetailView(QDialog):
             return
 
         # Validate through enforcement pipeline
-        template_id = form_data.pop("$id", self._template_id)
+        data = dict(form_data)
+        template_id = data.pop("$id", self._template_id)
         result, saved_id = self._enforcement.validate_and_save_entity(
-            form_data, template_id, self._entity_id or None,
+            data, template_id, self._entity_id or None,
         )
 
         if result.passed and saved_id:
@@ -254,7 +254,7 @@ class EntityDetailView(QDialog):
             self._form.set_validation_results(field_errors)
 
             self.entity_saved.emit(saved_id)
-            self._bus.status_message.emit(f"Saved: {form_data.get('name', saved_id)}")
+            self._bus.status_message.emit(f"Saved: {data.get('name', saved_id)}")
             self.accept()
         else:
             # Show validation errors
@@ -278,20 +278,20 @@ class EntityDetailView(QDialog):
             return
 
         try:
-            dm = self._engine.data_manager
-            template_id = form_data.pop("$id", self._template_id)
+            data = dict(form_data)
+            template_id = data.pop("$id", self._template_id)
 
             if self._entity_id:
                 self._engine.with_lock(
                     "data_manager",
-                    lambda d: d.update_entity(self._entity_id, form_data),
+                    lambda d: d.update_entity(self._entity_id, data),
                 )
                 saved_id = self._entity_id
                 self._bus.entity_updated.emit(saved_id)
             else:
                 saved_id = self._engine.with_lock(
                     "data_manager",
-                    lambda d: d.create_entity(template_id, form_data),
+                    lambda d: d.create_entity(template_id, data),
                 )
                 self._bus.entity_created.emit(saved_id)
 

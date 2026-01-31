@@ -309,13 +309,22 @@ class KnowledgeGraphPanel(QWidget):
         self._refresh_btn.clicked.connect(self.refresh)
         self._scene.selectionChanged.connect(self._on_selection_changed)
 
-        self._bus.entity_created.connect(lambda _: self.refresh())
-        self._bus.entity_updated.connect(lambda _: self.refresh())
-        self._bus.entity_deleted.connect(lambda _: self.refresh())
+        self._refresh_timer = QTimer(self)
+        self._refresh_timer.setSingleShot(True)
+        self._refresh_timer.setInterval(100)
+        self._refresh_timer.timeout.connect(self.refresh)
+
+        self._bus.entity_created.connect(lambda _: self._schedule_refresh())
+        self._bus.entity_updated.connect(lambda _: self._schedule_refresh())
+        self._bus.entity_deleted.connect(lambda _: self._schedule_refresh())
 
     # ------------------------------------------------------------------
     # Graph building
     # ------------------------------------------------------------------
+
+    def _schedule_refresh(self) -> None:
+        """Debounce refresh calls with a 100ms timer."""
+        self._refresh_timer.start()
 
     def refresh(self) -> None:
         """Rebuild the graph from the engine's WorldGraph."""
@@ -323,13 +332,13 @@ class KnowledgeGraphPanel(QWidget):
             return
 
         try:
-            wg = self._engine.world_graph
             graph = self._engine.with_lock("world_graph", lambda g: g.graph)
         except Exception:
             logger.exception("Failed to access WorldGraph")
             return
 
         self._scene.clear()
+        self._selected_node = None
         self._nodes.clear()
         self._edges.clear()
 

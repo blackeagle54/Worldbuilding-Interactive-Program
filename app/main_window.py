@@ -273,12 +273,12 @@ class MainWindow(QMainWindow):
     def _focus_entity_search(self) -> None:
         self._entity_dock.setVisible(True)
         self._entity_dock.raise_()
-        self._entity_panel._search.setFocus()
+        self._entity_panel.focus_search()
 
     def _focus_chat(self) -> None:
         self._chat_dock.setVisible(True)
         self._chat_dock.raise_()
-        self._chat_panel._input.setFocus()
+        self._chat_panel.focus_input()
 
     def _save_state(self) -> None:
         try:
