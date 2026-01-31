@@ -20,6 +20,7 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 import threading
 from dataclasses import dataclass, field
 from enum import Enum, auto
@@ -314,6 +315,11 @@ class ClaudeClient:
             if system_prompt:
                 cmd.extend(["--system-prompt", system_prompt])
 
+            # CREATE_NO_WINDOW prevents a console flash on Windows
+            creation_flags = 0
+            if sys.platform == "win32":
+                creation_flags = subprocess.CREATE_NO_WINDOW
+
             proc = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -321,6 +327,7 @@ class ClaudeClient:
                 text=True,
                 encoding="utf-8",
                 errors="replace",
+                creationflags=creation_flags,
             )
 
             try:

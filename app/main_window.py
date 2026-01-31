@@ -391,6 +391,7 @@ class MainWindow(QMainWindow):
         self._toast.show_info(message)
 
     def _on_error(self, message: str) -> None:
+        logger.error("UI error: %s", message)
         self._status_bar.showMessage(f"Error: {message}", 10000)
         self._toast.show_error(message)
 

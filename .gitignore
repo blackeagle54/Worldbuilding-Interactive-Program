@@ -4,6 +4,7 @@ __pycache__/
 runtime/*.db
 backups/*.zip
 *.log
+logs/
 *.tmp
 .venv/
 venv/

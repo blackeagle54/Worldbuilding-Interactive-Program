@@ -31,11 +31,24 @@ from app.paths import get_project_root, is_frozen, get_bundle_dir, get_user_data
 
 def _setup_logging() -> None:
     """Configure logging for the desktop application."""
+    log_format = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    log_datefmt = "%H:%M:%S"
+
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-        datefmt="%H:%M:%S",
+        format=log_format,
+        datefmt=log_datefmt,
     )
+
+    # Also log to file for monitoring/debugging
+    log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    file_handler = logging.FileHandler(
+        os.path.join(log_dir, "app.log"), encoding="utf-8"
+    )
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter(log_format, datefmt=log_datefmt))
+    logging.getLogger().addHandler(file_handler)
 
 
 def _global_exception_hook(exc_type, exc_value, exc_tb):
