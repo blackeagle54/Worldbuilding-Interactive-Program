@@ -406,6 +406,7 @@ class ChatPanel(QWidget):
 
         # Send via AgentWorker if available
         if self._worker is not None:
+            logger.info("Sending message to AgentWorker: %s", text[:50])
             self._start_streaming()
             self._worker.send(
                 text,
@@ -413,6 +414,7 @@ class ChatPanel(QWidget):
                 conversation_history=self._conversation_history[:-1],
             )
         else:
+            logger.warning("No worker available -- cannot send message")
             # No worker -- show offline message
             self._append_system_message(
                 "Claude is not connected. Configure the API key or "

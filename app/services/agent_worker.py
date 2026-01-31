@@ -74,6 +74,7 @@ class AgentWorker(QThread):
         self._user_message = user_message
         self._system_prompt = system_prompt
         self._history = list(conversation_history or [])
+        logger.info("AgentWorker.send() starting thread")
         self.start()
 
     def cancel(self) -> None:
@@ -82,13 +83,16 @@ class AgentWorker(QThread):
 
     def run(self) -> None:
         """Thread entry point -- streams events from ClaudeClient."""
+        logger.info("AgentWorker thread started for message: %s", self._user_message[:50])
         try:
             for event in self._client.send_message(
                 self._user_message,
                 self._system_prompt,
                 self._history,
             ):
+                logger.debug("AgentWorker event: %s", event.type)
                 self._handle_event(event)
+            logger.info("AgentWorker stream complete")
         except Exception as e:
             logger.exception("AgentWorker run() failed")
             self.error_occurred.emit(str(e))

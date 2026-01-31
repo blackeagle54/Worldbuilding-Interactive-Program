@@ -312,6 +312,7 @@ class ClaudeClient:
                 "--output-format", "stream-json",
                 "--verbose",
             ]
+            logger.debug("Subprocess cmd: %s", cmd)
 
             if system_prompt:
                 cmd.extend(["--system-prompt", system_prompt])
@@ -348,11 +349,47 @@ class ClaudeClient:
                     try:
                         event = json.loads(line)
                     except json.JSONDecodeError:
+                        logger.debug("Non-JSON line from CLI: %s", line[:100])
                         continue
 
                     event_type = event.get("type", "")
+                    logger.debug("CLI event: type=%s", event_type)
 
-                    if event_type == "content_block_delta":
+                    # Claude CLI stream-json format uses these event types:
+                    #   "system"    -- init info (session_id, model, tools)
+                    #   "assistant" -- full message with content blocks
+                    #   "result"    -- final summary with result text
+                    #   "content_block_delta" -- only in raw API streaming
+
+                    if event_type == "assistant":
+                        # Full message -- extract text from content blocks
+                        message = event.get("message", {})
+                        for block in message.get("content", []):
+                            if block.get("type") == "text":
+                                text = block.get("text", "")
+                                if text:
+                                    accumulated_text += text
+                                    yield StreamEvent(type=EventType.TOKEN, data=text)
+                            elif block.get("type") == "tool_use":
+                                yield StreamEvent(
+                                    type=EventType.TOOL_CALL,
+                                    data=block.get("name", "unknown"),
+                                    tool_name=block.get("name", ""),
+                                    tool_input=block.get("input", {}),
+                                )
+
+                    elif event_type == "result":
+                        # Final result -- emit completion
+                        result_text = event.get("result", accumulated_text)
+                        if not message_complete_emitted:
+                            message_complete_emitted = True
+                            yield StreamEvent(
+                                type=EventType.MESSAGE_COMPLETE,
+                                data=result_text or accumulated_text,
+                            )
+
+                    elif event_type == "content_block_delta":
+                        # Raw API streaming format (if CLI ever uses it)
                         text = event.get("delta", {}).get("text", "")
                         if text:
                             accumulated_text += text
