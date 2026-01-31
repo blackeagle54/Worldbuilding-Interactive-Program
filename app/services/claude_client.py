@@ -217,7 +217,7 @@ class ClaudeClient:
                 accumulated_text = ""
 
                 with client.messages.stream(
-                    model="claude-sonnet-4-20250514",
+                    model="claude-opus-4-0-20250514",
                     max_tokens=4096,
                     system=system_prompt,
                     messages=messages,
@@ -574,6 +574,7 @@ class ClaudeClient:
                 "-p", enriched_user,
                 "--output-format", "stream-json",
                 "--verbose",
+                "--model", "claude-opus-4-0-20250514",
             ]
             logger.debug("Subprocess cmd: %s", cmd)
 
