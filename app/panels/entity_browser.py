@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMenu,
+    QPushButton,
     QTableView,
     QVBoxLayout,
     QWidget,
@@ -42,6 +43,9 @@ COL_STATUS = 2
 
 # Custom role for storing entity ID in model items
 ENTITY_ID_ROLE = Qt.ItemDataRole.UserRole + 1
+
+# Pagination
+PAGE_SIZE = 100  # Number of entities loaded per batch
 
 
 class EntityFilterProxy(QSortFilterProxyModel):
@@ -93,6 +97,8 @@ class EntityBrowserPanel(QWidget):
         super().__init__(parent)
         self._engine = None  # Set via set_engine()
         self._bus = EventBus.instance()
+        self._all_entities: list[dict] = []  # Full entity list from engine
+        self._loaded_count: int = 0  # How many have been loaded into the model
         self._setup_ui()
         self._connect_signals()
 
@@ -172,6 +178,12 @@ class EntityBrowserPanel(QWidget):
 
         layout.addWidget(self._table, 1)
 
+        # "Load More" button (shown when entities are paginated)
+        self._load_more_btn = QPushButton(f"Load More (next {PAGE_SIZE})")
+        self._load_more_btn.setVisible(False)
+        self._load_more_btn.clicked.connect(self._load_next_page)
+        layout.addWidget(self._load_more_btn)
+
         # Loading overlay
         self._loading = LoadingOverlay(self._table)
 
@@ -222,31 +234,31 @@ class EntityBrowserPanel(QWidget):
 
         self._loading.show_loading("Loading entities...")
         try:
-            entities = self._engine.with_lock("data_manager", lambda d: d.list_entities())
+            self._all_entities = self._engine.with_lock(
+                "data_manager", lambda d: d.list_entities()
+            )
         except Exception:
             logger.exception("Failed to load entity list")
             self._loading.hide_loading()
             return
 
         self._model.removeRows(0, self._model.rowCount())
+        self._loaded_count = 0
 
-        # Track unique types for the filter combo
+        # Load first page
+        self._load_page(self._all_entities[:PAGE_SIZE])
+        self._loaded_count = min(PAGE_SIZE, len(self._all_entities))
+
+        # Show/hide "Load More" button
+        self._load_more_btn.setVisible(
+            self._loaded_count < len(self._all_entities)
+        )
+
+        # Update type filter combo from ALL entities (not just loaded page)
         entity_types: set[str] = set()
+        for ent in self._all_entities:
+            entity_types.add(ent.get("entity_type", "unknown"))
 
-        for ent in entities:
-            name_item = QStandardItem(ent.get("name", "(unnamed)"))
-            name_item.setData(ent.get("id", ""), ENTITY_ID_ROLE)
-
-            etype = ent.get("entity_type", "unknown")
-            entity_types.add(etype)
-            type_item = QStandardItem(etype)
-
-            status = ent.get("status", "draft")
-            status_item = QStandardItem(status)
-
-            self._model.appendRow([name_item, type_item, status_item])
-
-        # Update type filter combo (preserving current selection)
         current_type = self._type_combo.currentData()
         self._type_combo.blockSignals(True)
         self._type_combo.clear()
@@ -254,7 +266,6 @@ class EntityBrowserPanel(QWidget):
         for t in sorted(entity_types):
             display = t.replace("_", " ").replace("-", " ").title()
             self._type_combo.addItem(display, t)
-        # Restore selection
         idx = self._type_combo.findData(current_type)
         if idx >= 0:
             self._type_combo.setCurrentIndex(idx)
@@ -262,6 +273,39 @@ class EntityBrowserPanel(QWidget):
 
         self._update_count_label()
         self._loading.hide_loading()
+
+    def _load_page(self, entities: list[dict]) -> None:
+        """Append a batch of entities to the model."""
+        for ent in entities:
+            name_item = QStandardItem(ent.get("name", "(unnamed)"))
+            name_item.setData(ent.get("id", ""), ENTITY_ID_ROLE)
+
+            etype = ent.get("entity_type", "unknown")
+            type_item = QStandardItem(etype)
+
+            status = ent.get("status", "draft")
+            status_item = QStandardItem(status)
+
+            self._model.appendRow([name_item, type_item, status_item])
+
+    def _load_next_page(self) -> None:
+        """Load the next page of entities into the model."""
+        start = self._loaded_count
+        end = start + PAGE_SIZE
+        page = self._all_entities[start:end]
+        self._load_page(page)
+        self._loaded_count += len(page)
+
+        self._load_more_btn.setVisible(
+            self._loaded_count < len(self._all_entities)
+        )
+        remaining = len(self._all_entities) - self._loaded_count
+        if remaining > 0:
+            self._load_more_btn.setText(
+                f"Load More ({remaining} remaining)"
+            )
+
+        self._update_count_label()
 
     # ------------------------------------------------------------------
     # Handlers

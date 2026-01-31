@@ -114,12 +114,15 @@ class OptionCard(QFrame):
         title_label.setWordWrap(True)
         layout.addWidget(title_label)
 
-        # Description
+        # Description (capped height with tooltip for full text)
         desc = QTextEdit()
         desc.setReadOnly(True)
         desc.setPlainText(description)
         desc.setMaximumHeight(120)
         desc.setStyleSheet("background-color: transparent; border: none;")
+        # Show full description in tooltip when text is long
+        if len(description) > 200:
+            desc.setToolTip(description[:500] + ("..." if len(description) > 500 else ""))
         layout.addWidget(desc)
 
         # Canon connections

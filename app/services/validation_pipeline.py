@@ -18,6 +18,8 @@ orchestrates them into a single pass and produces a structured result.
 
 from __future__ import annotations
 
+import hashlib
+import json as _json
 import logging
 import re
 from dataclasses import dataclass, field
@@ -242,10 +244,15 @@ class ValidationPipeline:
         result = pipeline.validate_options(options_data)
     """
 
+    # Simple LRU-style validation cache to avoid re-running identical
+    # validations within the same session.  Keyed by (template_id, data_hash).
+    _CACHE_MAX_SIZE = 64
+
     def __init__(self, engine_manager: Any, current_step: int = 1):
         self._engine = engine_manager
         self._current_step = current_step
         self._drift = DriftDetector(engine_manager, current_step)
+        self._cache: dict[tuple[str, int], ValidationResult] = {}
 
     def set_current_step(self, step: int) -> None:
         self._current_step = step
@@ -254,6 +261,14 @@ class ValidationPipeline:
     # ------------------------------------------------------------------
     # Entity validation (Layers 1-6)
     # ------------------------------------------------------------------
+
+    def _data_hash(self, data: dict) -> int:
+        """Produce a stable hash of entity data for cache lookup."""
+        try:
+            raw = _json.dumps(data, sort_keys=True, default=str)
+            return int(hashlib.md5(raw.encode()).hexdigest(), 16)
+        except Exception:
+            return id(data)
 
     def validate_entity(
         self, entity_data: dict, template_id: str = ""
@@ -268,6 +283,12 @@ class ValidationPipeline:
             5. Drift detection
             6. Semantic similarity
         """
+        # Check cache for identical data + template combination
+        cache_key = (template_id, self._data_hash(entity_data))
+        cached = self._cache.get(cache_key)
+        if cached is not None:
+            return cached
+
         issues: list[ValidationIssue] = []
         drift_types: list[str] = []
 
@@ -350,6 +371,17 @@ class ValidationPipeline:
             retry_hint="Fix validation errors and try again." if has_errors else "",
         )
         result.human_message = result.format_human()
+
+        # Store in cache (evict oldest entries if over limit)
+        if len(self._cache) >= self._CACHE_MAX_SIZE:
+            # Remove the oldest entry (first key)
+            try:
+                oldest = next(iter(self._cache))
+                del self._cache[oldest]
+            except StopIteration:
+                pass
+        self._cache[cache_key] = result
+
         return result
 
     # ------------------------------------------------------------------

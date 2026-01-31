@@ -122,6 +122,13 @@ class MainWindow(QMainWindow):
         # Restore layout from previous session
         self._restore_layout()
 
+        # Periodically save layout (in case of crash, layout is not lost)
+        from PySide6.QtCore import QTimer
+        self._layout_save_timer = QTimer(self)
+        self._layout_save_timer.setInterval(60_000)  # every 60 seconds
+        self._layout_save_timer.timeout.connect(self._save_layout)
+        self._layout_save_timer.start()
+
     # ------------------------------------------------------------------
     # Engine / state injection
     # ------------------------------------------------------------------

@@ -157,6 +157,16 @@ class WelcomeDialog(QDialog):
 
         layout.addStretch()
 
+        # Documentation link
+        doc_link = QLabel(
+            '<a href="https://github.com/your-repo/worldbuilding-interactive-program#readme" '
+            'style="color: #64B5F6;">View Documentation & Getting Started Guide</a>'
+        )
+        doc_link.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        doc_link.setOpenExternalLinks(True)
+        doc_link.setStyleSheet("font-size: 11px;")
+        layout.addWidget(doc_link)
+
         # Button
         btn_row = QHBoxLayout()
         btn_row.addStretch()

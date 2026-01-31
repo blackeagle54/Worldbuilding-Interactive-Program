@@ -30,6 +30,7 @@ from app.services.event_bus import EventBus
 logger = logging.getLogger(__name__)
 
 MAX_HISTORY = 50
+MAX_DISPLAY_MESSAGES = 200  # Trim HTML display to prevent memory bloat
 
 # CSS for message bubbles inside the QTextEdit
 _CHAT_CSS = """
@@ -134,6 +135,7 @@ class ChatPanel(QWidget):
         self._stream_buffer = ""
         self._conversation_history: list[dict] = []
         self._system_prompt = ""
+        self._display_msg_count = 0
         self._setup_ui()
         self._connect_signals()
 
@@ -227,6 +229,11 @@ class ChatPanel(QWidget):
 
     def _append_message(self, sender: str, text: str, css_class: str) -> None:
         """Append a styled message bubble to the display."""
+        # Trim old messages if display has grown too large
+        self._display_msg_count += 1
+        if self._display_msg_count > MAX_DISPLAY_MESSAGES:
+            self._trim_display()
+
         html_text = _md_to_html(text)
         bubble = (
             f'<div class="msg {css_class}">'
@@ -242,6 +249,23 @@ class ChatPanel(QWidget):
 
         scrollbar = self._display.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
+
+    def _trim_display(self) -> None:
+        """Remove the oldest messages from the display to stay within budget."""
+        doc = self._display.document()
+        # Remove roughly the first quarter of content
+        cursor = QTextCursor(doc)
+        cursor.movePosition(QTextCursor.MoveOperation.Start)
+        # Move to 25% of document length
+        total_chars = doc.characterCount()
+        trim_chars = total_chars // 4
+        cursor.movePosition(
+            QTextCursor.MoveOperation.Right,
+            QTextCursor.MoveMode.KeepAnchor,
+            trim_chars,
+        )
+        cursor.removeSelectedText()
+        self._display_msg_count = int(self._display_msg_count * 0.75)
 
     def _append_user_message(self, text: str) -> None:
         self._append_message("You", text, "user-msg")

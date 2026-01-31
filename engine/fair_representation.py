@@ -101,6 +101,12 @@ class FairRepresentationManager:
         for name in featured_myths + featured_auths:
             self._usage[name] = self._usage.get(name, 0) + 1
 
+        # Auto-persist counters to prevent drift between in-memory and disk.
+        try:
+            self.save_state()
+        except Exception:
+            pass  # Non-critical; counters will persist on next explicit save
+
         return {
             "featured_mythologies": featured_myths,
             "featured_authors": featured_auths,
@@ -204,6 +210,12 @@ class FairRepresentationManager:
         # Increment usage counters for primary selections only.
         for name in primary_myths + primary_auths:
             self._usage[name] = self._usage.get(name, 0) + 1
+
+        # Auto-persist counters to prevent drift between in-memory and disk.
+        try:
+            self.save_state()
+        except Exception:
+            pass  # Non-critical; counters will persist on next explicit save
 
         return results
 

@@ -204,6 +204,12 @@ class ProgressSidebarPanel(QWidget):
                 title = STEPS.get(step_num, f"Step {step_num}")
                 step_item.setText(0, f"  {_ICON_AVAILABLE}  {step_num}. {title}")
                 step_item.setData(0, Qt.ItemDataRole.UserRole, step_num)
+                step_item.setToolTip(
+                    0,
+                    f"Step {step_num}: {title}\n"
+                    f"Phase: {phase_name}\n"
+                    f"Click to navigate to this step"
+                )
                 self._step_items[step_num] = step_item
 
     # ------------------------------------------------------------------

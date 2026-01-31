@@ -159,6 +159,56 @@ TOOL_DEFINITIONS: list[dict] = [
 
 
 # --------------------------------------------------------------------------
+# Input validation
+# --------------------------------------------------------------------------
+
+# Expected parameter types for each tool.  Keys are tool names, values are
+# dicts mapping param_name -> (expected_type, required).
+_PARAM_SPECS: dict[str, dict[str, tuple[type, bool]]] = {
+    "get_step_guidance": {
+        "step_number": (int, False),
+    },
+    "get_canon_context": {
+        "entity_type": (str, False),
+    },
+    "validate_entity": {
+        "entity_data": (dict, True),
+        "template_id": (str, False),
+    },
+    "check_consistency": {
+        "entity_id": (str, True),
+    },
+    "search_entities": {
+        "query": (str, True),
+    },
+}
+
+
+def _validate_tool_params(tool_name: str, params: dict) -> str | None:
+    """Validate tool input parameters against known specs.
+
+    Returns an error message string if invalid, or ``None`` if OK.
+    """
+    spec = _PARAM_SPECS.get(tool_name)
+    if spec is None:
+        return None  # Unknown tool -- skip validation, let executor handle
+
+    for param_name, (expected_type, required) in spec.items():
+        value = params.get(param_name)
+        if value is None:
+            if required:
+                return f"Missing required parameter '{param_name}' for tool '{tool_name}'"
+            continue
+        if not isinstance(value, expected_type):
+            return (
+                f"Parameter '{param_name}' for tool '{tool_name}' must be "
+                f"{expected_type.__name__}, got {type(value).__name__}"
+            )
+
+    return None
+
+
+# --------------------------------------------------------------------------
 # Tool executors
 # --------------------------------------------------------------------------
 
@@ -186,6 +236,17 @@ def execute_tool(
     str
         JSON-encoded result string.
     """
+    # Basic input validation
+    if not isinstance(tool_name, str) or not tool_name.strip():
+        return json.dumps({"error": "tool_name must be a non-empty string"})
+    if not isinstance(tool_input, dict):
+        return json.dumps({"error": "tool_input must be a dict"})
+
+    # Validate parameter types for known tools
+    validation_error = _validate_tool_params(tool_name, tool_input)
+    if validation_error:
+        return json.dumps({"error": validation_error})
+
     try:
         executor = _EXECUTORS.get(tool_name)
         if executor is None:

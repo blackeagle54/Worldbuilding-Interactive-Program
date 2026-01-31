@@ -27,11 +27,13 @@ Usage:
 import json
 import os
 import re
+import time
 from collections import Counter
 from pathlib import Path
 
 from engine.models.factory import ModelFactory as _ModelFactory
 from engine.utils import safe_read_json as _safe_read_json
+from engine.utils import extract_referenced_ids as _extract_referenced_ids_util
 
 
 def _tokenize(text: str) -> list[str]:
@@ -95,8 +97,10 @@ class ConsistencyChecker:
         self._registry: dict = self._load_registry()
         # Cache of loaded template schemas keyed by template $id
         self._schema_cache: dict[str, dict] = {}
-        # Cache of all existing entities (loaded lazily)
+        # Cache of all existing entities (loaded lazily, auto-expires after 30s)
         self._entity_cache: dict[str, dict] | None = None
+        self._entity_cache_time: float = 0.0
+        self._entity_cache_ttl: float = 30.0  # seconds
         # Lazy-loaded Pydantic model factory
         self._model_factory: _ModelFactory | None = None
 
@@ -157,8 +161,16 @@ class ConsistencyChecker:
 
         Returns a dict keyed by entity ID. Results are cached after
         the first call; call ``_invalidate_entity_cache()`` to force
-        a reload.
+        a reload.  Cache auto-expires after ``_entity_cache_ttl`` seconds
+        to prevent stale reads during long-running sessions.
         """
+        # Auto-expire stale cache
+        if (
+            self._entity_cache is not None
+            and (time.monotonic() - self._entity_cache_time) > self._entity_cache_ttl
+        ):
+            self._entity_cache = None
+
         if self._entity_cache is not None:
             return self._entity_cache
 
@@ -177,6 +189,7 @@ class ConsistencyChecker:
                 entities[entity_id] = data
 
         self._entity_cache = entities
+        self._entity_cache_time = time.monotonic()
         return entities
 
     def invalidate_cache(self) -> None:
@@ -228,38 +241,10 @@ class ConsistencyChecker:
     def _extract_referenced_ids(self, entity: dict, schema: dict) -> list[tuple[str, str]]:
         """Walk an entity and its schema to find all cross-referenced entity IDs.
 
+        Delegates to the consolidated ``engine.utils.extract_referenced_ids``.
         Returns a list of ``(referenced_entity_id, field_name)`` tuples.
         """
-        refs: list[tuple[str, str]] = []
-        props = schema.get("properties", {})
-
-        for field_key, field_schema in props.items():
-            value = entity.get(field_key)
-            if value is None:
-                continue
-
-            # Direct cross-reference field (string)
-            if "x-cross-reference" in field_schema and isinstance(value, str) and value:
-                refs.append((value, field_key))
-
-            # Array fields
-            elif isinstance(value, list):
-                item_schema = field_schema.get("items", {})
-                if "x-cross-reference" in item_schema:
-                    for v in value:
-                        if isinstance(v, str) and v:
-                            refs.append((v, field_key))
-                elif isinstance(item_schema, dict) and "properties" in item_schema:
-                    for item in value:
-                        if not isinstance(item, dict):
-                            continue
-                        for sub_key, sub_schema in item_schema.get("properties", {}).items():
-                            if "x-cross-reference" in sub_schema:
-                                sub_val = item.get(sub_key)
-                                if isinstance(sub_val, str) and sub_val:
-                                    refs.append((sub_val, f"{field_key}.{sub_key}"))
-
-        return refs
+        return _extract_referenced_ids_util(entity, schema)
 
     # ------------------------------------------------------------------
     # Layer 1: Schema Validation

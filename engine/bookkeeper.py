@@ -162,6 +162,14 @@ class BookkeepingManager:
         dict
             The full event dict that was written.
         """
+        # Deduplicate: skip if the last event in this session has the same
+        # event_type and identical data payload (prevents double-logging
+        # from rapid UI signals or retries).
+        if self._session_events:
+            last = self._session_events[-1]
+            if last.get("event_type") == event_type and last.get("data") == data:
+                return last  # Return existing event without re-writing
+
         event = {
             "timestamp": self._now(),
             "session_id": self._current_session_id or "no-session",

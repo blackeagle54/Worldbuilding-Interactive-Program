@@ -17,6 +17,7 @@ from PySide6.QtCore import (
     Qt,
     QTimer,
 )
+from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QLabel, QWidget
 
 logger = logging.getLogger(__name__)
@@ -165,14 +166,30 @@ class ToastManager:
             toast._slide_out_anim = anim  # prevent garbage collection
 
     def _reposition(self) -> None:
-        """Stack active toasts from the bottom-right of the parent."""
+        """Stack active toasts from the bottom-right of the parent.
+
+        Clamps toast positions to the available screen geometry so they
+        never appear off-screen (e.g. when the window is near a screen edge).
+        """
         parent_rect = self._parent.rect()
         parent_global = self._parent.mapToGlobal(parent_rect.bottomRight())
+
+        # Get the screen geometry for the parent widget
+        screen = QGuiApplication.screenAt(parent_global)
+        if screen is None:
+            screen = QGuiApplication.primaryScreen()
+        screen_rect = screen.availableGeometry() if screen else None
 
         y_offset = self._margin
         for toast in reversed(self._active):
             toast.adjustSize()
             x = parent_global.x() - toast.width() - self._margin
             y = parent_global.y() - toast.height() - y_offset
+
+            # Clamp to screen bounds
+            if screen_rect is not None:
+                x = max(screen_rect.left(), min(x, screen_rect.right() - toast.width()))
+                y = max(screen_rect.top(), min(y, screen_rect.bottom() - toast.height()))
+
             toast.move(QPoint(x, y))
             y_offset += toast.height() + self._spacing

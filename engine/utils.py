@@ -151,6 +151,62 @@ def clean_schema_for_validation(schema):
     return clean
 
 
+# ---------------------------------------------------------------------------
+# Cross-reference extraction (consolidated from data_manager, consistency_checker)
+# ---------------------------------------------------------------------------
+
+def extract_referenced_ids(entity: dict, schema: dict) -> list[tuple[str, str]]:
+    """Walk an entity and its schema to find all cross-referenced entity IDs.
+
+    Scans ``properties`` in *schema* for fields annotated with
+    ``x-cross-reference`` and extracts matching values from *entity*.
+    Handles direct string fields, arrays of cross-reference strings,
+    and arrays of objects with nested cross-reference sub-fields.
+
+    Parameters
+    ----------
+    entity : dict
+        The entity data dict.
+    schema : dict
+        The template JSON Schema for the entity.
+
+    Returns
+    -------
+    list[tuple[str, str]]
+        A list of ``(referenced_entity_id, field_name)`` tuples.
+    """
+    refs: list[tuple[str, str]] = []
+    props = schema.get("properties", {})
+
+    for field_key, field_schema in props.items():
+        value = entity.get(field_key)
+        if value is None:
+            continue
+
+        # Direct cross-reference field (string)
+        if "x-cross-reference" in field_schema and isinstance(value, str) and value:
+            refs.append((value, field_key))
+
+        # Array fields
+        elif isinstance(value, list):
+            item_schema = field_schema.get("items", {})
+            if "x-cross-reference" in item_schema:
+                for v in value:
+                    if isinstance(v, str) and v:
+                        refs.append((v, field_key))
+            elif isinstance(item_schema, dict) and "properties" in item_schema:
+                for item in value:
+                    if not isinstance(item, dict):
+                        continue
+                    for sub_key, sub_schema in item_schema.get("properties", {}).items():
+                        if "x-cross-reference" in sub_schema:
+                            sub_val = item.get(sub_key)
+                            if isinstance(sub_val, str) and sub_val:
+                                refs.append((sub_val, f"{field_key}.{sub_key}"))
+
+    return refs
+
+
 def _clean_schema_deep(obj):
     """Recursively remove custom extension keywords from nested schema objects."""
     result = {}

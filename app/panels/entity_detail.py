@@ -11,6 +11,7 @@ import logging
 from typing import Any
 
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -19,6 +20,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QListWidget,
     QMessageBox,
+    QPushButton,
     QSplitter,
     QVBoxLayout,
     QWidget,
@@ -71,6 +73,10 @@ class EntityDetailView(QDialog):
         self.setMinimumSize(700, 500)
         self.resize(800, 600)
 
+        # Undo/redo stacks for form data snapshots
+        self._undo_stack: list[dict] = []
+        self._redo_stack: list[dict] = []
+
         self._setup_ui()
         self._load_entity(entity_data)
 
@@ -90,6 +96,23 @@ class EntityDetailView(QDialog):
         header.addWidget(self._title_label)
 
         header.addStretch()
+
+        # Undo / Redo buttons
+        self._undo_btn = QPushButton("Undo")
+        self._undo_btn.setMaximumWidth(60)
+        self._undo_btn.setEnabled(False)
+        self._undo_btn.clicked.connect(self._on_undo)
+        header.addWidget(self._undo_btn)
+
+        self._redo_btn = QPushButton("Redo")
+        self._redo_btn.setMaximumWidth(60)
+        self._redo_btn.setEnabled(False)
+        self._redo_btn.clicked.connect(self._on_redo)
+        header.addWidget(self._redo_btn)
+
+        # Keyboard shortcuts for undo/redo
+        QShortcut(QKeySequence.StandardKey.Undo, self, self._on_undo)
+        QShortcut(QKeySequence.StandardKey.Redo, self, self._on_redo)
 
         # Status toggle
         header.addWidget(QLabel("Status:"))
@@ -249,6 +272,46 @@ class EntityDetailView(QDialog):
 
         except Exception:
             self._related_list.addItem("(Could not load relationships)")
+
+    # ------------------------------------------------------------------
+    # Undo / Redo
+    # ------------------------------------------------------------------
+
+    def push_undo_snapshot(self, data: dict) -> None:
+        """Save a snapshot of the current form data for undo.
+
+        Called by the form whenever a field changes.
+        """
+        self._undo_stack.append(dict(data))
+        self._redo_stack.clear()
+        self._undo_btn.setEnabled(True)
+        self._redo_btn.setEnabled(False)
+
+    def _on_undo(self) -> None:
+        """Restore the previous form state."""
+        if not self._undo_stack:
+            return
+        # Save current state for redo
+        current = self._form.get_form_data() if hasattr(self._form, "get_form_data") else {}
+        self._redo_stack.append(current)
+        # Pop and restore
+        prev = self._undo_stack.pop()
+        self._form.set_form_data(prev) if hasattr(self._form, "set_form_data") else None
+        self._undo_btn.setEnabled(len(self._undo_stack) > 0)
+        self._redo_btn.setEnabled(True)
+
+    def _on_redo(self) -> None:
+        """Re-apply an undone change."""
+        if not self._redo_stack:
+            return
+        # Save current state for undo
+        current = self._form.get_form_data() if hasattr(self._form, "get_form_data") else {}
+        self._undo_stack.append(current)
+        # Pop and restore
+        next_state = self._redo_stack.pop()
+        self._form.set_form_data(next_state) if hasattr(self._form, "set_form_data") else None
+        self._undo_btn.setEnabled(True)
+        self._redo_btn.setEnabled(len(self._redo_stack) > 0)
 
     # ------------------------------------------------------------------
     # Save

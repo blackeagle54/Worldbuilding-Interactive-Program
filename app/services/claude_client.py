@@ -63,9 +63,21 @@ class ClaudeClient:
         Current worldbuilding step (1-52).
     """
 
-    def __init__(self, engine_manager: Any = None, current_step: int = 1):
+    # Default timeout for API requests (seconds).  The SDK stream itself
+    # does not have a single timeout parameter -- this is applied via the
+    # httpx timeout on the Anthropic client.  For subprocess, it is the
+    # maximum wall-clock time to wait for the process.
+    DEFAULT_TIMEOUT = 120  # 2 minutes
+
+    def __init__(
+        self,
+        engine_manager: Any = None,
+        current_step: int = 1,
+        timeout: int | None = None,
+    ):
         self._engine = engine_manager
         self._current_step = current_step
+        self._timeout = timeout or self.DEFAULT_TIMEOUT
         self._backend: BackendType = BackendType.OFFLINE
         self._cancel = threading.Event()
         self._detect_backend()
@@ -178,7 +190,9 @@ class ClaudeClient:
             import anthropic
             from app.services.tools import TOOL_DEFINITIONS, execute_tool
 
-            client = anthropic.Anthropic()
+            client = anthropic.Anthropic(
+                timeout=self._timeout,
+            )
 
             messages = list(history or [])
             messages.append({"role": "user", "content": user_message})
@@ -350,7 +364,7 @@ class ClaudeClient:
                             data=event.get("error", {}).get("message", "Unknown error"),
                         )
 
-                proc.wait(timeout=30)
+                proc.wait(timeout=self._timeout)
 
                 if proc.returncode != 0 and not accumulated_text:
                     stderr = proc.stderr.read()

@@ -7,21 +7,24 @@ loading data, and a small inline spinner label for lighter indicators.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QEvent, Qt, QTimer
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtGui import QPainter, QColor
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 
 class LoadingOverlay(QWidget):
-    """Semi-transparent overlay with a spinner message.
+    """Semi-transparent overlay with a spinner message and optional cancel button.
 
     Usage::
 
         overlay = LoadingOverlay(parent_widget)
-        overlay.show_loading("Loading entities...")
+        overlay.cancelled.connect(my_cancel_handler)
+        overlay.show_loading("Loading entities...", cancellable=True)
         # ... later ...
         overlay.hide_loading()
     """
+
+    cancelled = Signal()
 
     _SPINNER_CHARS = ["|", "/", "-", "\\"]
 
@@ -42,6 +45,17 @@ class LoadingOverlay(QWidget):
         )
         layout.addWidget(self._label)
 
+        # Cancel button (hidden by default, shown when cancellable=True)
+        self._cancel_btn = QPushButton("Cancel")
+        self._cancel_btn.setMaximumWidth(80)
+        self._cancel_btn.setStyleSheet(
+            "background-color: #8B0000; color: #ddd; padding: 4px 12px; "
+            "font-size: 12px; border-radius: 3px;"
+        )
+        self._cancel_btn.setVisible(False)
+        self._cancel_btn.clicked.connect(self._on_cancel)
+        layout.addWidget(self._cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
         self._message = ""
         self._spinner_idx = 0
 
@@ -49,10 +63,19 @@ class LoadingOverlay(QWidget):
         self._timer.setInterval(150)
         self._timer.timeout.connect(self._tick)
 
-    def show_loading(self, message: str = "Loading...") -> None:
-        """Show the overlay with a spinning indicator."""
+    def show_loading(self, message: str = "Loading...", cancellable: bool = False) -> None:
+        """Show the overlay with a spinning indicator.
+
+        Parameters
+        ----------
+        message : str
+            Text to display alongside the spinner.
+        cancellable : bool
+            If ``True``, show a Cancel button that emits :attr:`cancelled`.
+        """
         self._message = message
         self._spinner_idx = 0
+        self._cancel_btn.setVisible(cancellable)
         self._update_text()
         self.setGeometry(self.parent().rect())
         self.setVisible(True)
@@ -62,7 +85,13 @@ class LoadingOverlay(QWidget):
     def hide_loading(self) -> None:
         """Hide the overlay."""
         self._timer.stop()
+        self._cancel_btn.setVisible(False)
         self.setVisible(False)
+
+    def _on_cancel(self) -> None:
+        """Handle cancel button click."""
+        self.cancelled.emit()
+        self.hide_loading()
 
     def _tick(self) -> None:
         self._spinner_idx = (self._spinner_idx + 1) % len(self._SPINNER_CHARS)

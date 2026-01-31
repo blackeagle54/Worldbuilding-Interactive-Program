@@ -12,6 +12,7 @@ Handles:
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 from PySide6.QtCore import QObject, QTimer, Signal
@@ -53,6 +54,11 @@ class SessionManager(QObject):
         self._bus = EventBus.instance()
         self._session_id = ""
 
+        # Session metadata
+        self._session_start_time: float = 0.0
+        self._entities_at_start: int = 0
+        self._save_count: int = 0
+
         # Auto-save timer
         self._auto_save_timer = QTimer(self)
         self._auto_save_timer.setInterval(AUTO_SAVE_INTERVAL_MS)
@@ -64,6 +70,17 @@ class SessionManager(QObject):
 
     def start_session(self) -> None:
         """Initialize the session: backup, sync, detect crashes."""
+        self._session_start_time = time.monotonic()
+        self._save_count = 0
+
+        # Record initial entity count for session metadata
+        try:
+            entities = self._engine.with_lock(
+                "data_manager", lambda d: d.list_entities()
+            )
+            self._entities_at_start = len(entities)
+        except Exception:
+            self._entities_at_start = 0
 
         # 1. Create backup
         try:
@@ -128,6 +145,50 @@ class SessionManager(QObject):
             self.crash_detected.emit(msg)
 
     # ------------------------------------------------------------------
+    # Session metadata
+    # ------------------------------------------------------------------
+
+    def get_session_metadata(self) -> dict:
+        """Return a summary of the current session.
+
+        Includes session ID, duration, entity count at start vs now,
+        number of auto-saves, and current step.
+        """
+        elapsed = 0.0
+        if self._session_start_time > 0:
+            elapsed = time.monotonic() - self._session_start_time
+
+        current_entities = 0
+        try:
+            entities = self._engine.with_lock(
+                "data_manager", lambda d: d.list_entities()
+            )
+            current_entities = len(entities)
+        except Exception:
+            pass
+
+        return {
+            "session_id": self._session_id,
+            "duration_seconds": round(elapsed, 1),
+            "duration_human": self._format_duration(elapsed),
+            "entities_at_start": self._entities_at_start,
+            "entities_now": current_entities,
+            "entities_created": max(0, current_entities - self._entities_at_start),
+            "auto_save_count": self._save_count,
+            "current_step": self._store.current_step,
+        }
+
+    @staticmethod
+    def _format_duration(seconds: float) -> str:
+        """Format seconds into a human-readable duration string."""
+        minutes = int(seconds // 60)
+        hours = minutes // 60
+        minutes = minutes % 60
+        if hours > 0:
+            return f"{hours}h {minutes}m"
+        return f"{minutes}m {int(seconds % 60)}s"
+
+    # ------------------------------------------------------------------
     # Auto-save
     # ------------------------------------------------------------------
 
@@ -143,6 +204,7 @@ class SessionManager(QObject):
             except Exception:
                 pass
 
+            self._save_count += 1
             self._bus.status_message.emit("Auto-saved")
             self.session_saved.emit()
             logger.debug("Auto-save complete")

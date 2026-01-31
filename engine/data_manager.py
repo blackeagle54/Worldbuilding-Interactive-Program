@@ -31,6 +31,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from engine.models.factory import ModelFactory as _ModelFactory
+from engine.utils import extract_referenced_ids as _extract_referenced_ids_util
 
 
 # ---------------------------------------------------------------------------
@@ -999,6 +1000,10 @@ class DataManager:
         self._model_factory: _ModelFactory | None = None
         # Lock to protect state read-modify-write cycles
         self._state_lock = threading.RLock()
+        # Reverse index: target_id -> [(source_id, field_name), ...]
+        # Built lazily on first cross-reference query, invalidated on
+        # entity create/update/delete.
+        self._reverse_refs: dict[str, list[tuple[str, str]]] | None = None
 
     def _get_model_factory(self) -> _ModelFactory:
         """Return the shared Pydantic ModelFactory (lazy-loaded)."""
@@ -1299,6 +1304,9 @@ class DataManager:
             }
             self._save_state()
 
+        # Invalidate reverse-reference index (will be rebuilt on next query)
+        self._reverse_refs = None
+
         return entity_id
 
     def update_entity(self, entity_id: str, data: dict) -> None:
@@ -1387,6 +1395,9 @@ class DataManager:
             self._state.setdefault("entity_index", {})[entity_id] = index_entry
             self._save_state()
 
+        # Invalidate reverse-reference index (will be rebuilt on next query)
+        self._reverse_refs = None
+
     def get_entity(self, entity_id: str) -> dict:
         """Load and return a single entity by ID.
 
@@ -1444,6 +1455,39 @@ class DataManager:
             results.append(entry)
         return results
 
+    def _build_reverse_refs(self) -> dict[str, list[tuple[str, str]]]:
+        """Build a reverse index mapping target_id -> [(source_id, field_name), ...].
+
+        Scans all entities once and caches the result.  Invalidated by
+        create_entity / update_entity so the next query rebuilds it.
+        """
+        if self._reverse_refs is not None:
+            return self._reverse_refs
+
+        reverse: dict[str, list[tuple[str, str]]] = {}
+        index = self._state.get("entity_index", {})
+
+        for eid, meta in index.items():
+            file_path = self._find_entity_file(eid)
+            if not file_path:
+                continue
+            entity_data = _safe_read_json(file_path)
+            if not entity_data:
+                continue
+            template_id = entity_data.get("_meta", {}).get("template_id", "")
+            try:
+                schema = self._get_template_schema(template_id)
+            except (ValueError, TypeError):
+                continue
+            if not schema:
+                continue
+            refs = self._extract_referenced_ids(entity_data, schema)
+            for ref_id, field_name in refs:
+                reverse.setdefault(ref_id, []).append((eid, field_name))
+
+        self._reverse_refs = reverse
+        return reverse
+
     def get_cross_references(self, entity_id: str) -> dict:
         """Find all entities that reference *entity_id* and all entities
         that *entity_id* references.
@@ -1491,31 +1535,26 @@ class DataManager:
                     "relationship": field_name,
                 })
 
-        # --- Inbound: scan all other entities for references to entity_id ---
-        index = self._state.get("entity_index", {})
-        for other_id, other_meta in index.items():
+        # --- Inbound: use reverse index for O(1) lookup ---
+        reverse = self._build_reverse_refs()
+        for other_id, field_name in reverse.get(entity_id, []):
             if other_id == entity_id:
                 continue
-            other_path = self._find_entity_file(other_id)
-            if not other_path:
-                continue
-            other_data = _safe_read_json(other_path)
-            if not other_data:
-                continue
-            other_template_id = other_data.get("_meta", {}).get("template_id", "")
             try:
-                other_schema = self._get_template_schema(other_template_id)
-            except ValueError:
-                continue
-            other_refs = self._extract_referenced_ids(other_data, other_schema)
-            for ref_id, field_name in other_refs:
-                if ref_id == entity_id:
-                    referenced_by.append({
-                        "id": other_id,
-                        "name": other_data.get("name", other_id),
-                        "entity_type": other_data.get("_meta", {}).get("entity_type", ""),
-                        "relationship": field_name,
-                    })
+                other_data = self.get_entity(other_id)
+                referenced_by.append({
+                    "id": other_id,
+                    "name": other_data.get("name", other_id),
+                    "entity_type": other_data.get("_meta", {}).get("entity_type", ""),
+                    "relationship": field_name,
+                })
+            except FileNotFoundError:
+                referenced_by.append({
+                    "id": other_id,
+                    "name": other_id,
+                    "entity_type": "unknown",
+                    "relationship": field_name,
+                })
 
         return {"references": references, "referenced_by": referenced_by}
 
@@ -1640,39 +1679,10 @@ class DataManager:
     def _extract_referenced_ids(self, entity: dict, schema: dict) -> list[tuple[str, str]]:
         """Walk an entity and its schema to find all cross-referenced IDs.
 
+        Delegates to the consolidated ``engine.utils.extract_referenced_ids``.
         Returns a list of ``(referenced_entity_id, field_name)`` tuples.
         """
-        refs: list[tuple[str, str]] = []
-        props = schema.get("properties", {})
-
-        for field_key, field_schema in props.items():
-            value = entity.get(field_key)
-            if value is None:
-                continue
-
-            # Direct cross-reference field (string)
-            if "x-cross-reference" in field_schema and isinstance(value, str) and value:
-                refs.append((value, field_key))
-
-            # Array of cross-reference strings
-            elif isinstance(value, list):
-                item_schema = field_schema.get("items", {})
-                if "x-cross-reference" in item_schema:
-                    for v in value:
-                        if isinstance(v, str) and v:
-                            refs.append((v, field_key))
-                # Array of objects with nested cross-references
-                elif isinstance(item_schema, dict) and "properties" in item_schema:
-                    for item in value:
-                        if not isinstance(item, dict):
-                            continue
-                        for sub_key, sub_schema in item_schema["properties"].items():
-                            if "x-cross-reference" in sub_schema:
-                                sub_val = item.get(sub_key)
-                                if isinstance(sub_val, str) and sub_val:
-                                    refs.append((sub_val, f"{field_key}.{sub_key}"))
-
-        return refs
+        return _extract_referenced_ids_util(entity, schema)
 
     # ------------------------------------------------------------------
     # Search helpers

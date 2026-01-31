@@ -26,6 +26,7 @@ from PySide6.QtCore import QPointF, QRectF, Qt, QTimer
 from PySide6.QtGui import (
     QBrush,
     QColor,
+    QKeyEvent,
     QMouseEvent,
     QPainter,
     QPainterPath,
@@ -230,6 +231,49 @@ class GraphView(QGraphicsView):
             if self._zoom > -20:
                 self.scale(1 / factor, 1 / factor)
                 self._zoom -= 1
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        """Navigate between nodes with Tab and arrow keys."""
+        key = event.key()
+        if key in (Qt.Key.Key_Tab, Qt.Key.Key_Right, Qt.Key.Key_Down):
+            self._select_next_node(forward=True)
+            event.accept()
+        elif key in (
+            Qt.Key.Key_Backtab, Qt.Key.Key_Left, Qt.Key.Key_Up,
+        ):
+            self._select_next_node(forward=False)
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
+    def _select_next_node(self, forward: bool = True) -> None:
+        """Select the next (or previous) EntityNode in the scene."""
+        nodes = [
+            item for item in self.scene().items()
+            if isinstance(item, EntityNode) and item.isVisible()
+        ]
+        if not nodes:
+            return
+
+        # Sort deterministically by position (left-to-right, top-to-bottom)
+        nodes.sort(key=lambda n: (n.pos().y(), n.pos().x()))
+
+        current_idx = -1
+        selected = self.scene().selectedItems()
+        for i, node in enumerate(nodes):
+            if node in selected:
+                current_idx = i
+                break
+
+        if forward:
+            next_idx = (current_idx + 1) % len(nodes)
+        else:
+            next_idx = (current_idx - 1) % len(nodes)
+
+        # Clear current selection and select new node
+        self.scene().clearSelection()
+        nodes[next_idx].setSelected(True)
+        self.centerOn(nodes[next_idx])
 
     def fit_all(self) -> None:
         """Fit all items in view."""

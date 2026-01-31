@@ -66,6 +66,13 @@ class WorldGraph:
         # re-reading all files from disk.
         self._pending_inbound: dict[str, list[tuple[str, str, str]]] = {}
 
+        # Dirty tracking: set of entity IDs that have been modified since
+        # the last full build.  When non-empty, rebuild_if_dirty() will
+        # rebuild only those entities rather than re-reading everything.
+        self._dirty_ids: set[str] = set()
+        # Whether a full rebuild has ever been performed
+        self._built: bool = False
+
     # ------------------------------------------------------------------
     # Full rebuild
     # ------------------------------------------------------------------
@@ -83,6 +90,8 @@ class WorldGraph:
         """
         self.graph.clear()
         self._pending_inbound.clear()
+        self._dirty_ids.clear()
+        self._built = True
 
         if not self.entities_dir.exists():
             return
@@ -233,6 +242,53 @@ class WorldGraph:
         """
         if entity_id in self.graph:
             self.graph.remove_node(entity_id)  # also removes all edges
+
+    def mark_dirty(self, entity_id: str) -> None:
+        """Mark an entity as needing a graph refresh.
+
+        Call this after an entity is created, updated, or deleted
+        externally.  Use :meth:`rebuild_if_dirty` to apply changes
+        without a full rebuild.
+        """
+        self._dirty_ids.add(entity_id)
+
+    def rebuild_if_dirty(self) -> bool:
+        """Incrementally refresh only dirty entities.
+
+        If no full build has been performed yet, falls back to a full
+        :meth:`build_graph`.  Returns ``True`` if any work was done.
+        """
+        if not self._built:
+            self.build_graph()
+            return True
+
+        if not self._dirty_ids:
+            return False
+
+        dirty = set(self._dirty_ids)
+        self._dirty_ids.clear()
+
+        for eid in dirty:
+            # Remove old node (and edges) if present
+            if eid in self.graph:
+                self.graph.remove_node(eid)
+
+            # Re-read entity from disk and re-add
+            entity_file = None
+            if self.entities_dir.exists():
+                for json_path in self.entities_dir.rglob("*.json"):
+                    data = _safe_read_json(str(json_path))
+                    if not data:
+                        continue
+                    meta = data.get("_meta", {})
+                    if (meta.get("id") or data.get("id")) == eid:
+                        entity_file = data
+                        break
+
+            if entity_file is not None:
+                self.add_entity(eid, entity_file)
+
+        return True
 
     # ------------------------------------------------------------------
     # Queries

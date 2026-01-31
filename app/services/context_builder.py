@@ -153,4 +153,25 @@ def build_context(
         entity_count=entity_count,
     )
 
+    # --- Token budget tracking ---
+    # Sum up all context sections and warn if exceeding budget
+    total_chars = sum(
+        len(str(v)) for k, v in context.items()
+        if k != "step_info" and isinstance(v, str)
+    )
+    context["_context_chars"] = total_chars
+    context["_budget_chars"] = MAX_CONTEXT_CHARS
+
+    if total_chars > MAX_CONTEXT_CHARS:
+        overage_pct = int((total_chars - MAX_CONTEXT_CHARS) / MAX_CONTEXT_CHARS * 100)
+        logger.warning(
+            "Context budget exceeded: %d / %d chars (%d%% over). "
+            "Some context may be truncated or ignored by the model.",
+            total_chars, MAX_CONTEXT_CHARS, overage_pct,
+        )
+        context["_budget_warning"] = (
+            f"Context is {overage_pct}% over budget "
+            f"({total_chars}/{MAX_CONTEXT_CHARS} chars)"
+        )
+
     return context

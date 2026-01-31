@@ -254,7 +254,10 @@ class ErrorRecoveryManager:
                 issues.append({
                     "file": path,
                     "issue": "zero_byte",
+                    "category": "data_corruption",
                     "message": f"Empty file (zero bytes): {os.path.basename(path)}",
+                    "severity": "critical",
+                    "recoverable": True,
                 })
                 continue
 
@@ -266,7 +269,10 @@ class ErrorRecoveryManager:
                 issues.append({
                     "file": path,
                     "issue": "encoding_error",
+                    "category": "data_corruption",
                     "message": f"Encoding error (not valid UTF-8): {os.path.basename(path)}",
+                    "severity": "critical",
+                    "recoverable": False,
                 })
                 continue
 
@@ -278,10 +284,13 @@ class ErrorRecoveryManager:
                 issues.append({
                     "file": path,
                     "issue": "invalid_json",
+                    "category": "data_corruption",
                     "message": (
                         f"Invalid JSON in {os.path.basename(path)}: "
                         f"{e.msg} at line {e.lineno}, column {e.colno}"
                     ),
+                    "severity": "critical",
+                    "recoverable": True,
                 })
 
         status = "healthy"
@@ -336,10 +345,13 @@ class ErrorRecoveryManager:
                     issues.append({
                         "entity_id": entity_id,
                         "file": path,
+                        "category": "schema_violation",
                         "message": (
                             f"Entity '{entity_id}' fails schema validation: "
                             f"{'; '.join(error_msgs)}"
                         ),
+                        "severity": "warning",
+                        "recoverable": True,
                     })
                 else:
                     passed += 1
@@ -347,7 +359,10 @@ class ErrorRecoveryManager:
                 issues.append({
                     "entity_id": entity_id,
                     "file": path,
+                    "category": "validation_error",
                     "message": f"Validation error for '{entity_id}': {exc}",
+                    "severity": "warning",
+                    "recoverable": True,
                 })
 
         status = "healthy"
