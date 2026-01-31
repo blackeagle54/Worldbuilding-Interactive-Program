@@ -144,14 +144,22 @@ class BookkeepingManager:
         with open(path, "w", encoding="utf-8") as fh:
             json.dump(data, fh, indent=2, ensure_ascii=False)
 
-    def _append_event(self, event_type, data):
+    def log_event(self, event_type, data):
         """Append an event to the JSONL log and in-memory session list.
 
-        Args:
-            event_type: One of the ``EVENT_*`` constants.
-            data: Dict with event-specific payload.
+        This is the public API for logging arbitrary events from hooks
+        and other engine modules.
 
-        Returns:
+        Parameters
+        ----------
+        event_type : str
+            One of the ``EVENT_*`` constants or a custom event type.
+        data : dict
+            Event-specific payload.
+
+        Returns
+        -------
+        dict
             The full event dict that was written.
         """
         event = {
@@ -226,7 +234,7 @@ class BookkeepingManager:
         self._session_start_time = self._now()
         self._session_events = []
 
-        self._append_event(self.EVENT_SESSION_STARTED, {
+        self.log_event(self.EVENT_SESSION_STARTED, {
             "session_number": self._session_number,
             "focus": focus,
         })
@@ -294,7 +302,7 @@ class BookkeepingManager:
             "contradictions_resolved_count": len(contradictions_resolved),
         }
 
-        self._append_event(self.EVENT_SESSION_ENDED, session_data)
+        self.log_event(self.EVENT_SESSION_ENDED, session_data)
 
         # Generate session summary markdown
         summary_path = self._generate_session_summary(
@@ -456,7 +464,7 @@ class BookkeepingManager:
             if opt.get("name") != chosen
         ]
 
-        return self._append_event(self.EVENT_DECISION_MADE, {
+        return self.log_event(self.EVENT_DECISION_MADE, {
             "step_id": step_id,
             "question": question,
             "options": options,
@@ -477,7 +485,7 @@ class BookkeepingManager:
         Returns:
             The recorded event dict.
         """
-        return self._append_event(self.EVENT_DRAFT_CREATED, {
+        return self.log_event(self.EVENT_DRAFT_CREATED, {
             "entity_id": entity_id,
             "entity_type": entity_type,
             "file_path": str(file_path),
@@ -496,7 +504,7 @@ class BookkeepingManager:
         Returns:
             The recorded event dict.
         """
-        return self._append_event(self.EVENT_STATUS_CHANGED, {
+        return self.log_event(self.EVENT_STATUS_CHANGED, {
             "entity_id": entity_id,
             "old_status": old_status,
             "new_status": new_status,
@@ -516,7 +524,7 @@ class BookkeepingManager:
         Returns:
             The recorded event dict.
         """
-        return self._append_event(self.EVENT_ENTITY_REVISED, {
+        return self.log_event(self.EVENT_ENTITY_REVISED, {
             "entity_id": entity_id,
             "revision_number": revision_number,
             "change_summary": change_summary,
@@ -536,7 +544,7 @@ class BookkeepingManager:
         Returns:
             The recorded event dict.
         """
-        return self._append_event(self.EVENT_CROSS_REFERENCE_CREATED, {
+        return self.log_event(self.EVENT_CROSS_REFERENCE_CREATED, {
             "source_id": source_id,
             "target_id": target_id,
             "relationship_type": relationship_type,
@@ -555,7 +563,7 @@ class BookkeepingManager:
             The recorded event dict.
         """
         contradiction_id = self._next_contradiction_id()
-        return self._append_event(self.EVENT_CONTRADICTION_FOUND, {
+        return self.log_event(self.EVENT_CONTRADICTION_FOUND, {
             "contradiction_id": contradiction_id,
             "entities": entities,
             "description": description,
@@ -574,7 +582,7 @@ class BookkeepingManager:
         Returns:
             The recorded event dict.
         """
-        return self._append_event(self.EVENT_CONTRADICTION_RESOLVED, {
+        return self.log_event(self.EVENT_CONTRADICTION_RESOLVED, {
             "contradiction_id": contradiction_id,
             "resolution": resolution,
             "entities_modified": entities_modified,
@@ -591,7 +599,7 @@ class BookkeepingManager:
         Returns:
             The recorded event dict.
         """
-        return self._append_event(self.EVENT_STEP_STATUS_CHANGED, {
+        return self.log_event(self.EVENT_STEP_STATUS_CHANGED, {
             "step_id": step_id,
             "old_status": old_status,
             "new_status": new_status,
@@ -821,6 +829,9 @@ class BookkeepingManager:
     # ------------------------------------------------------------------
     # Convenience properties
     # ------------------------------------------------------------------
+
+    # Backwards-compatible alias for external callers
+    _append_event = log_event
 
     @property
     def current_session_id(self):

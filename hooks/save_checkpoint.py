@@ -23,7 +23,7 @@ import json
 import shutil
 from datetime import datetime, timezone
 
-PROJECT_ROOT = "C:/Worldbuilding-Interactive-Program"
+PROJECT_ROOT = str(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, PROJECT_ROOT)
 
 from engine.utils import safe_read_json as _safe_read_json
@@ -93,7 +93,7 @@ def main():
 
         # If a session is active, record a checkpoint event
         if bk.session_active:
-            bk._append_event("checkpoint_saved", {
+            bk.log_event("checkpoint_saved", {
                 "checkpoint_path": snapshot_path,
                 "current_step": current_step,
                 "entity_count": entity_count,

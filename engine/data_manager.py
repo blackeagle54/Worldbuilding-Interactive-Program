@@ -935,9 +935,6 @@ def _detect_entity_type_key(template_id: str) -> str | None:
     for key in sorted(_PROSE_BUILDERS.keys(), key=len, reverse=True):
         if template_id.startswith(key):
             return key
-        # Also try contains (e.g. "undead-monster-profile" -> "undead")
-        if key in template_id:
-            return key
     return None
 
 

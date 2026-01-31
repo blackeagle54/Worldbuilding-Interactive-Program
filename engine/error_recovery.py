@@ -144,7 +144,7 @@ class ErrorRecoveryManager:
         bk = self._get_bookkeeper()
         if bk is not None:
             try:
-                bk._append_event("recovery_action", {
+                bk.log_event("recovery_action", {
                     "action": action,
                     "details": details,
                     "timestamp": _now_iso(),
