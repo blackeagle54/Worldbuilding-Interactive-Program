@@ -2,6 +2,10 @@ __pycache__/
 *.pyc
 .pytest_cache/
 runtime/*.db
+runtime/*.db-shm
+runtime/*.db-wal
+bookkeeping/events/
+bookkeeping/sessions/
 backups/*.zip
 *.log
 logs/
