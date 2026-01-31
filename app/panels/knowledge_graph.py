@@ -26,6 +26,7 @@ from PySide6.QtCore import QPointF, QRectF, Qt, QTimer
 from PySide6.QtGui import (
     QBrush,
     QColor,
+    QMouseEvent,
     QPainter,
     QPainterPath,
     QPen,
@@ -50,6 +51,7 @@ from PySide6.QtWidgets import (
 )
 
 from app.services.event_bus import EventBus
+from app.widgets.relationship_type_dialog import RelationshipTypeDialog
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +193,14 @@ class RelationshipEdge(QGraphicsPathItem):
 
 
 class GraphView(QGraphicsView):
-    """QGraphicsView with zoom/pan support."""
+    """QGraphicsView with zoom/pan and Shift+drag-to-connect support.
+
+    When the user holds Shift and drags from one EntityNode to another,
+    a temporary rubber-band line is drawn.  On release over a different
+    EntityNode the ``drag_connect_requested`` callback is invoked with
+    the source and target nodes so the parent panel can open the
+    relationship type picker.
+    """
 
     def __init__(self, scene: QGraphicsScene, parent: QWidget | None = None):
         super().__init__(scene, parent)
@@ -201,6 +210,14 @@ class GraphView(QGraphicsView):
         self.setResizeAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
         self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.SmartViewportUpdate)
         self._zoom = 0
+
+        # Drag-to-connect state
+        self._drag_source_node: EntityNode | None = None
+        self._drag_line: QGraphicsLineItem | None = None
+        self._is_connecting = False
+
+        # Callback set by KnowledgeGraphPanel
+        self.drag_connect_requested = None  # callable(source: EntityNode, target: EntityNode)
 
     def wheelEvent(self, event: QWheelEvent) -> None:
         """Zoom in/out with mouse wheel."""
@@ -221,6 +238,80 @@ class GraphView(QGraphicsView):
             rect.adjust(-50, -50, 50, 50)
             self.fitInView(rect, Qt.AspectRatioMode.KeepAspectRatio)
             self._zoom = 0
+
+    # ------------------------------------------------------------------
+    # Shift+drag-to-connect
+    # ------------------------------------------------------------------
+
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        """Intercept Shift+click on an EntityNode to start a connection drag."""
+        if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+            scene_pos = self.mapToScene(event.pos())
+            item = self.scene().itemAt(scene_pos, self.transform())
+            # Walk up parent chain in case we hit the label child
+            source_node = self._find_entity_node(item)
+            if source_node is not None:
+                self._is_connecting = True
+                self._drag_source_node = source_node
+                # Create a temporary line from the node center
+                pen = QPen(QColor("#FFD54F"), 2, Qt.PenStyle.DashLine)
+                start = source_node.pos()
+                self._drag_line = self.scene().addLine(
+                    start.x(), start.y(), start.x(), start.y(), pen,
+                )
+                self._drag_line.setZValue(10)
+                event.accept()
+                return
+
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        """Update the rubber-band line while dragging."""
+        if self._is_connecting and self._drag_line and self._drag_source_node:
+            scene_pos = self.mapToScene(event.pos())
+            start = self._drag_source_node.pos()
+            self._drag_line.setLine(start.x(), start.y(), scene_pos.x(), scene_pos.y())
+            event.accept()
+            return
+
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        """Finish a connection drag -- check if we landed on a target node."""
+        if self._is_connecting:
+            # Clean up drag line
+            if self._drag_line:
+                self.scene().removeItem(self._drag_line)
+                self._drag_line = None
+
+            # Find the target node at release position
+            scene_pos = self.mapToScene(event.pos())
+            item = self.scene().itemAt(scene_pos, self.transform())
+            target_node = self._find_entity_node(item)
+
+            if (
+                target_node is not None
+                and target_node is not self._drag_source_node
+                and self._drag_source_node is not None
+                and self.drag_connect_requested is not None
+            ):
+                self.drag_connect_requested(self._drag_source_node, target_node)
+
+            self._is_connecting = False
+            self._drag_source_node = None
+            event.accept()
+            return
+
+        super().mouseReleaseEvent(event)
+
+    @staticmethod
+    def _find_entity_node(item) -> EntityNode | None:
+        """Walk up the QGraphicsItem parent chain to find an EntityNode."""
+        while item is not None:
+            if isinstance(item, EntityNode):
+                return item
+            item = item.parentItem()
+        return None
 
 
 class KnowledgeGraphPanel(QWidget):
@@ -323,6 +414,7 @@ class KnowledgeGraphPanel(QWidget):
         # Scene and view
         self._scene = QGraphicsScene(self)
         self._view = GraphView(self._scene)
+        self._view.drag_connect_requested = self._on_drag_connect
         layout.addWidget(self._view, 1)
 
         # Empty state label (shown when no entities exist)
@@ -353,6 +445,8 @@ class KnowledgeGraphPanel(QWidget):
         self._bus.entity_created.connect(lambda _: self._schedule_refresh())
         self._bus.entity_updated.connect(lambda _: self._schedule_refresh())
         self._bus.entity_deleted.connect(lambda _: self._schedule_refresh())
+        self._bus.relationship_created.connect(lambda *_: self._schedule_refresh())
+        self._bus.relationship_removed.connect(lambda *_: self._schedule_refresh())
 
     # ------------------------------------------------------------------
     # Graph building
@@ -472,6 +566,83 @@ class KnowledgeGraphPanel(QWidget):
                 self._selected_node = item
                 self._bus.entity_selected.emit(item.entity_id)
                 break
+
+    def _on_drag_connect(self, source: EntityNode, target: EntityNode) -> None:
+        """Handle drag-to-connect: show the relationship type picker and
+        create the relationship via the engine if confirmed."""
+        # Look up display names from node tooltips or IDs
+        source_name = source.entity_id
+        target_name = target.entity_id
+        # Try to extract the name from the tooltip ("Name\nType: ...\nID: ...")
+        src_tip = source.toolTip()
+        tgt_tip = target.toolTip()
+        if src_tip:
+            source_name = src_tip.split("\n")[0]
+        if tgt_tip:
+            target_name = tgt_tip.split("\n")[0]
+
+        dialog = RelationshipTypeDialog(source_name, target_name, self)
+        if dialog.exec() != dialog.DialogCode.Accepted:
+            return
+
+        rel_type = dialog.selected_type()
+        if not rel_type:
+            return
+
+        # Create the relationship via the engine
+        if self._engine:
+            try:
+                # Add the edge to the world graph
+                self._engine.with_lock(
+                    "world_graph",
+                    lambda g: g.add_relationship(
+                        source.entity_id, target.entity_id, rel_type,
+                    ),
+                )
+
+                # Also persist the relationship on the source entity's data
+                try:
+                    entity_data = self._engine.with_lock(
+                        "data_manager",
+                        lambda d: d.get_entity(source.entity_id),
+                    )
+                    relationships = entity_data.get("relationships", [])
+                    new_rel = {
+                        "relationship_type": rel_type,
+                        "target_id": target.entity_id,
+                    }
+                    # Avoid duplicates
+                    if new_rel not in relationships:
+                        relationships.append(new_rel)
+                        self._engine.with_lock(
+                            "data_manager",
+                            lambda d: d.update_entity(
+                                source.entity_id, {"relationships": relationships},
+                            ),
+                        )
+                except Exception:
+                    logger.debug(
+                        "Could not persist relationship on entity data",
+                        exc_info=True,
+                    )
+
+                # Notify the rest of the application
+                self._bus.relationship_created.emit(
+                    source.entity_id, target.entity_id, rel_type,
+                )
+                self._bus.status_message.emit(
+                    f"Created: {source_name} --[{rel_type}]--> {target_name}"
+                )
+
+                # Refresh the graph to show the new edge
+                self._schedule_refresh()
+
+            except Exception:
+                logger.exception("Failed to create relationship via drag-connect")
+                self._bus.error_occurred.emit(
+                    f"Failed to create relationship between "
+                    f"{source_name} and {target_name}."
+                )
 
     def _on_type_toggled(self, entity_type: str, visible: bool) -> None:
         """Show or hide all nodes of a given type."""

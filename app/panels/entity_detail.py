@@ -177,6 +177,9 @@ class EntityDetailView(QDialog):
         name = data.get("name", data.get("title", self._entity_id or "New Entity"))
         self._title_label.setText(name)
 
+        # Build entity catalog for relationship autocomplete
+        self._load_entity_catalog()
+
         # Load form
         if schema:
             self._form.load_schema(schema, data)
@@ -188,8 +191,31 @@ class EntityDetailView(QDialog):
             }
             self._form.load_schema(auto_schema, data)
 
+        # Push the entity catalog into the form's relationship editors
+        self._form.set_entity_catalog(self._entity_catalog)
+
         # Load related entities
         self._load_related()
+
+    def _load_entity_catalog(self) -> None:
+        """Build a mapping of entity_id -> display_name for autocomplete."""
+        self._entity_catalog: dict[str, str] = {}
+
+        if not self._engine:
+            return
+
+        try:
+            entities = self._engine.with_lock(
+                "data_manager",
+                lambda d: d.list_entities(),
+            )
+            for entry in entities:
+                eid = entry.get("id", "")
+                name = entry.get("name", eid)
+                if eid:
+                    self._entity_catalog[eid] = name
+        except Exception:
+            logger.debug("Could not load entity catalog", exc_info=True)
 
     def _load_related(self) -> None:
         """Load related entities into the sidebar."""

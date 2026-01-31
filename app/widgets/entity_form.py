@@ -27,6 +27,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.widgets.relationship_editor import RelationshipEditor
+
 logger = logging.getLogger(__name__)
 
 
@@ -173,6 +175,8 @@ class EntityForm(QWidget):
         self._schema = template_schema or {}
         self._entity_data = entity_data or {}
         self._fields: dict[str, FieldWidget] = {}
+        self._relationship_editors: dict[str, RelationshipEditor] = {}
+        self._entity_catalog: dict[str, str] = {}
         self._setup_ui()
 
         if template_schema:
@@ -240,6 +244,11 @@ class EntityForm(QWidget):
             self._form_layout.removeRow(fw)
         self._fields.clear()
 
+        # Clear existing relationship editors
+        for editor in self._relationship_editors.values():
+            self._form_layout.removeRow(editor)
+        self._relationship_editors.clear()
+
         properties = schema.get("properties", {})
         required_fields = set(schema.get("required", []))
 
@@ -273,23 +282,17 @@ class EntityForm(QWidget):
     def _add_relationship_group(
         self, field_name: str, field_schema: dict, entity_data: dict | None
     ) -> None:
-        """Add a simple text area for relationship arrays."""
-        display_name = field_name.replace("_", " ").title()
-
-        # For now, serialize as text. Sprint 7 will add proper relationship editing.
-        group_schema = {"type": "string", "description": f"{display_name} (JSON array)"}
+        """Add a RelationshipEditor widget for relationship array fields."""
         value = (entity_data or {}).get(field_name)
+        relationships = value if isinstance(value, list) else []
 
-        if isinstance(value, list):
-            import json
-            text_value = json.dumps(value, indent=2)
-        else:
-            text_value = ""
+        editor = RelationshipEditor(field_name=field_name, parent=self)
+        editor.set_entity_catalog(self._entity_catalog)
+        editor.set_relationships(relationships)
+        editor.changed.connect(self._update_status)
 
-        fw = FieldWidget(field_name, group_schema, text_value,
-                         field_name in set(self._schema.get("required", [])))
-        self._form_layout.addRow(f"{display_name}:", fw)
-        self._fields[field_name] = fw
+        self._form_layout.addRow(editor)
+        self._relationship_editors[field_name] = editor
 
     # ------------------------------------------------------------------
     # Data access
@@ -301,14 +304,13 @@ class EntityForm(QWidget):
         for name, fw in self._fields.items():
             val = fw.get_value()
             if val or val == 0 or val is False:
-                # Try to parse JSON for relationship fields
-                if isinstance(val, str) and val.startswith("["):
-                    import json
-                    try:
-                        val = json.loads(val)
-                    except json.JSONDecodeError:
-                        pass
                 data[name] = val
+
+        # Collect relationship editor data
+        for name, editor in self._relationship_editors.items():
+            rels = editor.get_relationships()
+            if rels:
+                data[name] = rels
 
         # Preserve template ID if present
         template_id = self._schema.get("$id", "")
@@ -334,9 +336,26 @@ class EntityForm(QWidget):
             if field_name in self._fields:
                 self._fields[field_name].set_validation(error=message)
 
+    def set_entity_catalog(self, catalog: dict[str, str]) -> None:
+        """Set the entity catalog for relationship autocomplete.
+
+        Parameters
+        ----------
+        catalog : dict[str, str]
+            Mapping of entity_id -> display_name.
+        """
+        self._entity_catalog = dict(catalog)
+        for editor in self._relationship_editors.values():
+            editor.set_entity_catalog(catalog)
+
+    def get_relationship_editors(self) -> dict[str, RelationshipEditor]:
+        """Return the mapping of field_name -> RelationshipEditor."""
+        return dict(self._relationship_editors)
+
     def _update_status(self) -> None:
         filled = sum(1 for fw in self._fields.values() if fw.get_value())
-        total = len(self._fields)
+        filled += sum(1 for ed in self._relationship_editors.values() if ed.get_relationships())
+        total = len(self._fields) + len(self._relationship_editors)
         self._status_label.setText(f"{filled}/{total} fields filled")
 
     def _on_save(self) -> None:

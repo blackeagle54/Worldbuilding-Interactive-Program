@@ -67,6 +67,10 @@ class EventBus(QObject):
     claude_token = Signal(str)
     claude_message = Signal(str)
 
+    # Relationships
+    relationship_created = Signal(str, str, str)  # source_id, target_id, rel_type
+    relationship_removed = Signal(str, str, str)  # source_id, target_id, rel_type
+
     # Error and status
     error_occurred = Signal(str)
     status_message = Signal(str)
