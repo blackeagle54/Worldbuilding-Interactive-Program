@@ -310,6 +310,7 @@ class ClaudeClient:
                 "claude",
                 "-p", user_message,
                 "--output-format", "stream-json",
+                "--verbose",
             ]
 
             if system_prompt:
