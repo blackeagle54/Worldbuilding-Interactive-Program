@@ -1,15 +1,15 @@
 """
 Fair Representation System for the Worldbuilding Interactive Program.
 
-Ensures balanced rotation across all 16 reference databases (10 mythologies,
-6 authors) so that no single tradition dominates the worldbuilding guidance.
+Tracks usage across all 16 reference databases (10 mythologies, 6 authors)
+so that no single tradition dominates the worldbuilding guidance.
 
-Over 52 steps:
-- Each mythology gets featured roughly 21 times (4 featured per step x 52 / 10)
-- Each author gets featured roughly 26 times (3 featured per step x 52 / 6)
+All databases with relevant content for a step are consulted -- fair
+representation is maintained by tracking which databases have contributed
+content, not by gating which ones are searched.
 
 Usage counters are persisted in user-world/state.json under
-"reference_usage_counts" so rotation survives across sessions.
+"reference_usage_counts" so tracking survives across sessions.
 """
 
 import json
@@ -113,6 +113,16 @@ class FairRepresentationManager:
             "brief_mythologies": brief_myths,
             "brief_authors": brief_auths,
         }
+
+    def record_usage(self, db_name: str) -> None:
+        """Increment the usage counter for a single database.
+
+        Called when a database contributes content to a response, so
+        that fair representation tracking reflects actual usage rather
+        than pre-selection.
+        """
+        if db_name in self._usage:
+            self._usage[db_name] = self._usage.get(db_name, 0) + 1
 
     def get_usage_stats(self):
         """Return current usage counts for all 16 databases.

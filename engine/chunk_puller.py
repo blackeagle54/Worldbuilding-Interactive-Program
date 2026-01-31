@@ -926,26 +926,53 @@ class ChunkPuller:
         override_mythologies: list[str] | None = None,
         override_authors: list[str] | None = None,
     ) -> dict:
-        """Build the Layer 2 guidance (reference material from 16 databases)."""
+        """Build the Layer 2 guidance (reference material from 16 databases).
 
-        # Determine which databases to feature
-        featured_myth_names, featured_auth_names, brief_myth_names, brief_auth_names = \
-            self._select_featured_databases(step_number, override_mythologies, override_authors)
+        Searches ALL databases for sections relevant to the current step
+        and pulls full content from every database that has matching
+        material.  Fair representation is maintained by tracking usage
+        counts, not by gating which databases are consulted.
+        """
+        all_myth_names = override_mythologies or self._get_all_db_names("mythology")
+        all_auth_names = override_authors or self._get_all_db_names("author")
 
-        # Collect relevant sections for this step from each database
+        # Collect relevant sections from ALL databases
         featured_mythologies = self._collect_featured_references(
-            step_number, featured_myth_names, "mythology"
+            step_number, all_myth_names, "mythology"
         )
         featured_authors = self._collect_featured_references(
-            step_number, featured_auth_names, "author"
-        )
-        brief_mentions = self._collect_brief_mentions(
-            step_number, brief_myth_names + brief_auth_names
+            step_number, all_auth_names, "author"
         )
 
-        # Build cross-cutting patterns prompt (raw material for Claude)
-        all_db_names = featured_myth_names + featured_auth_names + brief_myth_names + brief_auth_names
+        # Track usage for fair representation (all databases that
+        # contributed content get their counters incremented)
+        try:
+            from engine.fair_representation import FairRepresentationManager
+            frm = FairRepresentationManager(self._state_path)
+            contributed_dbs = set()
+            for ref in featured_mythologies + featured_authors:
+                db_name = ref.get("database", "")
+                if db_name and ref.get("content"):
+                    contributed_dbs.add(db_name)
+            for db_name in contributed_dbs:
+                frm.record_usage(db_name)
+            frm.save_state()
+        except Exception:
+            logger.debug("Could not update fair representation usage counts", exc_info=True)
+
+        # Build cross-cutting patterns prompt across ALL databases
+        all_db_names = all_myth_names + all_auth_names
         cross_cutting = self._build_cross_cutting_prompt(step_number, all_db_names)
+
+        # Brief mentions are no longer needed since all databases are
+        # fully consulted, but we keep the key for API compatibility
+        brief_mentions: list[dict] = []
+
+        logger.info(
+            "Layer 2 built: %d mythology refs, %d author refs from %d databases",
+            len(featured_mythologies), len(featured_authors),
+            len(set(r.get("database", "") for r in featured_mythologies + featured_authors)),
+        )
 
         return {
             "featured_mythologies": featured_mythologies,
@@ -1062,9 +1089,9 @@ class ChunkPuller:
             ]
 
             if not relevant_sections:
-                # No exact match -- include the first section as a general reference
-                if sections:
-                    relevant_sections = [sections[0]]
+                # No relevant sections for this step -- skip this database
+                # rather than pulling irrelevant content
+                continue
 
             for section in relevant_sections:
                 title = section.get("title", "")
