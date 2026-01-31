@@ -11,8 +11,6 @@ Produces a --onedir bundle in dist/WorldbuildingApp/
 import os
 import sys
 
-block_cipher = None
-
 # Project root
 ROOT = os.path.dirname(os.path.abspath(SPEC))
 
@@ -20,13 +18,23 @@ ROOT = os.path.dirname(os.path.abspath(SPEC))
 datas = [
     (os.path.join(ROOT, 'templates'), 'templates'),
     (os.path.join(ROOT, 'reference-databases'), 'reference-databases'),
-    (os.path.join(ROOT, 'user-world'), 'user-world'),
     (os.path.join(ROOT, 'app', 'theme'), os.path.join('app', 'theme')),
     (os.path.join(ROOT, 'app', 'resources'), os.path.join('app', 'resources')),
+    (os.path.join(ROOT, 'engine', '*.json'), 'engine'),
+    (os.path.join(ROOT, 'generation'), 'generation'),
+    (os.path.join(ROOT, 'VERSION'), '.'),
 ]
 
-# Filter out non-existent paths
-datas = [(src, dst) for src, dst in datas if os.path.exists(src)]
+# Filter out non-existent paths (skip glob patterns from filtering)
+import glob as _glob
+_filtered = []
+for src, dst in datas:
+    if '*' in src:
+        if _glob.glob(src):
+            _filtered.append((src, dst))
+    elif os.path.exists(src):
+        _filtered.append((src, dst))
+datas = _filtered
 
 # Hidden imports that PyInstaller may miss
 hiddenimports = [
@@ -54,9 +62,15 @@ hiddenimports = [
     'app.widgets.toast',
     'app.widgets.welcome_dialog',
     'engine.engine_manager',
+    'engine.utils',
+    'engine.models.base',
+    'engine.models.factory',
+    'engine.models.validators',
     'pydantic',
     'networkx',
     'platformdirs',
+    'qasync',
+    'anthropic',
 ]
 
 # Qt modules to exclude (reduce size)
@@ -108,11 +122,10 @@ a = Analysis(
     excludes=excludes,
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
-    cipher=block_cipher,
     noarchive=False,
 )
 
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+pyz = PYZ(a.pure, a.zipped_data)
 
 exe = EXE(
     pyz,

@@ -7,13 +7,15 @@ Steps:
     3. Run tests
     4. Build with PyInstaller
     5. Clean up unnecessary files from dist
-    6. Report results
+    6. Run Inno Setup installer (if available)
+    7. Report results
 
 Usage::
 
     python build_release.py
     python build_release.py --skip-tests
     python build_release.py --skip-venv
+    python build_release.py --clean
 """
 
 from __future__ import annotations
@@ -50,6 +52,18 @@ def get_python(use_venv: bool) -> str:
     return sys.executable
 
 
+def _safe_rmtree(path: str, description: str = "") -> None:
+    """Remove a directory tree with error handling."""
+    label = description or path
+    try:
+        shutil.rmtree(path)
+    except PermissionError:
+        print(f"  WARNING: Permission denied removing {label}. "
+              f"Close any programs using files in this directory and retry.")
+    except OSError as e:
+        print(f"  WARNING: Could not remove {label}: {e}")
+
+
 def step_venv(python: str) -> None:
     """Create virtual environment and install dependencies."""
     if not os.path.isdir(VENV_DIR):
@@ -59,6 +73,7 @@ def step_venv(python: str) -> None:
     print("\n=== Installing dependencies ===")
     run([python, "-m", "pip", "install", "--upgrade", "pip"])
     run([python, "-m", "pip", "install", "-r", "requirements.txt"])
+    run([python, "-m", "pip", "install", "-r", "requirements-dev.txt"])
     run([python, "-m", "pip", "install", "pyinstaller>=6.0"])
 
 
@@ -75,7 +90,7 @@ def step_build(python: str) -> None:
     # Clean previous build
     for d in [BUILD_DIR, APP_DIR]:
         if os.path.isdir(d):
-            shutil.rmtree(d)
+            _safe_rmtree(d, os.path.basename(d))
 
     run([python, "-m", "PyInstaller", "worldbuilding.spec", "--noconfirm"])
 
@@ -95,7 +110,7 @@ def step_cleanup() -> None:
     ]
     for path in patterns_to_remove:
         if os.path.isdir(path):
-            shutil.rmtree(path)
+            _safe_rmtree(path, os.path.relpath(path, ROOT))
             print(f"  Removed: {path}")
 
     # Report size
@@ -109,11 +124,49 @@ def step_cleanup() -> None:
     print(f"\n  Total dist size: {size_mb:.1f} MB")
 
 
+def step_installer() -> None:
+    """Run Inno Setup compiler if available on PATH."""
+    print("\n=== Building installer ===")
+    iscc = shutil.which("iscc")
+    if iscc is None:
+        print("  ISCC not found on PATH, skipping installer build.")
+        print("  Install Inno Setup and ensure iscc.exe is on your PATH to build the installer.")
+        return
+
+    iss_file = os.path.join(ROOT, "installer.iss")
+    if not os.path.isfile(iss_file):
+        print(f"  installer.iss not found at {iss_file}, skipping.")
+        return
+
+    run([iscc, iss_file])
+    print("  Installer built successfully.")
+
+
+def step_clean() -> None:
+    """Remove the build virtual environment."""
+    print("\n=== Cleaning build environment ===")
+    if os.path.isdir(VENV_DIR):
+        _safe_rmtree(VENV_DIR, ".build-venv")
+        print(f"  Removed {VENV_DIR}")
+    else:
+        print("  No .build-venv to clean.")
+
+    for d in [BUILD_DIR, DIST_DIR]:
+        if os.path.isdir(d):
+            _safe_rmtree(d, os.path.basename(d))
+            print(f"  Removed {d}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build Worldbuilding Interactive Program")
     parser.add_argument("--skip-tests", action="store_true", help="Skip running tests")
     parser.add_argument("--skip-venv", action="store_true", help="Use current Python instead of venv")
+    parser.add_argument("--clean", action="store_true", help="Remove .build-venv and build artifacts, then exit")
     args = parser.parse_args()
+
+    if args.clean:
+        step_clean()
+        return
 
     use_venv = not args.skip_venv
     python = get_python(use_venv)
@@ -130,10 +183,11 @@ def main() -> None:
 
     step_build(python)
     step_cleanup()
+    step_installer()
 
     # Clean up build dir
     if os.path.isdir(BUILD_DIR):
-        shutil.rmtree(BUILD_DIR)
+        _safe_rmtree(BUILD_DIR, "build")
 
     print("\n" + "=" * 60)
     print("  BUILD COMPLETE")

@@ -25,6 +25,7 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 DisableProgramGroupPage=yes
+SetupIconFile=app\resources\icon.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -45,4 +46,17 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{app}"
+; Only remove the application directory; user data in {userappdata}\WorldbuildingApp is preserved
+Type: filesandordirs; Name: "{app}\PySide6"
+Type: filesandordirs; Name: "{app}\_internal"
+Type: files; Name: "{app}\{#MyAppExeName}"
+
+[Code]
+// User data is stored in {userappdata}\WorldbuildingApp (not in {app})
+// so it survives uninstall/reinstall cycles.
+procedure InitializeWizard;
+begin
+  // Ensure user data directory exists on first run
+  if not DirExists(ExpandConstant('{userappdata}\WorldbuildingApp')) then
+    CreateDir(ExpandConstant('{userappdata}\WorldbuildingApp'));
+end;
