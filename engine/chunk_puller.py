@@ -33,16 +33,40 @@ logger = logging.getLogger(__name__)
 from engine.utils import safe_read_json as _safe_read_json
 
 
+# ---------------------------------------------------------------------------
+# File content cache -- shared across all module-level helpers.
+# Reference database files never change during a session, so we cache
+# the full file content on first read and reuse it.
+# ---------------------------------------------------------------------------
+
+_file_cache: dict[str, list[str] | None] = {}
+
+
+def _get_file_lines(file_path: str) -> list[str] | None:
+    """Return cached list of lines for *file_path*, or None on read error."""
+    if file_path not in _file_cache:
+        try:
+            with open(file_path, "r", encoding="utf-8") as fh:
+                _file_cache[file_path] = fh.readlines()
+        except (FileNotFoundError, OSError):
+            _file_cache[file_path] = None
+    return _file_cache[file_path]
+
+
+def clear_file_cache() -> None:
+    """Clear the module-level file and section caches (e.g. between sessions)."""
+    _file_cache.clear()
+    _section_cache.clear()
+
+
 def _read_lines_range(file_path: str, start: int, end: int) -> list[str]:
     """Read lines *start* through *end* (1-indexed, inclusive) from a text file.
 
     Returns a list of strings.  If the file cannot be read or the range
     is invalid, returns an empty list.
     """
-    try:
-        with open(file_path, "r", encoding="utf-8") as fh:
-            lines = fh.readlines()
-    except (FileNotFoundError, OSError):
+    lines = _get_file_lines(file_path)
+    if lines is None:
         return []
 
     # Clamp to valid range (1-indexed)
@@ -51,6 +75,10 @@ def _read_lines_range(file_path: str, start: int, end: int) -> list[str]:
     if start > end:
         return []
     return [line.rstrip("\n") for line in lines[start - 1 : end]]
+
+
+# Cache for _extract_md_section results: (file_path, section_title) -> str
+_section_cache: dict[tuple[str, str], str] = {}
 
 
 def _extract_md_section(file_path: str, section_title: str) -> str:
@@ -63,10 +91,13 @@ def _extract_md_section(file_path: str, section_title: str) -> str:
 
     If the section cannot be found, returns an empty string.
     """
-    try:
-        with open(file_path, "r", encoding="utf-8") as fh:
-            lines = fh.readlines()
-    except (FileNotFoundError, OSError):
+    cache_key = (file_path, section_title)
+    if cache_key in _section_cache:
+        return _section_cache[cache_key]
+
+    lines = _get_file_lines(file_path)
+    if lines is None:
+        _section_cache[cache_key] = ""
         return ""
 
     target = section_title.strip().lower()
@@ -98,13 +129,18 @@ def _extract_md_section(file_path: str, section_title: str) -> str:
             # or higher (lower number) level
             if level <= start_level:
                 content_lines = lines[start_idx + 1 : idx]
-                return "".join(content_lines).strip()
+                result = "".join(content_lines).strip()
+                _section_cache[cache_key] = result
+                return result
 
     # If we found the heading but hit end-of-file
     if start_idx is not None:
         content_lines = lines[start_idx + 1 :]
-        return "".join(content_lines).strip()
+        result = "".join(content_lines).strip()
+        _section_cache[cache_key] = result
+        return result
 
+    _section_cache[cache_key] = ""
     return ""
 
 
@@ -564,11 +600,21 @@ class ChunkPuller:
         # Pre-index reference databases
         self._databases = self._reference_index.get("databases", {})
 
+        # Build O(1) lookup dict for _find_db_info(): db_name -> db_info
+        self._db_lookup: dict[str, dict] = {}
+        for _key, db_info in self._databases.items():
+            db_id = db_info.get("id")
+            if db_id:
+                self._db_lookup[db_id] = db_info
+
         # Source text path
         self._source_text_path = str(self.root / "reference-databases" / "source-text.txt")
 
         # State path
         self._state_path = str(self.root / "user-world" / "state.json")
+
+        # Layer 2 result cache: step_number -> layer2 dict
+        self._layer2_cache: dict[int, dict] = {}
 
     # ------------------------------------------------------------------
     # Main public method
@@ -932,7 +978,16 @@ class ChunkPuller:
         and pulls full content from every database that has matching
         material.  Fair representation is maintained by tracking usage
         counts, not by gating which databases are consulted.
+
+        Results are cached per step_number (when no overrides are given)
+        so that pull_condensed() and pull_references() share the same
+        computation.
         """
+        # Return cached result if available (only for default selection)
+        if override_mythologies is None and override_authors is None:
+            if step_number in self._layer2_cache:
+                return self._layer2_cache[step_number]
+
         all_myth_names = override_mythologies or self._get_all_db_names("mythology")
         all_auth_names = override_authors or self._get_all_db_names("author")
 
@@ -974,12 +1029,18 @@ class ChunkPuller:
             len(set(r.get("database", "") for r in featured_mythologies + featured_authors)),
         )
 
-        return {
+        result = {
             "featured_mythologies": featured_mythologies,
             "featured_authors": featured_authors,
             "brief_mentions": brief_mentions,
             "cross_cutting_patterns": cross_cutting,
         }
+
+        # Cache for reuse (only when no overrides)
+        if override_mythologies is None and override_authors is None:
+            self._layer2_cache[step_number] = result
+
+        return result
 
     def _select_featured_databases(
         self,
@@ -1103,9 +1164,10 @@ class ChunkPuller:
                 if not content and line_start and line_end:
                     content = _extract_md_section_by_lines(file_path, line_start, line_end)
 
-                # Truncate very long sections for manageability
-                if len(content) > 3000:
-                    content = content[:3000] + "\n\n[...truncated for length...]"
+                # Truncate to 1000 chars -- prompt_builder applies a final
+                # 800-char safety trim, so anything beyond 1000 is wasted.
+                if len(content) > 1000:
+                    content = content[:1000] + "\n\n[...truncated for length...]"
 
                 relevance = (
                     f"This section from {db_info.get('name', db_name)} covers "
@@ -1212,12 +1274,15 @@ class ChunkPuller:
         return "\n".join(lines)
 
     def _find_db_info(self, db_name: str) -> dict | None:
-        """Find the database metadata block by short name (e.g. 'greek')."""
-        # Direct lookup by various key patterns
-        for key, info in self._databases.items():
-            if info.get("id") == db_name:
-                return info
-        # Try key-based lookup
+        """Find the database metadata block by short name (e.g. 'greek').
+
+        Uses the pre-built ``self._db_lookup`` dict for O(1) access,
+        falling back to key-based lookup if the id is not indexed.
+        """
+        result = self._db_lookup.get(db_name)
+        if result is not None:
+            return result
+        # Fallback: try key-based lookup for edge cases
         for prefix in ("mythologies/", "authors/"):
             full_key = prefix + db_name
             if full_key in self._databases:

@@ -185,6 +185,30 @@ class BookkeepingManager:
         self._session_events.append(event)
         return event
 
+    # ------------------------------------------------------------------
+    # Rebuild metadata (incremental index support)
+    # ------------------------------------------------------------------
+
+    @property
+    def _rebuild_meta_path(self):
+        """Path to the rebuild metadata file."""
+        return self.indexes_dir / "_rebuild_meta.json"
+
+    def _load_rebuild_meta(self):
+        """Load the rebuild metadata, or return a fresh default."""
+        data = self._read_json(self._rebuild_meta_path)
+        if isinstance(data, dict) and "file_offsets" in data:
+            return data
+        return {"file_offsets": {}, "next_session_number": 1}
+
+    def _save_rebuild_meta(self, meta):
+        """Persist the rebuild metadata."""
+        self._write_json(self._rebuild_meta_path, meta)
+
+    # ------------------------------------------------------------------
+    # Event loading helpers
+    # ------------------------------------------------------------------
+
     def _load_all_events(self):
         """Load every event from all JSONL log files, sorted by timestamp.
 
@@ -207,16 +231,73 @@ class BookkeepingManager:
                 continue
         return events
 
+    def _stream_new_events(self, meta):
+        """Yield new events from JSONL files, starting from stored byte offsets.
+
+        Updates *meta* ``file_offsets`` in place as files are consumed.
+
+        Yields:
+            event dicts
+        """
+        offsets = meta.get("file_offsets", {})
+        pattern = str(self.events_dir / "events-*.jsonl")
+        for filepath in sorted(glob.glob(pattern)):
+            fname = os.path.basename(filepath)
+            start = offsets.get(fname, 0)
+            try:
+                with open(filepath, "rb") as fh:
+                    fh.seek(start)
+                    for raw_line in fh:
+                        line = raw_line.decode("utf-8", errors="replace").strip()
+                        if line:
+                            try:
+                                yield json.loads(line)
+                            except json.JSONDecodeError:
+                                continue
+                    offsets[fname] = fh.tell()
+            except OSError:
+                continue
+        meta["file_offsets"] = offsets
+
+    # ------------------------------------------------------------------
+    # Session number persistence
+    # ------------------------------------------------------------------
+
     def _next_session_number(self):
-        """Determine the next session number by scanning existing events."""
-        events = self._load_all_events()
+        """Return the next session number from persisted metadata.
+
+        Falls back to scanning all events if the metadata file is
+        missing or corrupt.
+        """
+        meta = self._load_rebuild_meta()
+        next_num = meta.get("next_session_number")
+        if isinstance(next_num, int) and next_num >= 1:
+            return next_num
+        # Fallback: scan events (first run or corrupt metadata)
+        return self._scan_max_session_number() + 1
+
+    def _scan_max_session_number(self):
+        """Scan all events to find the highest session number (slow path)."""
         max_num = 0
-        for ev in events:
-            if ev.get("event_type") == self.EVENT_SESSION_STARTED:
-                sid = ev.get("data", {}).get("session_number", 0)
-                if isinstance(sid, int) and sid > max_num:
-                    max_num = sid
-        return max_num + 1
+        pattern = str(self.events_dir / "events-*.jsonl")
+        for filepath in sorted(glob.glob(pattern)):
+            try:
+                with open(filepath, "r", encoding="utf-8") as fh:
+                    for line in fh:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        try:
+                            ev = json.loads(line)
+                        except json.JSONDecodeError:
+                            continue
+                        if ev.get("event_type") == self.EVENT_SESSION_STARTED:
+                            sid = ev.get("data", {}).get("session_number", 0)
+                            if isinstance(sid, int) and sid > max_num:
+                                max_num = sid
+            except OSError:
+                continue
+        return max_num
 
     def _next_contradiction_id(self):
         """Generate the next contradiction ID from existing contradictions."""
@@ -241,6 +322,11 @@ class BookkeepingManager:
         self._current_session_id = f"session-{self._session_number:03d}"
         self._session_start_time = self._now()
         self._session_events = []
+
+        # Persist the next session number so future calls don't need to scan
+        meta = self._load_rebuild_meta()
+        meta["next_session_number"] = self._session_number + 1
+        self._save_rebuild_meta(meta)
 
         self.log_event(self.EVENT_SESSION_STARTED, {
             "session_number": self._session_number,
@@ -617,119 +703,195 @@ class BookkeepingManager:
     # Index rebuilding
     # ------------------------------------------------------------------
 
-    def rebuild_indexes(self):
-        """Rebuild all derived index files from the event log.
+    def rebuild_indexes(self, force=False):
+        """Rebuild derived index files from the event log.
 
-        This is the recovery mechanism: if any index file becomes corrupt
-        or out of sync, calling ``rebuild_indexes()`` restores them from
-        the append-only event log (the single source of truth).
+        By default this performs an **incremental** rebuild: only new
+        events written since the last rebuild are processed and merged
+        into the existing index files.  This avoids loading all events
+        into memory and scales to arbitrarily large logs.
+
+        Args:
+            force: If ``True``, discard all offsets and rebuild every
+                index from scratch (equivalent to the old behaviour).
         """
-        events = self._load_all_events()
+        meta = self._load_rebuild_meta()
 
-        decisions = []
-        steps = {}
-        entities = {}
-        cross_refs = []
-        contradictions = {}
-        revisions = {}
+        if force or not meta.get("file_offsets"):
+            # Full rebuild -- reset offsets so _stream_new_events reads
+            # everything, and start with empty index structures.
+            meta["file_offsets"] = {}
+            decisions = []
+            steps = {}
+            entities = {}
+            cross_refs = []
+            contradictions = {}
+            revisions = {}
+        else:
+            # Incremental -- seed from existing index files.
+            decisions, steps, entities, cross_refs, contradictions, revisions = (
+                self._load_current_indexes()
+            )
 
-        for ev in events:
-            etype = ev.get("event_type")
-            edata = ev.get("data", {})
-            timestamp = ev.get("timestamp", "")
+        # Stream only the new events (from stored byte offsets onward).
+        for ev in self._stream_new_events(meta):
+            self._apply_event_to_indexes(
+                ev, decisions, steps, entities, cross_refs,
+                contradictions, revisions,
+            )
 
-            # --- Decisions ---
-            if etype == self.EVENT_DECISION_MADE:
-                decisions.append({
-                    "timestamp": timestamp,
-                    "session_id": ev.get("session_id"),
-                    "step_id": edata.get("step_id"),
-                    "question": edata.get("question"),
-                    "options": edata.get("options", []),
-                    "chosen": edata.get("chosen"),
-                    "rejected": edata.get("rejected", []),
-                    "rationale": edata.get("rationale", ""),
-                })
+        # Persist updated indexes and metadata.
+        self._write_all_indexes(
+            decisions, steps, entities, cross_refs,
+            contradictions, revisions,
+        )
+        self._save_rebuild_meta(meta)
 
-            # --- Progression ---
-            elif etype == self.EVENT_STEP_STATUS_CHANGED:
-                step_id = edata.get("step_id", "")
-                steps[step_id] = {
-                    "step_id": step_id,
-                    "status": edata.get("new_status", "unknown"),
-                    "last_updated": timestamp,
-                }
+    def force_full_rebuild(self):
+        """Force a complete index rebuild from scratch.
 
-            # --- Entity Registry ---
-            elif etype == self.EVENT_DRAFT_CREATED:
-                eid = edata.get("entity_id", "")
-                entities[eid] = {
-                    "entity_id": eid,
-                    "entity_type": edata.get("entity_type", ""),
-                    "file_path": edata.get("file_path", ""),
-                    "status": edata.get("status", "draft"),
-                    "revision_count": 0,
-                    "created": timestamp,
-                    "last_updated": timestamp,
-                }
+        Use this when the metadata file is missing, corrupt, or you
+        suspect the indexes have drifted from the event log.
+        """
+        self.rebuild_indexes(force=True)
 
-            elif etype == self.EVENT_STATUS_CHANGED:
-                eid = edata.get("entity_id", "")
-                if eid in entities:
-                    entities[eid]["status"] = edata.get("new_status", entities[eid]["status"])
-                    entities[eid]["last_updated"] = timestamp
+    # ------------------------------------------------------------------
+    # Internal: index data-structure helpers
+    # ------------------------------------------------------------------
 
-            elif etype == self.EVENT_ENTITY_REVISED:
-                eid = edata.get("entity_id", "")
-                if eid in entities:
-                    entities[eid]["revision_count"] = edata.get("revision_number", 0)
-                    entities[eid]["last_updated"] = timestamp
+    def _load_current_indexes(self):
+        """Load existing index files into in-memory structures for merging."""
+        # Decisions -- flat list
+        dec_data = self._read_json(self.decisions_index) or {"decisions": []}
+        decisions = dec_data.get("decisions", [])
 
-                # Revisions by entity
-                if eid not in revisions:
-                    revisions[eid] = []
-                revisions[eid].append({
-                    "revision_number": edata.get("revision_number"),
-                    "change_summary": edata.get("change_summary", ""),
-                    "reason": edata.get("reason", ""),
-                    "snapshot_path": edata.get("snapshot_path", ""),
-                    "timestamp": timestamp,
-                })
+        # Progression -- dict keyed by step_id
+        prog_data = self._read_json(self.progression_index) or {"steps": {}}
+        steps = prog_data.get("steps", {})
 
-            # --- Cross-references ---
-            elif etype == self.EVENT_CROSS_REFERENCE_CREATED:
-                ref = {
-                    "source_id": edata.get("source_id"),
-                    "target_id": edata.get("target_id"),
-                    "relationship_type": edata.get("relationship_type"),
-                    "bidirectional": edata.get("bidirectional", False),
-                    "timestamp": timestamp,
-                }
-                cross_refs.append(ref)
+        # Entity registry -- dict keyed by entity_id
+        ent_data = self._read_json(self.entity_registry_index) or {"entities": {}}
+        entities = ent_data.get("entities", {})
 
-            # --- Contradictions ---
-            elif etype == self.EVENT_CONTRADICTION_FOUND:
-                cid = edata.get("contradiction_id", "")
-                contradictions[cid] = {
-                    "contradiction_id": cid,
-                    "entities": edata.get("entities", []),
-                    "description": edata.get("description", ""),
-                    "severity": edata.get("severity", ""),
-                    "status": "open",
-                    "found_at": timestamp,
-                    "resolved_at": None,
-                    "resolution": None,
-                }
+        # Cross-references -- flat list
+        xref_data = self._read_json(self.cross_references_index) or {"cross_references": []}
+        cross_refs = xref_data.get("cross_references", [])
 
-            elif etype == self.EVENT_CONTRADICTION_RESOLVED:
-                cid = edata.get("contradiction_id", "")
-                if cid in contradictions:
-                    contradictions[cid]["status"] = "resolved"
-                    contradictions[cid]["resolved_at"] = timestamp
-                    contradictions[cid]["resolution"] = edata.get("resolution", "")
-                    contradictions[cid]["entities_modified"] = edata.get("entities_modified", [])
+        # Contradictions -- dict keyed by contradiction_id
+        cont_data = self._read_json(self.contradictions_index) or {"contradictions": []}
+        contradictions = {
+            c["contradiction_id"]: c
+            for c in cont_data.get("contradictions", [])
+            if "contradiction_id" in c
+        }
 
-        # Write all index files
+        # Revisions -- dict keyed by entity_id -> list
+        rev_data = self._read_json(self.revisions_index) or {"revisions": {}}
+        revisions = rev_data.get("revisions", {})
+
+        return decisions, steps, entities, cross_refs, contradictions, revisions
+
+    @staticmethod
+    def _apply_event_to_indexes(ev, decisions, steps, entities, cross_refs,
+                                contradictions, revisions):
+        """Apply a single event to the in-memory index structures."""
+        etype = ev.get("event_type")
+        edata = ev.get("data", {})
+        timestamp = ev.get("timestamp", "")
+
+        # --- Decisions ---
+        if etype == "decision_made":
+            decisions.append({
+                "timestamp": timestamp,
+                "session_id": ev.get("session_id"),
+                "step_id": edata.get("step_id"),
+                "question": edata.get("question"),
+                "options": edata.get("options", []),
+                "chosen": edata.get("chosen"),
+                "rejected": edata.get("rejected", []),
+                "rationale": edata.get("rationale", ""),
+            })
+
+        # --- Progression ---
+        elif etype == "step_status_changed":
+            step_id = edata.get("step_id", "")
+            steps[step_id] = {
+                "step_id": step_id,
+                "status": edata.get("new_status", "unknown"),
+                "last_updated": timestamp,
+            }
+
+        # --- Entity Registry ---
+        elif etype == "draft_created":
+            eid = edata.get("entity_id", "")
+            entities[eid] = {
+                "entity_id": eid,
+                "entity_type": edata.get("entity_type", ""),
+                "file_path": edata.get("file_path", ""),
+                "status": edata.get("status", "draft"),
+                "revision_count": 0,
+                "created": timestamp,
+                "last_updated": timestamp,
+            }
+
+        elif etype == "status_changed":
+            eid = edata.get("entity_id", "")
+            if eid in entities:
+                entities[eid]["status"] = edata.get("new_status", entities[eid]["status"])
+                entities[eid]["last_updated"] = timestamp
+
+        elif etype == "entity_revised":
+            eid = edata.get("entity_id", "")
+            if eid in entities:
+                entities[eid]["revision_count"] = edata.get("revision_number", 0)
+                entities[eid]["last_updated"] = timestamp
+
+            # Revisions by entity
+            if eid not in revisions:
+                revisions[eid] = []
+            revisions[eid].append({
+                "revision_number": edata.get("revision_number"),
+                "change_summary": edata.get("change_summary", ""),
+                "reason": edata.get("reason", ""),
+                "snapshot_path": edata.get("snapshot_path", ""),
+                "timestamp": timestamp,
+            })
+
+        # --- Cross-references ---
+        elif etype == "cross_reference_created":
+            cross_refs.append({
+                "source_id": edata.get("source_id"),
+                "target_id": edata.get("target_id"),
+                "relationship_type": edata.get("relationship_type"),
+                "bidirectional": edata.get("bidirectional", False),
+                "timestamp": timestamp,
+            })
+
+        # --- Contradictions ---
+        elif etype == "contradiction_found":
+            cid = edata.get("contradiction_id", "")
+            contradictions[cid] = {
+                "contradiction_id": cid,
+                "entities": edata.get("entities", []),
+                "description": edata.get("description", ""),
+                "severity": edata.get("severity", ""),
+                "status": "open",
+                "found_at": timestamp,
+                "resolved_at": None,
+                "resolution": None,
+            }
+
+        elif etype == "contradiction_resolved":
+            cid = edata.get("contradiction_id", "")
+            if cid in contradictions:
+                contradictions[cid]["status"] = "resolved"
+                contradictions[cid]["resolved_at"] = timestamp
+                contradictions[cid]["resolution"] = edata.get("resolution", "")
+                contradictions[cid]["entities_modified"] = edata.get("entities_modified", [])
+
+    def _write_all_indexes(self, decisions, steps, entities, cross_refs,
+                           contradictions, revisions):
+        """Write all six index files from the in-memory structures."""
         self._write_json(self.decisions_index, {"decisions": decisions})
         self._write_json(self.progression_index, {"steps": steps})
         self._write_json(self.entity_registry_index, {"entities": entities})

@@ -127,6 +127,7 @@ def build_system_prompt(
     entities_summary: str = "",
     graph_summary: str = "",
     recent_decisions: str = "",
+    conversation_summary: str = "",
 ) -> str:
     """Build a complete system prompt for a given step.
 
@@ -153,6 +154,9 @@ def build_system_prompt(
         Knowledge graph statistics summary.
     recent_decisions : str
         Recent bookkeeping decisions made in this session.
+    conversation_summary : str
+        Rolling summary of earlier conversation messages that have been
+        compressed out of the live history window.
 
     Returns
     -------
@@ -197,6 +201,12 @@ def build_system_prompt(
     if recent_decisions:
         parts.append("SESSION CONTEXT -- RECENT DECISIONS:")
         parts.append(recent_decisions)
+        parts.append("")
+
+    # Rolling conversation summary (compressed older exchanges)
+    if conversation_summary:
+        parts.append("SESSION MEMORY (summary of earlier conversation):")
+        parts.append(conversation_summary)
         parts.append("")
 
     # Featured sources

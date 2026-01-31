@@ -279,7 +279,12 @@ class MainWindow(QMainWindow):
             store = StateStore.instance()
             step = store.current_step
 
-            context = build_context(self._engine, step)
+            # Pass rolling conversation summary so the system prompt
+            # includes a SESSION MEMORY section with compressed history.
+            summary = ""
+            if hasattr(self._chat_panel, "conversation_summary"):
+                summary = self._chat_panel.conversation_summary
+            context = build_context(self._engine, step, conversation_summary=summary)
             self._chat_panel.set_system_prompt(context["system_prompt"])
             self._claude_client.set_current_step(step)
 

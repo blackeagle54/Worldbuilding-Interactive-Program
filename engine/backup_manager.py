@@ -79,7 +79,11 @@ class BackupManager:
     # 1. Automatic / manual backup creation
     # ------------------------------------------------------------------
 
-    def create_backup(self, label: str | None = None) -> dict:
+    def create_backup(
+        self,
+        label: str | None = None,
+        entity_data_map: dict[str, dict] | None = None,
+    ) -> dict:
         """Create a timestamped ZIP backup of the entire ``user-world/`` directory.
 
         Parameters
@@ -88,6 +92,12 @@ class BackupManager:
             A human-readable label appended to the filename
             (e.g. ``"before-gods-rework"``).  Spaces are replaced with
             hyphens and the string is lowercased.
+        entity_data_map : dict[str, dict], optional
+            Pre-loaded entity data as ``{entity_id: entity_data}``.
+            When provided, entity JSON files are written from memory
+            instead of being re-read from disk, avoiding redundant I/O.
+            Non-entity files (state.json, worksheets, etc.) are still
+            read from disk as usual.
 
         Returns
         -------
@@ -121,6 +131,16 @@ class BackupManager:
 
         # Collect files to back up
         files_to_backup = self._collect_backup_files()
+
+        # Build a lookup of rel_path -> entity_data for pre-loaded entities
+        # so we can write from memory instead of re-reading from disk.
+        _preloaded_by_path: dict[str, dict] = {}
+        if entity_data_map:
+            for _eid, edata in entity_data_map.items():
+                meta = edata.get("_meta", {})
+                rel = meta.get("_rel_path", meta.get("file_path", ""))
+                if rel:
+                    _preloaded_by_path[rel] = edata
 
         # Count entities (JSON files inside entities/ subdirectory)
         entity_count = 0
@@ -162,8 +182,19 @@ class BackupManager:
 
                 # Write all collected files
                 for rel_path in files_to_backup:
-                    abs_path = self.root / rel_path
-                    zf.write(str(abs_path), rel_path)
+                    # If we have pre-loaded data for this entity file,
+                    # write from memory to avoid re-reading from disk.
+                    norm_rel = rel_path.replace("\\", "/")
+                    if norm_rel in _preloaded_by_path:
+                        content = json.dumps(
+                            _preloaded_by_path[norm_rel],
+                            indent=2,
+                            ensure_ascii=False,
+                        )
+                        zf.writestr(rel_path, content)
+                    else:
+                        abs_path = self.root / rel_path
+                        zf.write(str(abs_path), rel_path)
 
             # Rename temp file to final destination
             shutil.move(tmp_path, str(final_path))

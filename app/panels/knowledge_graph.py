@@ -22,7 +22,7 @@ import random
 import time
 from typing import Any
 
-from PySide6.QtCore import QPointF, QRectF, Qt, QTimer
+from PySide6.QtCore import QObject, QPointF, QRectF, Qt, QThread, QTimer, Signal
 from PySide6.QtGui import (
     QBrush,
     QColor,
@@ -82,6 +82,45 @@ _DEFAULT_COLOR = "#9E9E9E"
 NODE_RADIUS = 20
 LABEL_OFFSET = 24
 SCALE_FACTOR = 300  # Scale NetworkX layout coordinates
+LARGE_GRAPH_THRESHOLD = 500  # Switch to simpler layout above this
+VISIBLE_CAP = 200  # Max visible nodes for large graphs
+LOD_ZOOM_THRESHOLD = -5  # Hide labels when zoom level is below this
+
+
+class LayoutWorker(QObject):
+    """Compute spring_layout in a background QThread."""
+
+    finished = Signal(dict)  # {node_id: (x, y), ...}
+
+    def __init__(self, graph_data: dict, node_count: int):
+        super().__init__()
+        self._graph_data = graph_data  # nx.node_link_data dict
+        self._node_count = node_count
+
+    def run(self) -> None:
+        try:
+            import networkx as nx
+            graph = nx.node_link_graph(self._graph_data)
+            if self._node_count >= LARGE_GRAPH_THRESHOLD:
+                # Use faster Kamada-Kawai for large graphs; fall back to
+                # spring_layout with fewer iterations if KK is too slow.
+                try:
+                    pos = nx.kamada_kawai_layout(graph, scale=SCALE_FACTOR)
+                except Exception:
+                    pos = nx.spring_layout(
+                        graph, scale=SCALE_FACTOR, seed=42, iterations=30,
+                    )
+            else:
+                pos = nx.spring_layout(graph, scale=SCALE_FACTOR, seed=42)
+            # Convert numpy arrays to plain tuples
+            result = {
+                nid: (float(coords[0]), float(coords[1]))
+                for nid, coords in pos.items()
+            }
+            self.finished.emit(result)
+        except Exception:
+            logger.exception("Background layout computation failed")
+            self.finished.emit({})
 
 
 class EntityNode(QGraphicsEllipseItem):
@@ -221,7 +260,7 @@ class GraphView(QGraphicsView):
         self.drag_connect_requested = None  # callable(source: EntityNode, target: EntityNode)
 
     def wheelEvent(self, event: QWheelEvent) -> None:
-        """Zoom in/out with mouse wheel."""
+        """Zoom in/out with mouse wheel, with LOD label hiding."""
         factor = 1.15
         if event.angleDelta().y() > 0:
             if self._zoom < 20:
@@ -231,6 +270,7 @@ class GraphView(QGraphicsView):
             if self._zoom > -20:
                 self.scale(1 / factor, 1 / factor)
                 self._zoom -= 1
+        self._update_label_visibility()
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
         """Navigate between nodes with Tab and arrow keys."""
@@ -274,6 +314,13 @@ class GraphView(QGraphicsView):
         self.scene().clearSelection()
         nodes[next_idx].setSelected(True)
         self.centerOn(nodes[next_idx])
+
+    def _update_label_visibility(self) -> None:
+        """Hide node labels when zoomed out past the LOD threshold."""
+        show_labels = self._zoom >= LOD_ZOOM_THRESHOLD
+        for item in self.scene().items():
+            if isinstance(item, EntityNode):
+                item._label.setVisible(show_labels)
 
     def fit_all(self) -> None:
         """Fit all items in view."""
@@ -369,6 +416,11 @@ class KnowledgeGraphPanel(QWidget):
         self._edges: list[RelationshipEdge] = []
         self._type_filters: dict[str, QCheckBox] = {}
         self._selected_node: EntityNode | None = None
+        self._layout_thread: QThread | None = None
+        self._layout_worker: LayoutWorker | None = None
+        self._pending_graph = None  # graph snapshot awaiting layout
+        self._is_large_graph = False  # True when node cap is active
+        self._full_graph = None  # full graph ref for "expand" feature
         self._setup_ui()
         self._connect_signals()
 
@@ -440,6 +492,16 @@ class KnowledgeGraphPanel(QWidget):
         self._node_count_label.setStyleSheet("color: #888; font-size: 11px;")
         toolbar.addWidget(self._node_count_label)
 
+        self._layout_indicator = QLabel("Computing layout...")
+        self._layout_indicator.setStyleSheet("color: #FFD54F; font-size: 11px;")
+        self._layout_indicator.setVisible(False)
+        toolbar.addWidget(self._layout_indicator)
+
+        self._expand_btn = QPushButton(f"Show All (capped to {VISIBLE_CAP})")
+        self._expand_btn.setMaximumWidth(180)
+        self._expand_btn.setVisible(False)
+        toolbar.addWidget(self._expand_btn)
+
         layout.addLayout(toolbar)
 
         # Type filter bar (scrollable row of checkboxes)
@@ -479,6 +541,7 @@ class KnowledgeGraphPanel(QWidget):
     def _connect_signals(self) -> None:
         self._fit_btn.clicked.connect(self._on_fit)
         self._refresh_btn.clicked.connect(self.refresh)
+        self._expand_btn.clicked.connect(self._on_expand)
         self._scene.selectionChanged.connect(self._on_selection_changed)
 
         self._refresh_timer = QTimer(self)
@@ -501,9 +564,17 @@ class KnowledgeGraphPanel(QWidget):
         self._refresh_timer.start()
 
     def refresh(self) -> None:
-        """Rebuild the graph from the engine's WorldGraph."""
+        """Rebuild the graph from the engine's WorldGraph.
+
+        For large graphs (500+ nodes), caps visible nodes to the top-200
+        most-connected and runs layout in a background thread to avoid
+        UI freezes.
+        """
         if self._engine is None:
             return
+
+        # Cancel any in-flight layout computation
+        self._cancel_layout_thread()
 
         try:
             graph = self._engine.with_lock("world_graph", lambda g: g.graph)
@@ -519,35 +590,50 @@ class KnowledgeGraphPanel(QWidget):
         if graph.number_of_nodes() == 0:
             self._empty_label.setVisible(True)
             self._view.setVisible(False)
+            self._expand_btn.setVisible(False)
             self._node_count_label.setText("0 nodes, 0 edges")
             return
 
         self._empty_label.setVisible(False)
         self._view.setVisible(True)
 
-        # Compute layout using NetworkX
-        try:
-            import networkx as nx
-            pos = nx.spring_layout(graph, scale=SCALE_FACTOR, seed=42)
-        except Exception:
-            logger.exception("NetworkX layout failed")
-            return
+        import networkx as nx
 
-        # Create nodes
+        self._full_graph = graph
+
+        # For large graphs, cap to top-N most-connected nodes
+        if graph.number_of_nodes() >= LARGE_GRAPH_THRESHOLD:
+            self._is_large_graph = True
+            top_nodes = sorted(
+                graph.nodes(), key=lambda n: graph.degree(n), reverse=True,
+            )[:VISIBLE_CAP]
+            display_graph = graph.subgraph(top_nodes).copy()
+            self._expand_btn.setVisible(True)
+            self._expand_btn.setText(
+                f"Show All ({graph.number_of_nodes()} nodes, capped to {VISIBLE_CAP})"
+            )
+        else:
+            self._is_large_graph = False
+            display_graph = graph
+            self._expand_btn.setVisible(False)
+
+        # Place nodes immediately at random positions so the scene is not
+        # empty while layout runs in the background.
+        rng = random.Random(42)
         active_types: set[str] = set()
-        for node_id, coords in pos.items():
-            attrs = graph.nodes.get(node_id, {})
+        for node_id in display_graph.nodes():
+            attrs = display_graph.nodes.get(node_id, {})
             name = attrs.get("name", node_id)
             entity_type = attrs.get("entity_type", "unknown")
             active_types.add(entity_type)
-
-            x, y = coords[0], coords[1]
+            x = rng.uniform(-SCALE_FACTOR, SCALE_FACTOR)
+            y = rng.uniform(-SCALE_FACTOR, SCALE_FACTOR)
             node = EntityNode(node_id, name, entity_type, x, y)
             self._scene.addItem(node)
             self._nodes[node_id] = node
 
         # Create edges
-        for source_id, target_id, edge_data in graph.edges(data=True):
+        for source_id, target_id, edge_data in display_graph.edges(data=True):
             if source_id in self._nodes and target_id in self._nodes:
                 rel_type = edge_data.get("relationship_type", "")
                 edge = RelationshipEdge(
@@ -558,16 +644,82 @@ class KnowledgeGraphPanel(QWidget):
                 self._scene.addItem(edge)
                 self._edges.append(edge)
 
-        # Update type filters
         self._update_type_filters(active_types)
-
-        # Stats
         self._node_count_label.setText(
             f"{len(self._nodes)} nodes, {len(self._edges)} edges"
         )
 
-        # Fit to view after a brief delay (let scene settle)
+        # Kick off background layout computation
+        self._pending_graph = display_graph
+        self._layout_indicator.setVisible(True)
+
+        graph_data = nx.node_link_data(display_graph)
+        node_count = display_graph.number_of_nodes()
+
+        self._layout_thread = QThread()
+        self._layout_worker = LayoutWorker(graph_data, node_count)
+        self._layout_worker.moveToThread(self._layout_thread)
+        self._layout_thread.started.connect(self._layout_worker.run)
+        self._layout_worker.finished.connect(self._on_layout_finished)
+        self._layout_worker.finished.connect(self._layout_thread.quit)
+        self._layout_thread.start()
+
+        # Fit the random layout immediately so user sees something
         QTimer.singleShot(50, self._view.fit_all)
+
+    def _cancel_layout_thread(self) -> None:
+        """Stop and clean up any running layout thread."""
+        if self._layout_thread is not None and self._layout_thread.isRunning():
+            self._layout_thread.quit()
+            self._layout_thread.wait(2000)
+        self._layout_thread = None
+        self._layout_worker = None
+
+    def _on_layout_finished(self, positions: dict) -> None:
+        """Apply computed positions from the background layout worker."""
+        self._layout_indicator.setVisible(False)
+        if not positions:
+            return
+
+        for node_id, (x, y) in positions.items():
+            node = self._nodes.get(node_id)
+            if node:
+                node.setPos(x, y)
+
+        # Rebuild edge paths after moving nodes
+        for edge in self._edges:
+            edge._update_path()
+
+        QTimer.singleShot(50, self._view.fit_all)
+
+    def _on_expand(self) -> None:
+        """Show all nodes (remove the cap). Uses simpler layout."""
+        if self._full_graph is None:
+            return
+        self._is_large_graph = False
+        self._expand_btn.setVisible(False)
+        # Temporarily swap full graph; refresh will use it uncapped
+        original = self._full_graph
+        # Monkey-patch so refresh picks up the full graph
+        _orig_with_lock = self._engine.with_lock
+
+        def _fake_with_lock(name, fn):
+            if name == "world_graph":
+                class _Fake:
+                    graph = original
+                return fn(_Fake())
+            return _orig_with_lock(name, fn)
+
+        self._engine.with_lock = _fake_with_lock
+        # Temporarily raise the threshold so refresh does not re-cap
+        import app.panels.knowledge_graph as _mod
+        saved = _mod.LARGE_GRAPH_THRESHOLD
+        _mod.LARGE_GRAPH_THRESHOLD = float("inf")
+        try:
+            self.refresh()
+        finally:
+            _mod.LARGE_GRAPH_THRESHOLD = saved
+            self._engine.with_lock = _orig_with_lock
 
     def _update_type_filters(self, active_types: set[str]) -> None:
         """Rebuild the type filter checkboxes."""

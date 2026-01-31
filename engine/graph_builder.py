@@ -57,6 +57,12 @@ class WorldGraph:
         # The directed graph -- nodes are entity IDs, edges are relationships
         self.graph: nx.DiGraph = nx.DiGraph()
 
+        # Cached undirected view (invalidated on graph mutation)
+        self._undirected_view: nx.Graph | None = None
+
+        # Path for graph persistence
+        self._cache_path = self.root / "runtime" / "graph_cache.json"
+
         # Cache of loaded template schemas keyed by template $id
         self._schema_cache: dict[str, dict] = {}
 
@@ -74,10 +80,28 @@ class WorldGraph:
         self._built: bool = False
 
     # ------------------------------------------------------------------
+    # Undirected view cache
+    # ------------------------------------------------------------------
+
+    def _get_undirected(self) -> nx.Graph:
+        """Return a cached undirected *view* of the directed graph.
+
+        The view is a lightweight O(1) wrapper (no copy) that is
+        invalidated whenever the graph is mutated.
+        """
+        if self._undirected_view is None:
+            self._undirected_view = self.graph.to_undirected(as_view=True)
+        return self._undirected_view
+
+    def _invalidate_undirected(self) -> None:
+        """Mark the cached undirected view as stale."""
+        self._undirected_view = None
+
+    # ------------------------------------------------------------------
     # Full rebuild
     # ------------------------------------------------------------------
 
-    def build_graph(self) -> None:
+    def build_graph(self, entities: dict[str, dict] | None = None) -> None:
         """Rebuild the entire graph from entity files on disk.
 
         Reads every JSON file under ``user-world/entities/``, creates a node
@@ -87,35 +111,53 @@ class WorldGraph:
         This is called at session start.  During a session the graph is
         updated incrementally via :meth:`add_entity` and
         :meth:`add_relationship`.
+
+        Parameters
+        ----------
+        entities : dict[str, dict], optional
+            Pre-loaded entity data as ``{entity_id: entity_data}``.
+            When provided the method uses this data directly instead of
+            reading files from disk, avoiding a redundant I/O pass.
         """
+        # When no pre-loaded entities are given, try loading from cache first
+        if entities is None and self.load_cache():
+            return
+
         self.graph.clear()
+        self._invalidate_undirected()
         self._pending_inbound.clear()
         self._dirty_ids.clear()
         self._built = True
 
-        if not self.entities_dir.exists():
-            return
+        # Determine entity data source
+        if entities is not None:
+            entity_files = dict(entities)
+        else:
+            # Original behaviour: read from disk
+            entity_files = {}
+            if not self.entities_dir.exists():
+                return
 
-        # Pass 1: load every entity file and create nodes
-        entity_files: dict[str, dict] = {}  # entity_id -> entity_data
-        for json_path in self.entities_dir.rglob("*.json"):
-            data = _safe_read_json(str(json_path))
-            if not data:
-                continue
+            for json_path in self.entities_dir.rglob("*.json"):
+                data = _safe_read_json(str(json_path))
+                if not data:
+                    continue
 
+                meta = data.get("_meta", {})
+                entity_id = meta.get("id") or data.get("id")
+                if not entity_id:
+                    continue
+
+                entity_files[entity_id] = data
+
+        # Pass 1: create nodes
+        for entity_id, data in entity_files.items():
             meta = data.get("_meta", {})
-            entity_id = meta.get("id") or data.get("id")
-            if not entity_id:
-                continue
-
-            entity_files[entity_id] = data
-
-            # Add the node with attributes
             self.graph.add_node(
                 entity_id,
                 entity_type=meta.get("entity_type", ""),
                 name=data.get("name", entity_id),
-                file_path=meta.get("file_path", str(json_path.relative_to(self.root))),
+                file_path=meta.get("file_path", meta.get("_rel_path", "")),
                 step_created=meta.get("step_created"),
                 status=meta.get("status", "draft"),
             )
@@ -147,6 +189,9 @@ class WorldGraph:
                         (entity_id, field_name, rel_type)
                     )
 
+        # Persist the freshly built graph for next startup
+        self.save_cache()
+
     # ------------------------------------------------------------------
     # Incremental updates
     # ------------------------------------------------------------------
@@ -164,6 +209,7 @@ class WorldGraph:
         entity_data : dict
             The full entity document (including ``_meta``).
         """
+        self._invalidate_undirected()
         meta = entity_data.get("_meta", {})
         self.graph.add_node(
             entity_id,
@@ -218,6 +264,7 @@ class WorldGraph:
         source_field : str, optional
             The schema field that created this link.
         """
+        self._invalidate_undirected()
         # Ensure both nodes exist (add minimal stubs if not)
         if source_id not in self.graph:
             self.graph.add_node(source_id)
@@ -241,6 +288,7 @@ class WorldGraph:
             is not in the graph.
         """
         if entity_id in self.graph:
+            self._invalidate_undirected()
             self.graph.remove_node(entity_id)  # also removes all edges
 
     def mark_dirty(self, entity_id: str) -> None:
@@ -317,7 +365,7 @@ class WorldGraph:
 
         # Use BFS on the undirected view so we traverse both inbound and
         # outbound edges.
-        undirected = self.graph.to_undirected()
+        undirected = self._get_undirected()
         visited: set[str] = set()
         frontier: set[str] = {entity_id}
 
@@ -398,7 +446,7 @@ class WorldGraph:
         if entity_a not in self.graph or entity_b not in self.graph:
             return []
 
-        undirected = self.graph.to_undirected()
+        undirected = self._get_undirected()
 
         try:
             path_nodes = nx.shortest_path(undirected, entity_a, entity_b)
@@ -425,9 +473,9 @@ class WorldGraph:
     def get_entity_cluster(self, entity_id: str) -> list[str]:
         """Return the community/cluster that *entity_id* belongs to.
 
-        Uses NetworkX's ``greedy_modularity_communities`` on the undirected
-        view of the graph.  Falls back gracefully if the graph is too small
-        or the entity is isolated.
+        Uses NetworkX's ``label_propagation_communities`` (O(E)) on the
+        undirected view of the graph.  Falls back gracefully if the graph
+        is too small or the entity is isolated.
 
         Parameters
         ----------
@@ -444,14 +492,14 @@ class WorldGraph:
         if entity_id not in self.graph:
             return []
 
-        undirected = self.graph.to_undirected()
+        undirected = self._get_undirected()
 
         # If the graph has fewer than 2 nodes, no community detection needed
         if undirected.number_of_nodes() < 2:
             return [entity_id]
 
         try:
-            communities = nx.community.greedy_modularity_communities(undirected)
+            communities = nx.community.label_propagation_communities(undirected)
             for community in communities:
                 if entity_id in community:
                     return sorted(community)
@@ -522,7 +570,7 @@ class WorldGraph:
             Keys: ``node_count``, ``edge_count``, ``most_connected`` (top 5),
             ``orphan_count``, ``cluster_count``.
         """
-        undirected = self.graph.to_undirected()
+        undirected = self._get_undirected()
 
         # Cluster count: number of connected components
         cluster_count = nx.number_connected_components(undirected) if undirected.number_of_nodes() > 0 else 0
@@ -570,6 +618,84 @@ class WorldGraph:
             node for node, attrs in self.graph.nodes(data=True)
             if attrs.get("step_created") == step_number
         )
+
+    # ------------------------------------------------------------------
+    # Graph persistence (cache)
+    # ------------------------------------------------------------------
+
+    def save_cache(self) -> None:
+        """Serialize the current graph to ``runtime/graph_cache.json``.
+
+        Uses ``nx.node_link_data`` for a portable JSON representation.
+        Also stores the entity file count so staleness can be checked on
+        load.
+        """
+        try:
+            self._cache_path.parent.mkdir(parents=True, exist_ok=True)
+            entity_count = 0
+            if self.entities_dir.exists():
+                entity_count = sum(1 for _ in self.entities_dir.rglob("*.json"))
+            payload = {
+                "entity_file_count": entity_count,
+                "graph": nx.node_link_data(self.graph),
+            }
+            with open(self._cache_path, "w", encoding="utf-8") as fh:
+                json.dump(payload, fh)
+            logger.debug(
+                "Saved graph cache: %d nodes, %d edges -> %s",
+                self.graph.number_of_nodes(),
+                self.graph.number_of_edges(),
+                self._cache_path,
+            )
+        except Exception:
+            logger.debug("Failed to save graph cache", exc_info=True)
+
+    def load_cache(self) -> bool:
+        """Try to load the graph from ``runtime/graph_cache.json``.
+
+        Returns ``True`` if the cache was loaded successfully and is
+        still fresh (entity file count matches).  Returns ``False`` if
+        the cache is missing, corrupt, or stale.
+        """
+        if not self._cache_path.exists():
+            return False
+
+        try:
+            with open(self._cache_path, "r", encoding="utf-8") as fh:
+                payload = json.load(fh)
+        except Exception:
+            logger.debug("Failed to read graph cache", exc_info=True)
+            return False
+
+        # Validate freshness: compare entity file count
+        cached_count = payload.get("entity_file_count", -1)
+        current_count = 0
+        if self.entities_dir.exists():
+            current_count = sum(1 for _ in self.entities_dir.rglob("*.json"))
+
+        if cached_count != current_count:
+            logger.debug(
+                "Graph cache stale: cached %d files, found %d on disk",
+                cached_count, current_count,
+            )
+            return False
+
+        try:
+            graph_data = payload.get("graph")
+            if not graph_data:
+                return False
+            self.graph = nx.node_link_graph(graph_data, directed=True)
+            self._invalidate_undirected()
+            self._built = True
+            logger.debug(
+                "Loaded graph cache: %d nodes, %d edges",
+                self.graph.number_of_nodes(),
+                self.graph.number_of_edges(),
+            )
+            return True
+        except Exception:
+            logger.debug("Failed to deserialize graph cache", exc_info=True)
+            return False
 
     # ------------------------------------------------------------------
     # Template schema loading

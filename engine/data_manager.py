@@ -1004,6 +1004,38 @@ class DataManager:
         # Built lazily on first cross-reference query, invalidated on
         # entity create/update/delete.
         self._reverse_refs: dict[str, list[tuple[str, str]]] | None = None
+        # Optional references for scalability optimisations.
+        # When set, _save_state() batches writes through StateStore
+        # and search_entities() delegates to SQLite FTS5.
+        self._state_store = None      # app.services.state_store.StateStore
+        self._sqlite_sync = None      # engine.sqlite_sync.SQLiteSyncEngine
+
+    def set_state_store(self, store) -> None:
+        """Attach a StateStore instance for batched state writes.
+
+        When set, entity index mutations mark the store dirty instead of
+        writing state.json synchronously on every operation.  The store's
+        30-second auto-save timer flushes changes to disk.
+
+        Parameters
+        ----------
+        store : app.services.state_store.StateStore
+            The singleton StateStore instance.
+        """
+        self._state_store = store
+
+    def set_sqlite_sync(self, sync) -> None:
+        """Attach a SQLiteSyncEngine for FTS5-accelerated search.
+
+        When set, :meth:`search_entities` delegates text queries to the
+        SQLite FTS5 index instead of scanning entity files on disk.
+
+        Parameters
+        ----------
+        sync : engine.sqlite_sync.SQLiteSyncEngine
+            An initialised and synced SQLiteSyncEngine instance.
+        """
+        self._sqlite_sync = sync
 
     def _get_model_factory(self) -> _ModelFactory:
         """Return the shared Pydantic ModelFactory (lazy-loaded)."""
@@ -1045,7 +1077,35 @@ class DataManager:
         return state
 
     def _save_state(self) -> None:
-        """Persist the current state to user-world/state.json."""
+        """Persist the current state to user-world/state.json.
+
+        When a StateStore is attached (see :meth:`set_state_store`), this
+        only marks the store dirty so the write is batched with the
+        next 30-second auto-save cycle.  Without a StateStore it falls
+        back to an immediate synchronous write (original behaviour).
+        """
+        if self._state_store is not None:
+            # Push entity_index into the store; it marks itself dirty
+            # and writes on the next auto-save tick (or explicit flush).
+            try:
+                self._state_store.set("entity_index", self._state.get("entity_index", {}))
+                return
+            except Exception:
+                pass  # fall through to direct write
+        _safe_write_json(str(self.state_path), self._state)
+
+    def flush_state(self) -> None:
+        """Force an immediate write of state.json.
+
+        Call this on session end, app shutdown, or other critical
+        points where data loss is unacceptable.
+        """
+        if self._state_store is not None:
+            try:
+                self._state_store.save()
+                return
+            except Exception:
+                pass  # fall through to direct write
         _safe_write_json(str(self.state_path), self._state)
 
     def _get_template_schema(self, template_id: str) -> dict:
@@ -1455,6 +1515,33 @@ class DataManager:
             results.append(entry)
         return results
 
+    @property
+    def entity_count(self) -> int:
+        """Return the number of entities in the index without copying.
+
+        This is O(1) and avoids building the list of summary dicts that
+        :meth:`list_entities` produces.
+        """
+        return len(self._state.get("entity_index", {}))
+
+    def get_entity_ids(self) -> set[str]:
+        """Return the set of all entity IDs without building full summaries.
+
+        Useful for membership tests (``id in dm.get_entity_ids()``) and
+        for callers that only need to know *which* entities exist.
+        """
+        return set(self._state.get("entity_index", {}).keys())
+
+    def get_entity_names(self) -> dict[str, str]:
+        """Return a mapping of entity_id -> name for autocomplete use cases.
+
+        Much cheaper than :meth:`list_entities` when only names are needed.
+        """
+        return {
+            eid: meta.get("name", eid)
+            for eid, meta in self._state.get("entity_index", {}).items()
+        }
+
     def _build_reverse_refs(self) -> dict[str, list[tuple[str, str]]]:
         """Build a reverse index mapping target_id -> [(source_id, field_name), ...].
 
@@ -1589,8 +1676,11 @@ class DataManager:
     def search_entities(self, query: str) -> list[dict]:
         """Search entity names, tags, and descriptions for a keyword.
 
-        This is a simple in-memory keyword search.  It will be upgraded to
-        SQLite FTS5 in Sprint 3 for much faster results.
+        When a :class:`~engine.sqlite_sync.SQLiteSyncEngine` is attached
+        (via :meth:`set_sqlite_sync`), the search is delegated to the
+        SQLite FTS5 full-text index for O(1)-style lookups instead of
+        scanning every entity file on disk.  Falls back to the original
+        in-memory scan if SQLite is unavailable.
 
         Parameters
         ----------
@@ -1605,6 +1695,14 @@ class DataManager:
         if not query or not query.strip():
             return []
 
+        # --- Fast path: delegate to SQLite FTS5 when available ---
+        if self._sqlite_sync is not None:
+            try:
+                return self._search_via_sqlite(query.strip())
+            except Exception:
+                pass  # fall through to file-based scan
+
+        # --- Slow path: in-memory scan (original behaviour) ---
         query_lower = query.strip().lower()
         results = []
         index = self._state.get("entity_index", {})
@@ -1631,6 +1729,37 @@ class DataManager:
                 entry["id"] = eid
                 results.append(entry)
 
+        return results
+
+    def _search_via_sqlite(self, query: str) -> list[dict]:
+        """Delegate a text search to the SQLite FTS5 index.
+
+        Converts the FTS5 result rows (which contain full entity
+        columns) into the same summary-dict shape returned by
+        :meth:`list_entities` so callers see a consistent interface.
+        """
+        fts_rows = self._sqlite_sync.search(query)
+        index = self._state.get("entity_index", {})
+        results = []
+        for row in fts_rows:
+            eid = row.get("id", "")
+            if eid in index:
+                entry = dict(index[eid])
+                entry["id"] = eid
+            else:
+                # Entity in SQLite but not yet in state index -- build
+                # a minimal summary from the SQLite row.
+                entry = {
+                    "id": eid,
+                    "name": row.get("name", eid),
+                    "entity_type": row.get("entity_type", ""),
+                    "template_id": row.get("template_id", ""),
+                    "status": row.get("status", "draft"),
+                    "file_path": row.get("file_path", ""),
+                    "created_at": row.get("created_at", ""),
+                    "updated_at": row.get("updated_at", ""),
+                }
+            results.append(entry)
         return results
 
     # ------------------------------------------------------------------
@@ -1736,6 +1865,41 @@ class DataManager:
     # ------------------------------------------------------------------
     # Convenience / state helpers
     # ------------------------------------------------------------------
+
+    def load_all_entity_data(self) -> dict[str, dict]:
+        """Load every entity JSON file from disk in a single pass.
+
+        Returns a dict mapping ``entity_id`` to the full entity document.
+        This is used by :class:`SessionManager` to avoid redundant disk
+        scans during startup (backup, SQLite sync, graph build all share
+        the same pre-loaded data).
+
+        Returns
+        -------
+        dict[str, dict]
+            ``{entity_id: entity_data}`` for every valid entity on disk.
+        """
+        result: dict[str, dict] = {}
+        if not self.entities_dir.exists():
+            return result
+
+        for json_path in self.entities_dir.rglob("*.json"):
+            data = _safe_read_json(str(json_path))
+            if data is None:
+                continue
+            meta = data.get("_meta", {})
+            entity_id = meta.get("id") or data.get("id")
+            if not entity_id:
+                continue
+            # Attach the relative path so downstream consumers can use it
+            rel_path = str(json_path.relative_to(self.root)).replace("\\", "/")
+            if "_meta" in data:
+                data["_meta"].setdefault("_rel_path", rel_path)
+            else:
+                data["_rel_path"] = rel_path
+            result[entity_id] = data
+
+        return result
 
     def reload_state(self) -> None:
         """Re-read state.json from disk.  Useful after external changes."""

@@ -35,6 +35,9 @@ logger = logging.getLogger(__name__)
 
 MAX_HISTORY = 50
 MAX_DISPLAY_MESSAGES = 200  # Trim HTML display to prevent memory bloat
+SUMMARIZE_THRESHOLD = 30   # Summarize when history exceeds this many messages
+SUMMARIZE_BATCH = 20       # Number of oldest messages to compress per cycle
+MAX_SUMMARY_CHARS = 2000   # Cap accumulated summary length
 
 # CSS for message bubbles inside the QTextEdit
 _CHAT_CSS = """
@@ -194,6 +197,7 @@ class ChatPanel(QWidget):
         self._streaming = False
         self._stream_buffer = ""
         self._conversation_history: list[dict] = []
+        self._conversation_summary: str = ""
         self._system_prompt = ""
         self._display_msg_count = 0
         self._pre_send_hook = None  # Callable to invoke before each send
@@ -234,6 +238,76 @@ class ChatPanel(QWidget):
             the main thread before the AgentWorker.send() call.
         """
         self._pre_send_hook = hook
+
+    @property
+    def conversation_summary(self) -> str:
+        """Return the rolling summary of older conversation messages."""
+        return self._conversation_summary
+
+    def _maybe_summarize_history(self) -> None:
+        """Compress oldest messages into a rolling summary when history grows large.
+
+        When conversation_history exceeds SUMMARIZE_THRESHOLD messages, the
+        oldest SUMMARIZE_BATCH messages are distilled into a brief text
+        summary and prepended to _conversation_summary.  Those messages are
+        then removed from the live history so Claude always sees a bounded
+        window of recent exchanges plus a cumulative summary of everything
+        that came before.
+        """
+        if len(self._conversation_history) <= SUMMARIZE_THRESHOLD:
+            return
+
+        oldest = self._conversation_history[:SUMMARIZE_BATCH]
+        self._conversation_history = self._conversation_history[SUMMARIZE_BATCH:]
+
+        # Build a concise digest of the removed messages
+        points: list[str] = []
+        for msg in oldest:
+            role = msg.get("role", "unknown")
+            content = msg.get("content", "")
+            if isinstance(content, list):
+                # Tool-result blocks -- flatten
+                parts = []
+                for block in content:
+                    if isinstance(block, dict):
+                        parts.append(block.get("text", block.get("content", "")))
+                    else:
+                        parts.append(str(block))
+                content = " ".join(parts)
+
+            # Keep only the first ~120 chars of each message for the digest
+            snippet = content.strip().replace("\n", " ")[:120]
+            if len(content.strip()) > 120:
+                snippet += "..."
+
+            if role == "user":
+                points.append(f"- User asked: {snippet}")
+            elif role == "assistant":
+                points.append(f"- Claude decided/recommended: {snippet}")
+
+        batch_summary = "\n".join(points)
+
+        # Append to running summary, respecting the cap
+        if self._conversation_summary:
+            self._conversation_summary += "\n" + batch_summary
+        else:
+            self._conversation_summary = batch_summary
+
+        # Trim if accumulated summary exceeds budget
+        if len(self._conversation_summary) > MAX_SUMMARY_CHARS:
+            self._conversation_summary = self._conversation_summary[-MAX_SUMMARY_CHARS:]
+            # Clean up: don't start mid-line
+            first_newline = self._conversation_summary.find("\n")
+            if first_newline != -1:
+                self._conversation_summary = self._conversation_summary[first_newline + 1:]
+
+        logger.info(
+            "Summarized %d messages into %d-char rolling summary; "
+            "%d messages remain in history",
+            len(oldest),
+            len(self._conversation_summary),
+            len(self._conversation_history),
+        )
 
     # ------------------------------------------------------------------
     # UI setup
@@ -404,21 +478,43 @@ class ChatPanel(QWidget):
         scrollbar.setValue(scrollbar.maximum())
 
     def _trim_display(self) -> None:
-        """Remove the oldest messages from the display to stay within budget."""
-        doc = self._display.document()
-        # Remove roughly the first quarter of content
-        cursor = QTextCursor(doc)
-        cursor.movePosition(QTextCursor.MoveOperation.Start)
-        # Move to 25% of document length
-        total_chars = doc.characterCount()
-        trim_chars = total_chars // 4
-        cursor.movePosition(
-            QTextCursor.MoveOperation.Right,
-            QTextCursor.MoveMode.KeepAnchor,
-            trim_chars,
-        )
-        cursor.removeSelectedText()
-        self._display_msg_count = int(self._display_msg_count * 0.75)
+        """Remove the oldest complete message containers from the display.
+
+        Instead of cutting at an arbitrary character position (which breaks
+        HTML tags), this finds ``<div class="msg-container">`` boundaries
+        and removes the oldest quarter of message blocks cleanly.
+        """
+        current_html = self._display.toHtml()
+
+        # Find all msg-container div start positions
+        pattern = '<div class="msg-container">'
+        positions: list[int] = []
+        start = 0
+        while True:
+            idx = current_html.find(pattern, start)
+            if idx == -1:
+                break
+            positions.append(idx)
+            start = idx + len(pattern)
+
+        if len(positions) < 2:
+            return  # Nothing meaningful to trim
+
+        # Remove the first quarter of message containers
+        trim_count = max(1, len(positions) // 4)
+        if trim_count >= len(positions):
+            return
+
+        # Cut everything before the (trim_count)-th container
+        cut_point = positions[trim_count]
+        trimmed_html = current_html[:current_html.find(pattern)] + current_html[cut_point:]
+
+        self._display.setHtml(trimmed_html)
+        self._display_msg_count -= trim_count
+
+        # Scroll to bottom after trim
+        scrollbar = self._display.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
 
     def _append_user_message(self, text: str) -> None:
         self._append_message("You", text, "user-msg")
@@ -561,9 +657,9 @@ class ChatPanel(QWidget):
         self._input.clear()
         self._append_user_message(text)
 
-        # Track in conversation history
+        # Track in conversation history and summarize old messages if needed
         self._conversation_history.append({"role": "user", "content": text})
-        self._conversation_history = self._conversation_history[-MAX_HISTORY:]
+        self._maybe_summarize_history()
 
         # Send via AgentWorker if available
         if self._worker is not None:

@@ -198,10 +198,9 @@ class DriftDetector:
 
         try:
             dm = self._engine.data_manager
-            existing = {
-                e["id"]
-                for e in self._engine.with_lock("data_manager", lambda d: d.list_entities())
-            }
+            existing = self._engine.with_lock(
+                "data_manager", lambda d: d.get_entity_ids()
+            )
         except Exception:
             return []
 

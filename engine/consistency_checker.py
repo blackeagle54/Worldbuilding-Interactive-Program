@@ -101,6 +101,8 @@ class ConsistencyChecker:
         self._entity_cache: dict[str, dict] | None = None
         self._entity_cache_time: float = 0.0
         self._entity_cache_ttl: float = 30.0  # seconds
+        # Inverted index: token -> set of (entity_id, claim_index) pairs
+        self._claim_inverted_index: dict[str, set[tuple[str, int]]] | None = None
         # Lazy-loaded Pydantic model factory
         self._model_factory: _ModelFactory | None = None
 
@@ -170,6 +172,7 @@ class ConsistencyChecker:
             and (time.monotonic() - self._entity_cache_time) > self._entity_cache_ttl
         ):
             self._entity_cache = None
+            self._claim_inverted_index = None
 
         if self._entity_cache is not None:
             return self._entity_cache
@@ -199,9 +202,34 @@ class ConsistencyChecker:
         if you need the consistency checker to see the latest data.
         """
         self._entity_cache = None
+        self._claim_inverted_index = None
 
     # Keep the old private name for internal callers
     _invalidate_entity_cache = invalidate_cache
+
+    def update_cached_entity(self, entity_id: str, entity_data: dict) -> None:
+        """Incrementally update (or add) a single entity in the cache.
+
+        This avoids a full cache invalidation and reload when only one
+        entity has changed.  Also updates the claim inverted index for
+        the affected entity.
+
+        Parameters
+        ----------
+        entity_id : str
+            The entity's unique ID.
+        entity_data : dict
+            The full entity document.
+        """
+        # Ensure the cache is populated (first load if needed)
+        entities = self._load_all_entities()
+        # Update just this entity
+        entities[entity_id] = entity_data
+        # Refresh the cache timestamp so it doesn't expire prematurely
+        self._entity_cache_time = time.monotonic()
+
+        # Incrementally update the inverted index for this entity
+        self._update_inverted_index_for_entity(entity_id, entity_data)
 
     def _get_all_canon_claims(self) -> list[dict]:
         """Collect all canon_claims from every existing entity.
@@ -229,6 +257,78 @@ class ConsistencyChecker:
                         "references": [],
                     })
         return all_claims
+
+    # ------------------------------------------------------------------
+    # Inverted index for claim similarity search
+    # ------------------------------------------------------------------
+
+    def _build_inverted_index(self) -> dict[str, set[tuple[str, int]]]:
+        """Build a keyword inverted index over all existing canon claims.
+
+        Returns a dict mapping each token to a set of
+        ``(entity_id, claim_index)`` tuples.  The result is cached on
+        ``self._claim_inverted_index``.
+        """
+        if self._claim_inverted_index is not None:
+            return self._claim_inverted_index
+
+        index: dict[str, set[tuple[str, int]]] = {}
+        entities = self._load_all_entities()
+        for entity_id, entity_data in entities.items():
+            claims = entity_data.get("canon_claims", [])
+            for claim_idx, claim_obj in enumerate(claims):
+                if isinstance(claim_obj, dict):
+                    text = claim_obj.get("claim", "")
+                elif isinstance(claim_obj, str):
+                    text = claim_obj
+                else:
+                    continue
+                for token in _tokenize(text):
+                    if token not in index:
+                        index[token] = set()
+                    index[token].add((entity_id, claim_idx))
+
+        self._claim_inverted_index = index
+        return index
+
+    def _update_inverted_index_for_entity(
+        self, entity_id: str, entity_data: dict
+    ) -> None:
+        """Incrementally update the inverted index for a single entity.
+
+        Removes all old entries for *entity_id* and re-indexes its
+        current claims.  If the inverted index has not been built yet,
+        this is a no-op (it will be built lazily on next use).
+        """
+        if self._claim_inverted_index is None:
+            return  # index not built yet; will be built lazily
+
+        index = self._claim_inverted_index
+
+        # Remove old entries for this entity
+        tokens_to_clean: list[str] = []
+        for token, pairs in index.items():
+            to_remove = {p for p in pairs if p[0] == entity_id}
+            if to_remove:
+                pairs -= to_remove
+                if not pairs:
+                    tokens_to_clean.append(token)
+        for token in tokens_to_clean:
+            del index[token]
+
+        # Re-index the entity's current claims
+        claims = entity_data.get("canon_claims", [])
+        for claim_idx, claim_obj in enumerate(claims):
+            if isinstance(claim_obj, dict):
+                text = claim_obj.get("claim", "")
+            elif isinstance(claim_obj, str):
+                text = claim_obj
+            else:
+                continue
+            for token in _tokenize(text):
+                if token not in index:
+                    index[token] = set()
+                index[token].add((entity_id, claim_idx))
 
     # ------------------------------------------------------------------
     # Schema cleaning (reuses DataManager's approach)
@@ -693,21 +793,49 @@ class ConsistencyChecker:
         # Tokenize all new claims
         new_tokens_per_claim = [_tokenize(text) for text in new_claim_texts]
         # Also build a combined token set for broad matching
-        all_new_tokens = set()
+        all_new_tokens: set[str] = set()
         for tokens in new_tokens_per_claim:
             all_new_tokens.update(tokens)
 
-        # Collect all existing claims
-        all_existing = self._get_all_canon_claims()
+        if not all_new_tokens:
+            return []
 
-        # Score each existing claim
+        # Use the inverted index to find only candidate claims that share
+        # at least one token with the new claims (avoids O(n*m) brute force).
+        inverted_index = self._build_inverted_index()
+        candidate_keys: set[tuple[str, int]] = set()
+        for token in all_new_tokens:
+            if token in inverted_index:
+                candidate_keys.update(inverted_index[token])
+
+        # Load entities for resolving candidate claims
+        entities = self._load_all_entities()
+
+        # Score only the candidate claims
         scored: list[tuple[float, dict, list[str]]] = []
-        for existing in all_existing:
+        for cand_entity_id, claim_idx in candidate_keys:
             # Skip claims from the same entity
-            if entity_id and existing["entity_id"] == entity_id:
+            if entity_id and cand_entity_id == entity_id:
                 continue
 
-            existing_text = existing["claim"]
+            cand_entity = entities.get(cand_entity_id)
+            if cand_entity is None:
+                continue
+
+            claims_list = cand_entity.get("canon_claims", [])
+            if claim_idx >= len(claims_list):
+                continue
+
+            claim_obj = claims_list[claim_idx]
+            if isinstance(claim_obj, dict):
+                existing_text = claim_obj.get("claim", "")
+                references = claim_obj.get("references", [])
+            elif isinstance(claim_obj, str):
+                existing_text = claim_obj
+                references = []
+            else:
+                continue
+
             if not existing_text:
                 continue
 
@@ -715,9 +843,16 @@ class ConsistencyChecker:
             if not existing_tokens:
                 continue
 
+            existing_info = {
+                "entity_id": cand_entity_id,
+                "entity_name": cand_entity.get("name", cand_entity_id),
+                "claim": existing_text,
+                "references": references,
+            }
+
             # Find the best similarity against any individual new claim
             best_score = 0.0
-            best_matching = []
+            best_matching: list[str] = []
             for new_tokens in new_tokens_per_claim:
                 score = _keyword_similarity(new_tokens, existing_tokens)
                 if score > best_score:
@@ -731,7 +866,7 @@ class ConsistencyChecker:
                 best_matching = sorted(all_new_tokens & set(existing_tokens))
 
             if best_score > 0.05:  # Minimum threshold to be considered "similar"
-                scored.append((best_score, existing, best_matching))
+                scored.append((best_score, existing_info, best_matching))
 
         # Sort by score descending and take top_n
         scored.sort(key=lambda x: x[0], reverse=True)
@@ -999,10 +1134,12 @@ class ConsistencyChecker:
                     "human_message": "A friendly summary of any issues"
                 }
         """
-        # Invalidate the entity cache so cross-reference checks see the
-        # latest data (fixes stale-cache bug where newly created entities
-        # were invisible to the checker).
-        self._invalidate_entity_cache()
+        # Ensure the entity cache is populated (first call loads from disk;
+        # subsequent calls reuse the cache).  Instead of blanket invalidation,
+        # we incrementally update just the entity being checked so that
+        # cross-reference checks see the latest data without reloading
+        # every entity file from disk.
+        self._load_all_entities()  # ensure cache is warm
 
         # Resolve entity data
         entity_data: dict
@@ -1022,12 +1159,17 @@ class ConsistencyChecker:
                     layer3=None,
                     entity_name=entity_id,
                 )
+            # Incrementally update the cache with the freshly-loaded entity
+            self.update_cached_entity(entity_id, entity_data)
         else:
             entity_data = entity_id_or_data
             entity_id = (
                 entity_data.get("_meta", {}).get("id")
                 or entity_data.get("id")
             )
+            # Incrementally update the cache with the provided entity data
+            if entity_id:
+                self.update_cached_entity(entity_id, entity_data)
 
         entity_name = entity_data.get("name", entity_id or "this entity")
 

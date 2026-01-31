@@ -20,6 +20,7 @@ MAX_CONTEXT_CHARS = 80_000  # ~20K tokens -- well within Opus's 200K token conte
 def build_context(
     engine_manager: Any,
     step_number: int,
+    conversation_summary: str = "",
 ) -> dict:
     """Gather all context relevant to the current step.
 
@@ -41,6 +42,7 @@ def build_context(
         - graph_summary: str (knowledge graph stats)
         - recent_decisions: str (recent bookkeeping entries)
         - step_info: dict (step number, title, phase)
+        - conversation_summary: str (rolling summary of older exchanges)
     """
     from app.services.prompt_builder import build_system_prompt
 
@@ -51,6 +53,7 @@ def build_context(
         "entities_summary": "",
         "graph_summary": "",
         "recent_decisions": "",
+        "conversation_summary": conversation_summary,
         "system_prompt": "",
     }
 
@@ -85,6 +88,10 @@ def build_context(
         logger.debug("FairRepresentation unavailable", exc_info=True)
 
     # --- Layer 2 reference content from ChunkPuller ---
+    # pull_references() reuses the cached Layer 2 result from
+    # pull_condensed() above, so no duplicate I/O occurs.
+    # Truncation is already handled in chunk_puller (1000 chars) and
+    # prompt_builder applies the final 800-char safety trim.
     reference_content: list[dict] = []
     try:
         layer2 = engine_manager.with_lock(
@@ -92,22 +99,16 @@ def build_context(
         )
         if isinstance(layer2, dict):
             for ref in layer2.get("featured_mythologies", []):
-                content = ref.get("content", "")
-                if len(content) > 1000:
-                    content = content[:1000] + "..."
                 reference_content.append({
                     "database_name": ref.get("database_name", ref.get("database", "")),
                     "section": ref.get("section", ""),
-                    "content": content,
+                    "content": ref.get("content", ""),
                 })
             for ref in layer2.get("featured_authors", []):
-                content = ref.get("content", "")
-                if len(content) > 1000:
-                    content = content[:1000] + "..."
                 reference_content.append({
                     "database_name": ref.get("database_name", ref.get("database", "")),
                     "section": ref.get("section", ""),
-                    "content": content,
+                    "content": ref.get("content", ""),
                 })
     except Exception:
         logger.debug("ChunkPuller Layer 2 references unavailable", exc_info=True)
@@ -184,6 +185,7 @@ def build_context(
         entities_summary=context["entities_summary"],
         graph_summary=context["graph_summary"],
         recent_decisions=context["recent_decisions"],
+        conversation_summary=conversation_summary,
     )
 
     # --- Token budget tracking ---

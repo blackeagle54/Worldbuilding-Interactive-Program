@@ -239,21 +239,27 @@ class SQLiteSyncEngine:
     # Full sync (session start)
     # ------------------------------------------------------------------
 
-    def full_sync(self) -> int:
+    def full_sync(self, entities: dict[str, dict] | None = None) -> int:
         """Rebuild the entire database from JSON entity files.
 
         Reads every ``*.json`` file under ``user-world/entities/``,
         clears all existing data, and repopulates all tables including
         the FTS5 search index.
 
+        Parameters
+        ----------
+        entities : dict[str, dict], optional
+            Pre-loaded entity data as ``{entity_id: entity_data}``.
+            When provided the method uses this data directly instead of
+            reading files from disk, avoiding a redundant I/O pass.
+            Each entity_data dict should contain ``_meta._rel_path`` or
+            ``_meta.file_path`` for the relative file path.
+
         Returns
         -------
         int
             The number of entities synced.
         """
-        # Collect all entity files
-        entity_files = list(self.entities_dir.rglob("*.json"))
-
         # Clear existing data
         self._conn.execute("DELETE FROM cross_references")
         self._conn.execute("DELETE FROM canon_claims")
@@ -269,21 +275,35 @@ class SQLiteSyncEngine:
             pass
 
         count = 0
-        for file_path in entity_files:
-            entity = _safe_read_json(str(file_path))
-            if entity is None:
-                continue
-            meta = entity.get("_meta", {})
-            entity_id = meta.get("id", entity.get("id"))
-            if not entity_id:
-                continue
 
-            rel_path = str(file_path.relative_to(self.root)).replace("\\", "/")
-            self._upsert_entity_row(entity_id, entity, meta, rel_path)
-            self._upsert_cross_references(entity_id, entity)
-            self._upsert_canon_claims(entity_id, entity)
-            self._upsert_fts(entity_id, entity)
-            count += 1
+        if entities is not None:
+            # Use pre-loaded data
+            for entity_id, entity in entities.items():
+                meta = entity.get("_meta", {})
+                rel_path = meta.get("_rel_path", meta.get("file_path", ""))
+                self._upsert_entity_row(entity_id, entity, meta, rel_path)
+                self._upsert_cross_references(entity_id, entity)
+                self._upsert_canon_claims(entity_id, entity)
+                self._upsert_fts(entity_id, entity)
+                count += 1
+        else:
+            # Original behaviour: read from disk
+            entity_files = list(self.entities_dir.rglob("*.json"))
+            for file_path in entity_files:
+                entity = _safe_read_json(str(file_path))
+                if entity is None:
+                    continue
+                meta = entity.get("_meta", {})
+                entity_id = meta.get("id", entity.get("id"))
+                if not entity_id:
+                    continue
+
+                rel_path = str(file_path.relative_to(self.root)).replace("\\", "/")
+                self._upsert_entity_row(entity_id, entity, meta, rel_path)
+                self._upsert_cross_references(entity_id, entity)
+                self._upsert_canon_claims(entity_id, entity)
+                self._upsert_fts(entity_id, entity)
+                count += 1
 
         self._conn.commit()
         return count

@@ -15,7 +15,7 @@ import logging
 import time
 from typing import Any
 
-from PySide6.QtCore import QObject, QTimer, Signal
+from PySide6.QtCore import QObject, QThread, QTimer, Signal
 
 from app.services.event_bus import EventBus
 from app.services.state_store import StateStore
@@ -23,6 +23,103 @@ from app.services.state_store import StateStore
 logger = logging.getLogger(__name__)
 
 AUTO_SAVE_INTERVAL_MS = 5 * 60 * 1000  # 5 minutes
+
+
+# ------------------------------------------------------------------
+# Background worker for heavy startup I/O
+# ------------------------------------------------------------------
+
+class _StartupWorker(QThread):
+    """Runs the heavy startup tasks (backup, sync, graph build) off the
+    main thread so the UI remains responsive.
+
+    All three tasks share a single pre-loaded entity dict to avoid
+    redundant disk reads.
+    """
+
+    finished = Signal()          # emitted when all work is done
+    error = Signal(str)          # emitted on unexpected failure
+    status = Signal(str)         # progress messages for the status bar
+
+    def __init__(self, engine_manager: Any, parent: QObject | None = None):
+        super().__init__(parent)
+        self._engine = engine_manager
+        self.entities_loaded: int = 0
+        self.session_id: str = ""
+
+    def run(self) -> None:  # noqa: D401 -- QThread override
+        """Execute heavy startup work in the background thread."""
+        try:
+            # --- Single disk read: load all entity data once ---
+            self.status.emit("Loading entities...")
+            try:
+                all_entities: dict[str, dict] = self._engine.with_lock(
+                    "data_manager", lambda d: d.load_all_entity_data()
+                )
+            except Exception:
+                logger.debug("load_all_entity_data unavailable", exc_info=True)
+                all_entities = {}
+
+            self.entities_loaded = len(all_entities)
+
+            # 1. Create backup (using pre-loaded data)
+            self.status.emit("Creating backup...")
+            try:
+                self._engine.with_lock(
+                    "backup_manager",
+                    lambda b: b.create_backup(
+                        "session_start",
+                        entity_data_map=all_entities,
+                    ),
+                )
+                logger.info("Session start backup created")
+            except Exception:
+                logger.debug("Backup manager unavailable", exc_info=True)
+
+            # 2. Sync SQLite (using pre-loaded data)
+            self.status.emit("Syncing database...")
+            try:
+                self._engine.with_lock(
+                    "sqlite_sync",
+                    lambda s: s.full_sync(entities=all_entities),
+                )
+                logger.info("SQLite sync complete")
+            except Exception:
+                logger.debug("SQLite sync unavailable", exc_info=True)
+
+            # 3. Build knowledge graph (using pre-loaded data)
+            self.status.emit("Building knowledge graph...")
+            try:
+                self._engine.with_lock(
+                    "world_graph",
+                    lambda g: g.build_graph(entities=all_entities),
+                )
+                logger.info("Knowledge graph built")
+            except Exception:
+                logger.debug("WorldGraph unavailable", exc_info=True)
+
+            # 4. Start bookkeeper session
+            self.status.emit("Starting bookkeeper...")
+            try:
+                session = self._engine.with_lock(
+                    "bookkeeper", lambda b: b.start_session()
+                )
+                if isinstance(session, dict):
+                    self.session_id = session.get("session_id", "")
+                elif isinstance(session, str):
+                    self.session_id = session
+                logger.info("Bookkeeper session started: %s", self.session_id)
+            except Exception:
+                logger.debug("Bookkeeper unavailable", exc_info=True)
+
+            self.finished.emit()
+
+        except Exception as exc:
+            logger.exception("Startup worker failed")
+            self.error.emit(str(exc))
+            # Still emit finished so the session can proceed in a
+            # degraded state rather than hanging forever.
+            self.finished.emit()
 
 
 class SessionManager(QObject):
@@ -59,6 +156,9 @@ class SessionManager(QObject):
         self._entities_at_start: int = 0
         self._save_count: int = 0
 
+        # Background startup worker reference (prevents GC)
+        self._startup_worker: _StartupWorker | None = None
+
         # Auto-save timer
         self._auto_save_timer = QTimer(self)
         self._auto_save_timer.setInterval(AUTO_SAVE_INTERVAL_MS)
@@ -69,63 +169,55 @@ class SessionManager(QObject):
     # ------------------------------------------------------------------
 
     def start_session(self) -> None:
-        """Initialize the session: backup, sync, detect crashes."""
+        """Initialize the session: backup, sync, detect crashes.
+
+        Heavy I/O (entity loading, backup, SQLite sync, graph build) is
+        performed on a background ``QThread`` so the UI remains
+        responsive.  The ``session_started`` signal is emitted once all
+        work completes.
+        """
         self._session_start_time = time.monotonic()
         self._save_count = 0
 
-        # Record initial entity count for session metadata
+        # Record initial entity count for session metadata (cheap -- reads index only)
         try:
-            entities = self._engine.with_lock(
-                "data_manager", lambda d: d.list_entities()
+            self._entities_at_start = self._engine.with_lock(
+                "data_manager", lambda d: d.entity_count
             )
-            self._entities_at_start = len(entities)
         except Exception:
             self._entities_at_start = 0
 
-        # 1. Create backup
-        try:
-            self._engine.with_lock(
-                "backup_manager",
-                lambda b: b.create_backup("session_start"),
-            )
-            logger.info("Session start backup created")
-        except Exception:
-            logger.debug("Backup manager unavailable", exc_info=True)
-
-        # 2. Sync SQLite
-        try:
-            self._engine.with_lock("sqlite_sync", lambda s: s.full_sync())
-            logger.info("SQLite sync complete")
-        except Exception:
-            logger.debug("SQLite sync unavailable", exc_info=True)
-
-        # 3. Build knowledge graph
-        try:
-            self._engine.with_lock("world_graph", lambda g: g.build_graph())
-            logger.info("Knowledge graph built")
-        except Exception:
-            logger.debug("WorldGraph unavailable", exc_info=True)
-
-        # 4. Start bookkeeper session
-        try:
-            session = self._engine.with_lock(
-                "bookkeeper", lambda b: b.start_session()
-            )
-            if isinstance(session, dict):
-                self._session_id = session.get("session_id", "")
-            elif isinstance(session, str):
-                self._session_id = session
-            logger.info("Bookkeeper session started: %s", self._session_id)
-        except Exception:
-            logger.debug("Bookkeeper unavailable", exc_info=True)
-
-        # 5. Detect crash (incomplete prior session)
+        # Detect crash (fast, main-thread safe)
         try:
             self._detect_crash()
         except Exception:
             logger.debug("Crash detection failed", exc_info=True)
 
-        # 6. Start auto-save timer
+        # Launch the heavy work on a background thread
+        self._startup_worker = _StartupWorker(self._engine, parent=self)
+        self._startup_worker.status.connect(
+            lambda msg: self._bus.status_message.emit(msg)
+        )
+        self._startup_worker.finished.connect(self._on_startup_finished)
+        self._startup_worker.error.connect(
+            lambda msg: self._bus.error_occurred.emit(
+                f"Startup error: {msg}"
+            )
+        )
+        self._startup_worker.start()
+
+    def _on_startup_finished(self) -> None:
+        """Called on the main thread when the background startup completes."""
+        if self._startup_worker is not None:
+            self._session_id = self._startup_worker.session_id
+            self._entities_at_start = (
+                self._startup_worker.entities_loaded
+                or self._entities_at_start
+            )
+            # Allow the thread to be garbage-collected
+            self._startup_worker = None
+
+        # Start auto-save timer (must happen on main thread)
         self._auto_save_timer.start()
 
         self._bus.status_message.emit("Session started")
@@ -160,10 +252,9 @@ class SessionManager(QObject):
 
         current_entities = 0
         try:
-            entities = self._engine.with_lock(
-                "data_manager", lambda d: d.list_entities()
+            current_entities = self._engine.with_lock(
+                "data_manager", lambda d: d.entity_count
             )
-            current_entities = len(entities)
         except Exception:
             pass
 

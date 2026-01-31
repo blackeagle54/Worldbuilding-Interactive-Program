@@ -300,18 +300,32 @@ class ClaudeClient:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _serialize_history(history: list[dict], max_messages: int = 20) -> str:
+    def _serialize_history(
+        history: list[dict],
+        max_messages: int = 20,
+        conversation_summary: str = "",
+    ) -> str:
         """Serialize recent conversation history into a text block.
 
         The claude CLI does not natively accept multi-turn message arrays,
         so we flatten the last *max_messages* turns into a readable
         transcript that is prepended to the user message.
+
+        If *conversation_summary* is provided it is prepended before the
+        recent messages so Claude retains awareness of decisions made in
+        earlier (now-compressed) exchanges.
         """
+        lines: list[str] = []
+
+        if conversation_summary:
+            lines.append("[Earlier conversation summary]")
+            lines.append(conversation_summary)
+            lines.append("")
+
         if not history:
-            return ""
+            return "\n".join(lines) if lines else ""
 
         recent = history[-max_messages:]
-        lines: list[str] = []
         for msg in recent:
             role = msg.get("role", "unknown").capitalize()
             content = msg.get("content", "")
