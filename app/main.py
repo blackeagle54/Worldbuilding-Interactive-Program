@@ -24,6 +24,8 @@ _PROJECT_ROOT = os.path.dirname(_THIS_DIR)
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
+from app.paths import get_project_root, is_frozen, get_bundle_dir, get_user_data_dir, ensure_user_data
+
 
 def _setup_logging() -> None:
     """Configure logging for the desktop application."""
@@ -70,6 +72,14 @@ def main() -> int:
     # Install global exception hook
     sys.excepthook = _global_exception_hook
 
+    # Resolve project root (handles frozen/dev mode)
+    project_root = get_project_root()
+    logger.info("Project root: %s (frozen=%s)", project_root, is_frozen())
+
+    # On first frozen run, copy bundled data to user data dir
+    if is_frozen():
+        ensure_user_data(get_bundle_dir(), get_user_data_dir())
+
     # Enable high-DPI scaling
     os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
 
@@ -85,7 +95,7 @@ def main() -> int:
     engine = None
     try:
         from engine.engine_manager import EngineManager
-        engine = EngineManager.get_instance(_PROJECT_ROOT)
+        engine = EngineManager.get_instance(project_root)
         logger.info("Engine manager initialized")
     except Exception:
         logger.exception("Failed to initialize engine manager")
@@ -94,14 +104,14 @@ def main() -> int:
     store = None
     try:
         from app.services.state_store import StateStore
-        store = StateStore.instance(_PROJECT_ROOT)
+        store = StateStore.instance(project_root)
         logger.info("State store initialized")
     except Exception:
         logger.exception("Failed to initialize state store")
 
     # Create and show the main window
     from app.main_window import MainWindow
-    window = MainWindow(project_root=_PROJECT_ROOT)
+    window = MainWindow(project_root=project_root)
 
     # Inject dependencies into panels
     if engine is not None:
