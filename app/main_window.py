@@ -12,7 +12,7 @@ import logging
 from typing import Any
 
 from PySide6.QtCore import QSettings, Qt
-from PySide6.QtGui import QAction, QCloseEvent
+from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
 from PySide6.QtWidgets import (
     QDockWidget,
     QMainWindow,
@@ -31,6 +31,7 @@ from app.services.enforcement import EnforcementService
 from app.services.event_bus import EventBus
 from app.services.session_manager import SessionManager
 from app.services.state_store import StateStore
+from app.widgets.toast import ToastManager
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +99,9 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self._status_bar)
         self._status_bar.showMessage("Ready")
 
+        # Toast notification manager
+        self._toast = ToastManager(self)
+
         # Connect EventBus status messages
         self._bus = bus = EventBus.instance()
         bus.status_message.connect(self._on_status_message)
@@ -111,6 +115,9 @@ class MainWindow(QMainWindow):
 
         # Option selection -> open entity form with selected data
         self._option_panel.option_selected.connect(self._on_option_selected)
+
+        # Keyboard shortcuts
+        self._setup_shortcuts()
 
         # Restore layout from previous session
         self._restore_layout()
@@ -234,6 +241,58 @@ class MainWindow(QMainWindow):
         help_menu.addAction(about_action)
 
     # ------------------------------------------------------------------
+    # Keyboard shortcuts
+    # ------------------------------------------------------------------
+
+    def _setup_shortcuts(self) -> None:
+        """Register application-wide keyboard shortcuts."""
+        # Ctrl+F -- focus entity search
+        search_action = QAction("Search Entities", self)
+        search_action.setShortcut(QKeySequence("Ctrl+F"))
+        search_action.triggered.connect(self._focus_entity_search)
+        self.addAction(search_action)
+
+        # Ctrl+G -- focus chat input (to type a generate prompt)
+        chat_action = QAction("Focus Chat", self)
+        chat_action.setShortcut(QKeySequence("Ctrl+G"))
+        chat_action.triggered.connect(self._focus_chat)
+        self.addAction(chat_action)
+
+        # Ctrl+S -- trigger save (state store)
+        save_action = QAction("Save", self)
+        save_action.setShortcut(QKeySequence.StandardKey.Save)
+        save_action.triggered.connect(self._save_state)
+        self.addAction(save_action)
+
+        # Escape -- cancel streaming if active
+        esc_action = QAction("Cancel", self)
+        esc_action.setShortcut(QKeySequence("Escape"))
+        esc_action.triggered.connect(self._on_escape)
+        self.addAction(esc_action)
+
+    def _focus_entity_search(self) -> None:
+        self._entity_dock.setVisible(True)
+        self._entity_dock.raise_()
+        self._entity_panel._search.setFocus()
+
+    def _focus_chat(self) -> None:
+        self._chat_dock.setVisible(True)
+        self._chat_dock.raise_()
+        self._chat_panel._input.setFocus()
+
+    def _save_state(self) -> None:
+        try:
+            store = StateStore.instance()
+            store.save()
+            self._status_bar.showMessage("Saved", 3000)
+        except Exception:
+            logger.debug("Manual save failed", exc_info=True)
+
+    def _on_escape(self) -> None:
+        if hasattr(self, "_agent_worker") and self._agent_worker:
+            self._agent_worker.cancel()
+
+    # ------------------------------------------------------------------
     # Layout save / restore
     # ------------------------------------------------------------------
 
@@ -322,9 +381,11 @@ class MainWindow(QMainWindow):
 
     def _on_status_message(self, message: str) -> None:
         self._status_bar.showMessage(message, 5000)
+        self._toast.show_info(message)
 
     def _on_error(self, message: str) -> None:
         self._status_bar.showMessage(f"Error: {message}", 10000)
+        self._toast.show_error(message)
 
     def _show_about(self) -> None:
         from PySide6.QtWidgets import QMessageBox

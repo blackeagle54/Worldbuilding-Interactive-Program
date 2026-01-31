@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 
 from app.services.event_bus import EventBus
+from app.widgets.loading_overlay import SpinnerLabel
 from app.widgets.option_card import OptionCard
 
 logger = logging.getLogger(__name__)
@@ -103,6 +104,11 @@ class OptionComparisonPanel(QWidget):
         self._empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._empty_label.setStyleSheet("color: #666; font-style: italic;")
         layout.addWidget(self._empty_label)
+
+        # Generating spinner
+        self._spinner = SpinnerLabel()
+        self._spinner.setVisible(False)
+        layout.addWidget(self._spinner)
 
         # Button row
         btn_row = QHBoxLayout()
@@ -226,6 +232,16 @@ class OptionComparisonPanel(QWidget):
                     f"Selected option: {opt.get('title', self._selected_id)}"
                 )
                 break
+
+    def set_generating(self, active: bool) -> None:
+        """Show/hide the generating state."""
+        if active:
+            self._spinner.start("Generating options")
+            self._regen_btn.setEnabled(False)
+            self._confirm_btn.setEnabled(False)
+        else:
+            self._spinner.stop()
+            self._regen_btn.setEnabled(True)
 
     def clear(self) -> None:
         """Clear all options."""

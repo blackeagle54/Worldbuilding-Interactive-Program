@@ -70,6 +70,9 @@ def main() -> int:
     # Install global exception hook
     sys.excepthook = _global_exception_hook
 
+    # Enable high-DPI scaling
+    os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
+
     # Must create QApplication before anything else Qt-related
     from PySide6.QtWidgets import QApplication
     app = QApplication.instance() or QApplication(sys.argv)
@@ -146,6 +149,12 @@ def main() -> int:
 
     window.show()
     logger.info("Main window displayed")
+
+    # Show welcome dialog on first run
+    from app.widgets.welcome_dialog import should_show_welcome, WelcomeDialog
+    if should_show_welcome():
+        welcome = WelcomeDialog(window)
+        welcome.exec()
 
     # Run the event loop
     exit_code = app.exec()

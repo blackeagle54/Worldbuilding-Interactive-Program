@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
 )
 
 from app.services.event_bus import EventBus
+from app.widgets.loading_overlay import LoadingOverlay
 
 logger = logging.getLogger(__name__)
 
@@ -171,6 +172,9 @@ class EntityBrowserPanel(QWidget):
 
         layout.addWidget(self._table, 1)
 
+        # Loading overlay
+        self._loading = LoadingOverlay(self._table)
+
     # ------------------------------------------------------------------
     # Signal wiring
     # ------------------------------------------------------------------
@@ -207,11 +211,13 @@ class EntityBrowserPanel(QWidget):
         if self._engine is None:
             return
 
+        self._loading.show_loading("Loading entities...")
         try:
             dm = self._engine.data_manager
             entities = self._engine.with_lock("data_manager", lambda d: d.list_entities())
         except Exception:
             logger.exception("Failed to load entity list")
+            self._loading.hide_loading()
             return
 
         self._model.removeRows(0, self._model.rowCount())
@@ -247,6 +253,7 @@ class EntityBrowserPanel(QWidget):
         self._type_combo.blockSignals(False)
 
         self._update_count_label()
+        self._loading.hide_loading()
 
     # ------------------------------------------------------------------
     # Handlers
