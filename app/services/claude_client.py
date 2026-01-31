@@ -345,6 +345,7 @@ class ClaudeClient:
         """
         # --- Enrich the system prompt with tool-equivalent context ---
         extra_sections: list[str] = []
+        loaded_sections: list[str] = []  # Track what loaded for diagnostics
 
         # Pre-fetch step guidance (equivalent to get_step_guidance tool)
         try:
@@ -423,6 +424,12 @@ class ClaudeClient:
                             extra_sections.append("\n".join(layer3_parts))
         except Exception:
             logger.debug("subprocess: could not pre-fetch step guidance", exc_info=True)
+        else:
+            if isinstance(guidance, dict):
+                loaded_sections.append(f"step_guidance(step={self._current_step})")
+                _l2 = guidance.get("layer2_references", {})
+                if isinstance(_l2, dict) and (_l2.get("featured_mythologies") or _l2.get("featured_authors")):
+                    loaded_sections.append("references(loaded)")
 
         # Pre-fetch canon context (equivalent to get_canon_context tool)
         try:
@@ -445,6 +452,9 @@ class ClaudeClient:
                         extra_sections[-1] += f"\n  ... and {len(entities) - 60} more"
         except Exception:
             logger.debug("subprocess: could not pre-fetch entities", exc_info=True)
+        else:
+            if entities:
+                loaded_sections.append(f"entities({len(entities)})")
 
         # Pre-fetch graph stats (equivalent to query_knowledge_graph stats)
         try:
@@ -459,6 +469,9 @@ class ClaudeClient:
                     )
         except Exception:
             logger.debug("subprocess: could not pre-fetch graph stats", exc_info=True)
+        else:
+            if stats:
+                loaded_sections.append("graph_stats")
 
         # Pre-fetch recent decisions (equivalent to bookkeeper context)
         try:
@@ -479,6 +492,9 @@ class ClaudeClient:
                         )
         except Exception:
             logger.debug("subprocess: could not pre-fetch decisions", exc_info=True)
+        else:
+            if recent:
+                loaded_sections.append(f"decisions({len(recent)})")
 
         # Pre-fetch featured sources
         try:
@@ -500,6 +516,9 @@ class ClaudeClient:
                         )
         except Exception:
             logger.debug("subprocess: could not pre-fetch featured sources", exc_info=True)
+        else:
+            if myths or authors:
+                loaded_sections.append(f"featured({len(myths)}myth+{len(authors)}auth)")
 
         # Compose enriched system prompt
         enriched_system = system_prompt
@@ -508,6 +527,14 @@ class ClaudeClient:
                 "\n\n--- PRE-LOADED CONTEXT (use this data instead of requesting tools) ---\n"
                 + "\n\n".join(extra_sections)
             )
+
+        logger.info(
+            "Subprocess prompt built: %d extra sections [%s], "
+            "system_prompt=%d chars, enriched=%d chars, user_msg=%d chars",
+            len(extra_sections),
+            ", ".join(loaded_sections) if loaded_sections else "NONE",
+            len(system_prompt), len(enriched_system), len(user_message),
+        )
 
         # --- Serialize conversation history into the user message ---
         history_text = self._serialize_history(history or [])

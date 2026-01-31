@@ -283,11 +283,27 @@ class MainWindow(QMainWindow):
             self._chat_panel.set_system_prompt(context["system_prompt"])
             self._claude_client.set_current_step(step)
 
+            # Log what context was built
+            prompt_len = len(context.get("system_prompt", ""))
+            entities = context.get("entities_summary", "")
+            graph = context.get("graph_summary", "")
+            refs = context.get("reference_content", [])
+            guidance = context.get("step_guidance", "")
+            decisions = context.get("recent_decisions", "")
+            logger.info(
+                "System prompt rebuilt: step=%d, prompt_len=%d, "
+                "entities=%d chars, graph=%d chars, refs=%d sections, "
+                "guidance=%d chars, decisions=%d chars",
+                step, prompt_len,
+                len(entities), len(graph), len(refs),
+                len(guidance), len(decisions),
+            )
+
             # Update enforcement service step
             if hasattr(self, "_enforcement") and self._enforcement:
                 self._enforcement.set_current_step(step)
         except Exception:
-            logger.debug("Failed to build system prompt", exc_info=True)
+            logger.warning("Failed to build system prompt", exc_info=True)
 
     # ------------------------------------------------------------------
     # Menu bar
