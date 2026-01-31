@@ -3,12 +3,13 @@ app/main_window.py -- Main application window.
 
 Hosts the 4 dock panels (entity browser, knowledge graph, chat, progress),
 a menu bar with View toggles, and status bar.  Layout is saved/restored
-across sessions via QSettings.
+across sessions via QSettings.  Cross-panel sync is wired through EventBus.
 """
 
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from PySide6.QtCore import QSettings, Qt
 from PySide6.QtGui import QAction, QCloseEvent
@@ -24,6 +25,7 @@ from app.panels.entity_browser import EntityBrowserPanel
 from app.panels.knowledge_graph import KnowledgeGraphPanel
 from app.panels.progress_sidebar import ProgressSidebarPanel
 from app.services.event_bus import EventBus
+from app.services.state_store import StateStore
 
 logger = logging.getLogger(__name__)
 
@@ -57,19 +59,24 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Worldbuilding Interactive Program")
         self.setMinimumSize(1024, 768)
 
-        # Central widget -- the knowledge graph fills the center
+        # Create panel instances
         self._graph_panel = KnowledgeGraphPanel()
+        self._entity_panel = EntityBrowserPanel()
+        self._progress_panel = ProgressSidebarPanel()
+        self._chat_panel = ChatPanel()
+
+        # Central widget -- the knowledge graph fills the center
         self.setCentralWidget(self._graph_panel)
 
         # Create dock panels
         self._entity_dock = self._create_dock(
-            "Entity Browser", EntityBrowserPanel(), Qt.DockWidgetArea.LeftDockWidgetArea
+            "Entity Browser", self._entity_panel, Qt.DockWidgetArea.LeftDockWidgetArea
         )
         self._progress_dock = self._create_dock(
-            "Progress", ProgressSidebarPanel(), Qt.DockWidgetArea.RightDockWidgetArea
+            "Progress", self._progress_panel, Qt.DockWidgetArea.RightDockWidgetArea
         )
         self._chat_dock = self._create_dock(
-            "Chat", ChatPanel(), Qt.DockWidgetArea.BottomDockWidgetArea
+            "Chat", self._chat_panel, Qt.DockWidgetArea.BottomDockWidgetArea
         )
 
         # Menu bar
@@ -85,8 +92,24 @@ class MainWindow(QMainWindow):
         bus.status_message.connect(self._on_status_message)
         bus.error_occurred.connect(self._on_error)
 
+        # Cross-panel entity selection sync
+        bus.entity_selected.connect(self._on_entity_selected)
+
         # Restore layout from previous session
         self._restore_layout()
+
+    # ------------------------------------------------------------------
+    # Engine / state injection
+    # ------------------------------------------------------------------
+
+    def inject_engine(self, engine_manager: Any) -> None:
+        """Wire the engine into panels that need it."""
+        self._entity_panel.set_engine(engine_manager)
+        self._graph_panel.set_engine(engine_manager)
+
+    def inject_state_store(self, store: StateStore) -> None:
+        """Wire the state store into panels that need it."""
+        self._progress_panel.set_state_store(store)
 
     # ------------------------------------------------------------------
     # Dock creation helper
@@ -174,6 +197,15 @@ class MainWindow(QMainWindow):
             dock.setVisible(True)
 
         self._status_bar.showMessage("Layout reset to default", 3000)
+
+    # ------------------------------------------------------------------
+    # Cross-panel sync
+    # ------------------------------------------------------------------
+
+    def _on_entity_selected(self, entity_id: str) -> None:
+        """Sync entity selection across all panels."""
+        self._entity_panel.select_entity(entity_id)
+        self._graph_panel.select_entity(entity_id)
 
     # ------------------------------------------------------------------
     # Event handlers

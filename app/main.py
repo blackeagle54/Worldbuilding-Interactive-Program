@@ -79,17 +79,19 @@ def main() -> int:
     apply_theme(app)
 
     # Initialize the engine manager
+    engine = None
     try:
         from engine.engine_manager import EngineManager
-        EngineManager(project_root=_PROJECT_ROOT)
+        engine = EngineManager.get_instance(_PROJECT_ROOT)
         logger.info("Engine manager initialized")
     except Exception:
         logger.exception("Failed to initialize engine manager")
 
     # Initialize state store
+    store = None
     try:
         from app.services.state_store import StateStore
-        StateStore.instance(_PROJECT_ROOT)
+        store = StateStore.instance(_PROJECT_ROOT)
         logger.info("State store initialized")
     except Exception:
         logger.exception("Failed to initialize state store")
@@ -97,6 +99,13 @@ def main() -> int:
     # Create and show the main window
     from app.main_window import MainWindow
     window = MainWindow(project_root=_PROJECT_ROOT)
+
+    # Inject dependencies into panels
+    if engine is not None:
+        window.inject_engine(engine)
+    if store is not None:
+        window.inject_state_store(store)
+
     window.show()
     logger.info("Main window displayed")
 
