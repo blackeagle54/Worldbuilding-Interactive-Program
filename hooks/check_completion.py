@@ -28,14 +28,7 @@ import json
 PROJECT_ROOT = "C:/Worldbuilding-Interactive-Program"
 sys.path.insert(0, PROJECT_ROOT)
 
-
-def _safe_read_json(path, default=None):
-    """Read a JSON file, returning default on failure."""
-    try:
-        with open(path, "r", encoding="utf-8") as fh:
-            return json.load(fh)
-    except (FileNotFoundError, json.JSONDecodeError, OSError):
-        return default
+from engine.utils import safe_read_json as _safe_read_json
 
 
 def main():

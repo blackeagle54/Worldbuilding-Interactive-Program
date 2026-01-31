@@ -93,13 +93,7 @@ CREATE VIRTUAL TABLE IF NOT EXISTS entity_search USING fts5(
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _safe_read_json(path: str):
-    """Read a JSON file, returning None on any error."""
-    try:
-        with open(path, "r", encoding="utf-8") as fh:
-            return json.load(fh)
-    except (FileNotFoundError, json.JSONDecodeError, OSError):
-        return None
+from engine.utils import safe_read_json as _safe_read_json
 
 
 def _extract_text_field(entity: dict, field: str) -> str:

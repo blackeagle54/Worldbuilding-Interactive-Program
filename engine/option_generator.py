@@ -62,20 +62,8 @@ from pathlib import Path
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _safe_read_json(path: str, default=None):
-    """Read a JSON file, returning *default* if the file is missing or corrupt."""
-    try:
-        with open(path, "r", encoding="utf-8") as fh:
-            return json.load(fh)
-    except (FileNotFoundError, json.JSONDecodeError, OSError):
-        return default
-
-
-def _safe_write_json(path: str, data, *, indent: int = 2) -> None:
-    """Write JSON to *path*, creating parent directories if needed."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as fh:
-        json.dump(data, fh, indent=indent, ensure_ascii=False)
+from engine.utils import safe_read_json as _safe_read_json
+from engine.utils import safe_write_json as _safe_write_json
 
 
 def _now_iso() -> str:

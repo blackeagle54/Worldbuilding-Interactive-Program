@@ -38,18 +38,8 @@ except ImportError:
         "Install it with: pip install jsonschema"
     )
 
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def _safe_read_json(path: str, default=None):
-    """Read a JSON file, returning *default* if the file is missing or corrupt."""
-    try:
-        with open(path, "r", encoding="utf-8") as fh:
-            return json.load(fh)
-    except (FileNotFoundError, json.JSONDecodeError, OSError):
-        return default
+from engine.utils import safe_read_json as _safe_read_json
+from engine.utils import clean_schema_for_validation as _clean_schema_for_validation
 
 
 def _tokenize(text: str) -> list[str]:
@@ -224,50 +214,6 @@ class ConsistencyChecker:
     # Schema cleaning (reuses DataManager's approach)
     # ------------------------------------------------------------------
 
-    @staticmethod
-    def _clean_schema_for_validation(schema: dict) -> dict:
-        """Return a copy of *schema* stripped of custom extension fields
-        so that ``jsonschema`` does not choke on them."""
-        skip_keys = {
-            "$id", "step", "phase", "source_chapter",
-            "x-cross-references",
-        }
-        clean = {}
-        for key, value in schema.items():
-            if key in skip_keys:
-                continue
-            if isinstance(value, dict):
-                clean[key] = ConsistencyChecker._clean_schema_deep(value)
-            elif isinstance(value, list):
-                clean[key] = [
-                    ConsistencyChecker._clean_schema_deep(item)
-                    if isinstance(item, dict) else item
-                    for item in value
-                ]
-            else:
-                clean[key] = value
-        return clean
-
-    @staticmethod
-    def _clean_schema_deep(obj: dict) -> dict:
-        """Recursively remove custom extension keywords from nested schema objects."""
-        skip_keys = {"x-cross-reference", "x-cross-references"}
-        result = {}
-        for key, value in obj.items():
-            if key in skip_keys:
-                continue
-            if isinstance(value, dict):
-                result[key] = ConsistencyChecker._clean_schema_deep(value)
-            elif isinstance(value, list):
-                result[key] = [
-                    ConsistencyChecker._clean_schema_deep(item)
-                    if isinstance(item, dict) else item
-                    for item in value
-                ]
-            else:
-                result[key] = value
-        return result
-
     # ------------------------------------------------------------------
     # Cross-reference extraction from schema
     # ------------------------------------------------------------------
@@ -353,7 +299,7 @@ class ConsistencyChecker:
         }
 
         # Clean the schema of custom extension fields
-        clean_schema = self._clean_schema_for_validation(schema)
+        clean_schema = _clean_schema_for_validation(schema)
 
         # Run jsonschema validation
         validator_cls = jsonschema.Draft202012Validator

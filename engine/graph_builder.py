@@ -28,18 +28,7 @@ except ImportError:
         "Install it with: pip install networkx"
     )
 
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def _safe_read_json(path: str, default=None):
-    """Read a JSON file, returning *default* if the file is missing or corrupt."""
-    try:
-        with open(path, "r", encoding="utf-8") as fh:
-            return json.load(fh)
-    except (FileNotFoundError, json.JSONDecodeError, OSError):
-        return default
+from engine.utils import safe_read_json as _safe_read_json
 
 
 # ---------------------------------------------------------------------------

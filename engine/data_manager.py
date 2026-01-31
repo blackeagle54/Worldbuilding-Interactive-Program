@@ -80,22 +80,9 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _safe_read_json(path: str, default=None):
-    """Read a JSON file, returning *default* if the file is missing or corrupt."""
-    try:
-        with open(path, "r", encoding="utf-8") as fh:
-            return json.load(fh)
-    except FileNotFoundError:
-        return default
-    except json.JSONDecodeError:
-        return default
-
-
-def _safe_write_json(path: str, data, *, indent: int = 2) -> None:
-    """Write JSON to *path*, creating parent directories if needed."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as fh:
-        json.dump(data, fh, indent=indent, ensure_ascii=False)
+from engine.utils import safe_read_json as _safe_read_json
+from engine.utils import safe_write_json as _safe_write_json
+from engine.utils import clean_schema_for_validation as _clean_schema_for_validation
 
 
 # ---------------------------------------------------------------------------
@@ -1625,54 +1612,11 @@ class DataManager:
         # source_chapter, x-cross-references, x-cross-reference, $id that
         # collides with jsonschema's internal use) to prevent validation
         # noise.
-        clean_schema = self._clean_schema_for_validation(schema)
+        clean_schema = _clean_schema_for_validation(schema)
 
         validator_cls = jsonschema.Draft202012Validator
         validator = validator_cls(clean_schema)
         return list(validator.iter_errors(data))
-
-    @staticmethod
-    def _clean_schema_for_validation(schema: dict) -> dict:
-        """Return a copy of *schema* stripped of custom extension fields
-        so that ``jsonschema`` does not choke on them."""
-        skip_keys = {
-            "$id", "step", "phase", "source_chapter",
-            "x-cross-references",
-        }
-        clean = {}
-        for key, value in schema.items():
-            if key in skip_keys:
-                continue
-            if isinstance(value, dict):
-                clean[key] = DataManager._clean_schema_deep(value)
-            elif isinstance(value, list):
-                clean[key] = [
-                    DataManager._clean_schema_deep(item) if isinstance(item, dict) else item
-                    for item in value
-                ]
-            else:
-                clean[key] = value
-        return clean
-
-    @staticmethod
-    def _clean_schema_deep(obj: dict) -> dict:
-        """Recursively remove ``x-cross-reference`` (and similar custom
-        keywords) from nested schema objects."""
-        skip_keys = {"x-cross-reference", "x-cross-references"}
-        result = {}
-        for key, value in obj.items():
-            if key in skip_keys:
-                continue
-            if isinstance(value, dict):
-                result[key] = DataManager._clean_schema_deep(value)
-            elif isinstance(value, list):
-                result[key] = [
-                    DataManager._clean_schema_deep(item) if isinstance(item, dict) else item
-                    for item in value
-                ]
-            else:
-                result[key] = value
-        return result
 
     @staticmethod
     def _format_validation_errors(errors: list, template_id: str) -> str:

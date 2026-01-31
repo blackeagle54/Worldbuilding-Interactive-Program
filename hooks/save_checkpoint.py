@@ -26,21 +26,8 @@ from datetime import datetime, timezone
 PROJECT_ROOT = "C:/Worldbuilding-Interactive-Program"
 sys.path.insert(0, PROJECT_ROOT)
 
-
-def _safe_read_json(path, default=None):
-    """Read a JSON file, returning default on failure."""
-    try:
-        with open(path, "r", encoding="utf-8") as fh:
-            return json.load(fh)
-    except (FileNotFoundError, json.JSONDecodeError, OSError):
-        return default
-
-
-def _safe_write_json(path, data):
-    """Write data as JSON to path."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as fh:
-        json.dump(data, fh, indent=2, ensure_ascii=False)
+from engine.utils import safe_read_json as _safe_read_json
+from engine.utils import safe_write_json as _safe_write_json
 
 
 def main():
