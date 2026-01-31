@@ -208,7 +208,7 @@ class SQLiteSyncEngine:
         os.makedirs(str(self.runtime_dir), exist_ok=True)
 
         # Open (or create) the database
-        self._conn = sqlite3.connect(str(self.db_path))
+        self._conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         # Enable WAL mode for better concurrent read performance
         self._conn.execute("PRAGMA journal_mode=WAL")
