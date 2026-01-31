@@ -179,9 +179,16 @@ class ConsistencyChecker:
         self._entity_cache = entities
         return entities
 
-    def _invalidate_entity_cache(self) -> None:
-        """Force the entity cache to reload on next access."""
+    def invalidate_cache(self) -> None:
+        """Force the entity cache to reload on next access.
+
+        Call this after creating, updating, or deleting entities
+        if you need the consistency checker to see the latest data.
+        """
         self._entity_cache = None
+
+    # Keep the old private name for internal callers
+    _invalidate_entity_cache = invalidate_cache
 
     def _get_all_canon_claims(self) -> list[dict]:
         """Collect all canon_claims from every existing entity.
@@ -1106,6 +1113,11 @@ class ConsistencyChecker:
                     "human_message": "A friendly summary of any issues"
                 }
         """
+        # Invalidate the entity cache so cross-reference checks see the
+        # latest data (fixes stale-cache bug where newly created entities
+        # were invisible to the checker).
+        self._invalidate_entity_cache()
+
         # Resolve entity data
         entity_data: dict
         entity_id: str | None = None

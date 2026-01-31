@@ -149,6 +149,7 @@ class BackupManager:
         }
 
         # Write to a temp file first, then move (atomic-ish operation)
+        tmp_path = None
         try:
             fd, tmp_path = tempfile.mkstemp(
                 suffix=".zip", prefix="backup_tmp_", dir=str(self.backups_dir)
@@ -169,7 +170,7 @@ class BackupManager:
 
         except OSError as exc:
             # Clean up temp file if it still exists
-            if os.path.exists(tmp_path):
+            if tmp_path and os.path.exists(tmp_path):
                 try:
                     os.remove(tmp_path)
                 except OSError:
@@ -388,28 +389,42 @@ class BackupManager:
         # 1. Create a safety backup before restoring
         pre_restore_meta = self.create_backup(label="pre_restore")
 
-        # 2. Remove the current user-world/ contents
+        # 2. Extract the backup to a temporary directory first, so that
+        #    if extraction fails the current user-world/ is not lost.
+        tmp_extract_dir = None
+        try:
+            tmp_extract_dir = tempfile.mkdtemp(
+                prefix="restore_tmp_", dir=str(self.root)
+            )
+            with zipfile.ZipFile(backup_path, "r") as zf:
+                for member in zf.namelist():
+                    if member == "manifest.json":
+                        continue
+                    zf.extract(member, tmp_extract_dir)
+        except (zipfile.BadZipFile, OSError) as exc:
+            # Clean up the partial extraction
+            if tmp_extract_dir and os.path.exists(tmp_extract_dir):
+                shutil.rmtree(tmp_extract_dir, ignore_errors=True)
+            raise RuntimeError(
+                f"The restore failed while extracting the backup. "
+                f"Your current data is unchanged. "
+                f"A pre-restore backup was also saved at: "
+                f"{pre_restore_meta['path']}\n"
+                f"Technical detail: {exc}"
+            ) from exc
+
+        # 3. Extraction succeeded -- now swap: remove current and move extracted
         if self.user_world_dir.exists():
             shutil.rmtree(str(self.user_world_dir))
 
-        # 3. Extract the backup into the project root
-        #    The ZIP contains paths like "user-world/state.json", so extracting
-        #    at the project root recreates the directory tree.
-        try:
-            with zipfile.ZipFile(backup_path, "r") as zf:
-                for member in zf.namelist():
-                    # Skip the manifest -- it is backup metadata, not world data
-                    if member == "manifest.json":
-                        continue
-                    zf.extract(member, str(self.root))
-        except (zipfile.BadZipFile, OSError) as exc:
-            raise RuntimeError(
-                f"The restore failed while extracting the backup. "
-                f"A pre-restore backup was saved at: "
-                f"{pre_restore_meta['path']}\n"
-                f"You can use that backup to recover. "
-                f"Technical detail: {exc}"
-            ) from exc
+        # Move the extracted user-world/ into place
+        extracted_uw = os.path.join(tmp_extract_dir, "user-world")
+        if os.path.exists(extracted_uw):
+            shutil.move(extracted_uw, str(self.user_world_dir))
+
+        # Clean up the temporary extraction directory
+        if os.path.exists(tmp_extract_dir):
+            shutil.rmtree(tmp_extract_dir, ignore_errors=True)
 
         return {
             "restored": True,
@@ -482,11 +497,10 @@ class BackupManager:
         # Create safety backup
         pre_restore_meta = self.create_backup(label="pre_restore")
 
-        # Write the entity file to its correct location
+        # Write the entity file to its correct location using atomic write
+        from engine.utils import safe_write_json
         target_path = self.root / entity_member
-        os.makedirs(str(target_path.parent), exist_ok=True)
-        with open(str(target_path), "w", encoding="utf-8") as fh:
-            json.dump(entity_data, fh, indent=2, ensure_ascii=False)
+        safe_write_json(str(target_path), entity_data)
 
         return {
             "restored": True,
