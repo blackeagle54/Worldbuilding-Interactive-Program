@@ -14,7 +14,7 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 # Approximate token budget for context (leaving room for user message + response)
-MAX_CONTEXT_CHARS = 12_000  # ~3000 tokens
+MAX_CONTEXT_CHARS = 30_000  # ~7500 tokens -- Claude's 200K context can handle this
 
 
 def build_context(
@@ -84,6 +84,35 @@ def build_context(
     except Exception:
         logger.debug("FairRepresentation unavailable", exc_info=True)
 
+    # --- Layer 2 reference content from ChunkPuller ---
+    reference_content: list[dict] = []
+    try:
+        layer2 = engine_manager.with_lock(
+            "chunk_puller", lambda c: c.pull_references(step_number)
+        )
+        if isinstance(layer2, dict):
+            for ref in layer2.get("featured_mythologies", []):
+                content = ref.get("content", "")
+                if len(content) > 1000:
+                    content = content[:1000] + "..."
+                reference_content.append({
+                    "database_name": ref.get("database_name", ref.get("database", "")),
+                    "section": ref.get("section", ""),
+                    "content": content,
+                })
+            for ref in layer2.get("featured_authors", []):
+                content = ref.get("content", "")
+                if len(content) > 1000:
+                    content = content[:1000] + "..."
+                reference_content.append({
+                    "database_name": ref.get("database_name", ref.get("database", "")),
+                    "section": ref.get("section", ""),
+                    "content": content,
+                })
+    except Exception:
+        logger.debug("ChunkPuller Layer 2 references unavailable", exc_info=True)
+    context["reference_content"] = reference_content
+
     # --- Entity summary ---
     entity_count = 0
     try:
@@ -150,6 +179,7 @@ def build_context(
         phase_name=phase_name or "foundation",
         condensed_guidance=condensed,
         featured_sources=context["featured_sources"],
+        reference_content=reference_content,
         entity_count=entity_count,
         entities_summary=context["entities_summary"],
         graph_summary=context["graph_summary"],

@@ -353,15 +353,74 @@ class ClaudeClient:
                     "chunk_puller", lambda c: c.pull_guidance(self._current_step)
                 )
                 if isinstance(guidance, dict):
-                    title = guidance.get("title", "")
-                    text = guidance.get("condensed_text", guidance.get("text", ""))
-                    questions = guidance.get("guided_questions", [])
+                    # Step title
+                    step_info = guidance.get("step", {})
+                    title = step_info.get("title", f"Step {self._current_step}")
+
+                    # Layer 1: condensed book guidance
+                    layer1_text = guidance.get("layer1_book", "")
+                    if isinstance(layer1_text, dict):
+                        # layer1_book is a dict with quotes and teaching_summary
+                        teaching = layer1_text.get("teaching_summary", "")
+                        quotes = layer1_text.get("quotes", [])
+                        layer1_parts = []
+                        if teaching:
+                            layer1_parts.append(teaching)
+                        for q in quotes[:3]:
+                            qt = q.get("text", "")
+                            if len(qt) > 300:
+                                qt = qt[:300] + "..."
+                            layer1_parts.append(f'  - "{qt}"')
+                        layer1_text = "\n".join(layer1_parts)
+
                     extra_sections.append(
-                        f"DETAILED STEP GUIDANCE (Step {self._current_step}: {title}):\n{text}"
+                        f"DETAILED STEP GUIDANCE (Step {self._current_step}: {title}):\n{layer1_text}"
                     )
-                    if questions:
-                        q_text = "\n".join(f"  - {q}" for q in questions[:8])
-                        extra_sections.append(f"GUIDED QUESTIONS:\n{q_text}")
+
+                    # Layer 2: reference content from databases
+                    layer2 = guidance.get("layer2_references", {})
+                    if isinstance(layer2, dict):
+                        ref_parts = []
+                        for ref in layer2.get("featured_mythologies", []):
+                            content = ref.get("content", "")
+                            if content:
+                                db_name = ref.get("database_name", ref.get("database", ""))
+                                section = ref.get("section", "")
+                                if len(content) > 1000:
+                                    content = content[:1000] + "..."
+                                ref_parts.append(f"  [{db_name} -- {section}]\n  {content}")
+                        for ref in layer2.get("featured_authors", []):
+                            content = ref.get("content", "")
+                            if content:
+                                db_name = ref.get("database_name", ref.get("database", ""))
+                                section = ref.get("section", "")
+                                if len(content) > 1000:
+                                    content = content[:1000] + "..."
+                                ref_parts.append(f"  [{db_name} -- {section}]\n  {content}")
+                        if ref_parts:
+                            extra_sections.append(
+                                "REFERENCE DATABASE CONTENT:\n" + "\n\n".join(ref_parts)
+                            )
+
+                    # Layer 3: actionable guidance
+                    layer3 = guidance.get("layer3_actionable", {})
+                    if isinstance(layer3, dict):
+                        layer3_parts = []
+                        questions = layer3.get("guided_questions", [])
+                        if questions:
+                            q_text = "\n".join(f"  - {q}" for q in questions[:8])
+                            layer3_parts.append(f"GUIDED QUESTIONS:\n{q_text}")
+                        req_fields = layer3.get("required_fields", [])
+                        if req_fields:
+                            layer3_parts.append(
+                                f"REQUIRED FIELDS: {', '.join(req_fields[:10])}"
+                            )
+                        tmpl_id = layer3.get("template_id")
+                        if tmpl_id:
+                            tmpl_display = tmpl_id if isinstance(tmpl_id, str) else ", ".join(tmpl_id)
+                            layer3_parts.append(f"TEMPLATE: {tmpl_display}")
+                        if layer3_parts:
+                            extra_sections.append("\n".join(layer3_parts))
         except Exception:
             logger.debug("subprocess: could not pre-fetch step guidance", exc_info=True)
 

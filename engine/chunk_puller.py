@@ -733,6 +733,29 @@ class ChunkPuller:
                 parts.append(f"  Progress: {exist_c}/{min_c} entities created")
             parts.append("")
 
+        # Layer 2: Condensed reference content (2 mythology + 1 author, ~500 chars each)
+        layer2 = self._build_layer2(step_number)
+        mythology_refs = layer2.get("featured_mythologies", [])
+        author_refs = layer2.get("featured_authors", [])
+
+        condensed_refs: list[dict] = []
+        for ref in mythology_refs[:2]:
+            condensed_refs.append(ref)
+        for ref in author_refs[:1]:
+            condensed_refs.append(ref)
+
+        if condensed_refs:
+            parts.append("REFERENCE DATABASE CONTENT:")
+            for ref in condensed_refs:
+                db_name = ref.get("database_name", ref.get("database", ""))
+                section = ref.get("section", "")
+                content = ref.get("content", "")
+                if len(content) > 500:
+                    content = content[:500] + "..."
+                parts.append(f"  [{db_name} -- {section}]")
+                parts.append(f"  {content}")
+                parts.append("")
+
         # Dependencies
         deps = self.get_step_dependencies(step_number)
         if deps.get("missing_dependencies"):

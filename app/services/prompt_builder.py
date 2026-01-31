@@ -122,6 +122,7 @@ def build_system_prompt(
     phase_name: str,
     condensed_guidance: str = "",
     featured_sources: dict | None = None,
+    reference_content: list[dict] | None = None,
     entity_count: int = 0,
     entities_summary: str = "",
     graph_summary: str = "",
@@ -141,6 +142,9 @@ def build_system_prompt(
         Output from ChunkPuller.pull_condensed().
     featured_sources : dict | None
         Featured mythologies and authors for this step.
+    reference_content : list[dict] | None
+        Actual content from featured reference databases.  Each dict has
+        ``database_name``, ``section``, and ``content`` keys.
     entity_count : int
         Number of existing entities in the world.
     entities_summary : str
@@ -205,11 +209,34 @@ def build_system_prompt(
                 parts.append(f"  Mythologies: {', '.join(myths)}")
             if authors:
                 parts.append(f"  Authors: {', '.join(authors)}")
-            parts.append(
-                "  Draw subtle inspiration from these sources but create "
-                "original content."
-            )
             parts.append("")
+
+    # Actual reference database content
+    if reference_content:
+        parts.append("REFERENCE DATABASE CONTENT:")
+        for ref in reference_content:
+            db_name = ref.get("database_name", "")
+            section = ref.get("section", "")
+            content = ref.get("content", "")
+            if len(content) > 800:
+                content = content[:800] + "..."
+            parts.append(f"  [{db_name} -- {section}]")
+            parts.append(f"  {content}")
+            parts.append("")
+
+    # Instruction for using references
+    if reference_content or (featured_sources and (
+        featured_sources.get("featured_mythologies") or featured_sources.get("featured_authors")
+    )):
+        parts.append(
+            "When presenting worldbuilding options, draw specific examples and "
+            "patterns from the reference content above. Compare how different "
+            "mythological traditions handle similar concepts. Reference specific "
+            "details (god attributes, creation patterns, narrative techniques) to "
+            "enrich your suggestions. Synthesize ideas across traditions to create "
+            "unique combinations."
+        )
+        parts.append("")
 
     parts.append(_CONSTRAINTS)
     parts.append("")
