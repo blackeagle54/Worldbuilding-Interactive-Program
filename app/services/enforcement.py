@@ -159,8 +159,6 @@ class EnforcementService:
 
         # Validation passed -- save the entity
         try:
-            dm = self._engine.data_manager
-
             if entity_id:
                 # Update existing
                 self._engine.with_lock(
@@ -273,7 +271,6 @@ class EnforcementService:
     def _log_event(self, event_type: str, data: dict) -> None:
         """Log an event to the bookkeeper (best-effort)."""
         try:
-            bk = self._engine.bookkeeper
             self._engine.with_lock(
                 "bookkeeper",
                 lambda b: b.log_event(event_type, data),

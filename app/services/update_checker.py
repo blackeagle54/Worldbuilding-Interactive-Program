@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import sys
 import urllib.request
 import urllib.error
 from typing import Any
@@ -17,7 +19,28 @@ from PySide6.QtCore import QObject, QThread, Signal
 
 logger = logging.getLogger(__name__)
 
-_CURRENT_VERSION = "0.3.0"
+
+def _read_version() -> str:
+    """Read the application version from the VERSION file."""
+    # When running from source, VERSION is at the project root (two levels up)
+    source_version = os.path.normpath(
+        os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "VERSION")
+    )
+    # When running from a PyInstaller bundle, VERSION is in the bundle root
+    bundle_version = os.path.join(
+        getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__))),
+        "VERSION",
+    )
+    for path in (source_version, bundle_version):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read().strip()
+        except FileNotFoundError:
+            continue
+    return "0.0.0"
+
+
+_CURRENT_VERSION = _read_version()
 _GITHUB_REPO = "worldbuilding-app/worldbuilding-interactive-program"
 _API_URL = f"https://api.github.com/repos/{_GITHUB_REPO}/releases/latest"
 
@@ -72,6 +95,7 @@ class UpdateChecker(QObject):
 
         self._worker = _CheckWorker(self)
         self._worker.result.connect(self._on_result)
+        self._worker.finished.connect(self._worker.deleteLater)
         self._worker.start()
 
     def _on_result(self, data: dict) -> None:
@@ -81,6 +105,14 @@ class UpdateChecker(QObject):
         tag = data["tag"].lstrip("v")
         current = _CURRENT_VERSION.lstrip("v")
 
-        if tag != current:
+        try:
+            tag_tuple = tuple(int(x) for x in tag.split("."))
+            current_tuple = tuple(int(x) for x in current.split("."))
+        except (ValueError, AttributeError):
+            # Fall back to string comparison if parsing fails
+            tag_tuple = (tag,)
+            current_tuple = (current,)
+
+        if tag_tuple > current_tuple:
             logger.info("Update available: %s (current: %s)", tag, current)
             self.update_available.emit(tag, data.get("url", ""))

@@ -59,7 +59,6 @@ def build_context(
     phase_name = ""
     condensed = ""
     try:
-        cp = engine_manager.chunk_puller
         guidance = engine_manager.with_lock(
             "chunk_puller", lambda c: c.pull_condensed(step_number)
         )
@@ -78,7 +77,6 @@ def build_context(
 
     # --- Featured sources from FairRepresentation ---
     try:
-        frm = engine_manager.fair_representation
         featured = engine_manager.with_lock(
             "fair_representation", lambda f: f.select_featured(step_number)
         )
@@ -89,7 +87,6 @@ def build_context(
     # --- Entity summary ---
     entity_count = 0
     try:
-        dm = engine_manager.data_manager
         entities = engine_manager.with_lock("data_manager", lambda d: d.list_entities())
         entity_count = len(entities)
 
@@ -119,7 +116,6 @@ def build_context(
 
     # --- Knowledge graph summary ---
     try:
-        wg = engine_manager.world_graph
         stats = engine_manager.with_lock("world_graph", lambda g: g.get_stats())
         if stats:
             context["graph_summary"] = (
@@ -132,7 +128,6 @@ def build_context(
 
     # --- Recent decisions from Bookkeeper ---
     try:
-        bk = engine_manager.bookkeeper
         session_data = engine_manager.with_lock(
             "bookkeeper", lambda b: b.get_current_session()
         )

@@ -184,7 +184,17 @@ class ClaudeClient:
             messages.append({"role": "user", "content": user_message})
 
             # Agentic loop -- handle tool calls
+            MAX_TOOL_ROUNDS = 10
+            tool_round = 0
             while True:
+                tool_round += 1
+                if tool_round > MAX_TOOL_ROUNDS:
+                    yield StreamEvent(
+                        type=EventType.ERROR,
+                        data=f"Exceeded maximum tool rounds ({MAX_TOOL_ROUNDS})",
+                    )
+                    break
+
                 if self._cancel.is_set():
                     yield StreamEvent(type=EventType.ERROR, data="Cancelled")
                     return
@@ -299,57 +309,68 @@ class ClaudeClient:
                 errors="replace",
             )
 
-            accumulated_text = ""
+            try:
+                accumulated_text = ""
+                message_complete_emitted = False
 
-            for line in proc.stdout:
-                if self._cancel.is_set():
-                    proc.terminate()
-                    yield StreamEvent(type=EventType.ERROR, data="Cancelled")
-                    return
+                for line in proc.stdout:
+                    if self._cancel.is_set():
+                        proc.terminate()
+                        yield StreamEvent(type=EventType.ERROR, data="Cancelled")
+                        return
 
-                line = line.strip()
-                if not line:
-                    continue
+                    line = line.strip()
+                    if not line:
+                        continue
 
-                try:
-                    event = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
+                    try:
+                        event = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
 
-                event_type = event.get("type", "")
+                    event_type = event.get("type", "")
 
-                if event_type == "content_block_delta":
-                    text = event.get("delta", {}).get("text", "")
-                    if text:
-                        accumulated_text += text
-                        yield StreamEvent(type=EventType.TOKEN, data=text)
+                    if event_type == "content_block_delta":
+                        text = event.get("delta", {}).get("text", "")
+                        if text:
+                            accumulated_text += text
+                            yield StreamEvent(type=EventType.TOKEN, data=text)
 
-                elif event_type == "message_stop":
+                    elif event_type == "message_stop":
+                        if not message_complete_emitted:
+                            message_complete_emitted = True
+                            yield StreamEvent(
+                                type=EventType.MESSAGE_COMPLETE,
+                                data=accumulated_text,
+                            )
+
+                    elif event_type == "error":
+                        yield StreamEvent(
+                            type=EventType.ERROR,
+                            data=event.get("error", {}).get("message", "Unknown error"),
+                        )
+
+                proc.wait(timeout=30)
+
+                if proc.returncode != 0 and not accumulated_text:
+                    stderr = proc.stderr.read()
+                    yield StreamEvent(
+                        type=EventType.ERROR,
+                        data=f"claude CLI exited with code {proc.returncode}: {stderr[:200]}",
+                    )
+                elif accumulated_text and not self._cancel.is_set() and not message_complete_emitted:
+                    # Ensure completion event if we got text but no message_stop
+                    message_complete_emitted = True
                     yield StreamEvent(
                         type=EventType.MESSAGE_COMPLETE,
                         data=accumulated_text,
                     )
-
-                elif event_type == "error":
-                    yield StreamEvent(
-                        type=EventType.ERROR,
-                        data=event.get("error", {}).get("message", "Unknown error"),
-                    )
-
-            proc.wait()
-
-            if proc.returncode != 0 and not accumulated_text:
-                stderr = proc.stderr.read()
-                yield StreamEvent(
-                    type=EventType.ERROR,
-                    data=f"claude CLI exited with code {proc.returncode}: {stderr[:200]}",
-                )
-            elif accumulated_text and not self._cancel.is_set():
-                # Ensure completion event if we got text but no message_stop
-                yield StreamEvent(
-                    type=EventType.MESSAGE_COMPLETE,
-                    data=accumulated_text,
-                )
+            finally:
+                try:
+                    proc.kill()
+                except OSError:
+                    pass
+                proc.wait(timeout=5)
 
         except FileNotFoundError:
             yield StreamEvent(

@@ -54,6 +54,7 @@ class StateStore(QObject):
     state_loaded = Signal()
 
     _instance: StateStore | None = None
+    _singleton_lock = threading.Lock()
 
     def __init__(self, project_root: str, parent: QObject | None = None):
         super().__init__(parent)
@@ -75,17 +76,21 @@ class StateStore(QObject):
     def instance(cls, project_root: str = "") -> StateStore:
         """Return the singleton StateStore instance."""
         if cls._instance is None:
-            if not project_root:
-                raise RuntimeError("StateStore.instance() requires project_root on first call.")
-            cls._instance = cls(project_root)
+            with cls._singleton_lock:
+                if cls._instance is None:
+                    if not project_root:
+                        raise RuntimeError("StateStore.instance() requires project_root on first call.")
+                    cls._instance = cls(project_root)
         return cls._instance
 
     @classmethod
     def reset(cls) -> None:
         """Reset the singleton (for testing)."""
-        if cls._instance is not None:
-            cls._instance._auto_save_timer.stop()
-        cls._instance = None
+        with cls._singleton_lock:
+            if cls._instance is not None:
+                cls._instance._auto_save_timer.stop()
+                cls._instance.deleteLater()
+            cls._instance = None
 
     # ------------------------------------------------------------------
     # State access (thread-safe reads)

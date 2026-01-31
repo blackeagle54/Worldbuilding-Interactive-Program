@@ -201,7 +201,6 @@ def _exec_get_step_guidance(
     params: dict, engine: Any, current_step: int
 ) -> dict:
     step = params.get("step_number", current_step)
-    cp = engine.chunk_puller
 
     guidance = engine.with_lock("chunk_puller", lambda c: c.pull_guidance(step))
     if not isinstance(guidance, dict):
@@ -223,7 +222,6 @@ def _exec_get_canon_context(
     params: dict, engine: Any, current_step: int
 ) -> dict:
     entity_type = params.get("entity_type")
-    dm = engine.data_manager
 
     entities = engine.with_lock(
         "data_manager", lambda d: d.list_entities(entity_type=entity_type)
@@ -256,7 +254,6 @@ def _exec_generate_options(
     num = params.get("num_options", 3)
     prefs = params.get("user_preferences", "")
 
-    og = engine.option_generator
     context = {"user_prefs": prefs} if prefs else {}
 
     result = engine.with_lock(
@@ -271,7 +268,6 @@ def _exec_validate_entity(
     params: dict, engine: Any, current_step: int
 ) -> dict:
     entity_id = params["entity_id"]
-    cc = engine.consistency_checker
 
     result = engine.with_lock(
         "consistency_checker",
@@ -285,7 +281,6 @@ def _exec_query_knowledge_graph(
     params: dict, engine: Any, current_step: int
 ) -> dict:
     query_type = params["query_type"]
-    wg = engine.world_graph
 
     if query_type == "stats":
         return engine.with_lock("world_graph", lambda g: g.get_stats())
@@ -324,7 +319,6 @@ def _exec_search_entities(
     params: dict, engine: Any, current_step: int
 ) -> dict:
     query = params.get("query", "")
-    dm = engine.data_manager
 
     results = engine.with_lock(
         "data_manager", lambda d: d.search_entities(query)

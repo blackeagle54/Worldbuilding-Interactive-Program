@@ -16,6 +16,8 @@ Usage::
 
 from __future__ import annotations
 
+import threading
+
 from PySide6.QtCore import QObject, Signal
 
 
@@ -71,15 +73,21 @@ class EventBus(QObject):
 
     # Singleton
     _instance: EventBus | None = None
+    _lock = threading.Lock()
 
     @classmethod
     def instance(cls) -> EventBus:
         """Return the singleton EventBus instance."""
         if cls._instance is None:
-            cls._instance = cls()
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = cls()
         return cls._instance
 
     @classmethod
     def reset(cls) -> None:
         """Reset the singleton (for testing)."""
-        cls._instance = None
+        with cls._lock:
+            if cls._instance is not None:
+                cls._instance.deleteLater()
+            cls._instance = None

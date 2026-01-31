@@ -67,7 +67,6 @@ class SessionManager(QObject):
 
         # 1. Create backup
         try:
-            bm = self._engine.backup_manager
             self._engine.with_lock(
                 "backup_manager",
                 lambda b: b.create_backup("session_start"),
@@ -78,7 +77,6 @@ class SessionManager(QObject):
 
         # 2. Sync SQLite
         try:
-            ss = self._engine.sqlite_sync
             self._engine.with_lock("sqlite_sync", lambda s: s.full_sync())
             logger.info("SQLite sync complete")
         except Exception:
@@ -86,7 +84,6 @@ class SessionManager(QObject):
 
         # 3. Build knowledge graph
         try:
-            wg = self._engine.world_graph
             self._engine.with_lock("world_graph", lambda g: g.build_graph())
             logger.info("Knowledge graph built")
         except Exception:
@@ -94,7 +91,6 @@ class SessionManager(QObject):
 
         # 4. Start bookkeeper session
         try:
-            bk = self._engine.bookkeeper
             session = self._engine.with_lock(
                 "bookkeeper", lambda b: b.start_session()
             )
@@ -172,7 +168,6 @@ class SessionManager(QObject):
             }
         """
         try:
-            dm = self._engine.data_manager
             entities = self._engine.with_lock(
                 "data_manager", lambda d: d.list_entities()
             )
