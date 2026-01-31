@@ -171,12 +171,19 @@ _PARAM_SPECS: dict[str, dict[str, tuple[type, bool]]] = {
     "get_canon_context": {
         "entity_type": (str, False),
     },
-    "validate_entity": {
-        "entity_data": (dict, True),
-        "template_id": (str, False),
+    "generate_options": {
+        "step_number": (int, False),
+        "num_options": (int, False),
+        "user_preferences": (str, False),
     },
-    "check_consistency": {
+    "validate_entity": {
         "entity_id": (str, True),
+    },
+    "query_knowledge_graph": {
+        "query_type": (str, True),
+        "entity_id": (str, False),
+        "target_id": (str, False),
+        "depth": (int, False),
     },
     "search_entities": {
         "query": (str, True),

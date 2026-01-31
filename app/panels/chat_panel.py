@@ -196,6 +196,7 @@ class ChatPanel(QWidget):
         self._conversation_history: list[dict] = []
         self._system_prompt = ""
         self._display_msg_count = 0
+        self._pre_send_hook = None  # Callable to invoke before each send
         self._setup_ui()
         self._connect_signals()
 
@@ -218,6 +219,21 @@ class ChatPanel(QWidget):
     def set_system_prompt(self, prompt: str) -> None:
         """Set the system prompt for future messages."""
         self._system_prompt = prompt
+
+    def set_pre_send_hook(self, hook) -> None:
+        """Set a callback to invoke before each message send.
+
+        This allows the MainWindow to refresh the system prompt (with
+        latest entity counts, graph stats, etc.) right before every
+        message is dispatched to the worker.
+
+        Parameters
+        ----------
+        hook : callable
+            A zero-argument callable.  It is invoked synchronously on
+            the main thread before the AgentWorker.send() call.
+        """
+        self._pre_send_hook = hook
 
     # ------------------------------------------------------------------
     # UI setup
@@ -551,6 +567,13 @@ class ChatPanel(QWidget):
 
         # Send via AgentWorker if available
         if self._worker is not None:
+            # Refresh system prompt with latest world state before sending
+            if self._pre_send_hook is not None:
+                try:
+                    self._pre_send_hook()
+                except Exception:
+                    logger.debug("pre_send_hook failed", exc_info=True)
+
             logger.info("Sending message to AgentWorker: %s", text[:50])
             self._start_streaming()
             self._worker.send(

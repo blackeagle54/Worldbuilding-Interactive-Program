@@ -252,6 +252,9 @@ class MainWindow(QMainWindow):
         self._agent_worker = AgentWorker(client, parent=self)
         self._chat_panel.set_worker(self._agent_worker)
 
+        # Ensure system prompt is rebuilt before every message send
+        self._chat_panel.set_pre_send_hook(self._update_system_prompt)
+
         # Show backend status
         backend_name = client.backend.name.lower()
         if client.is_online:

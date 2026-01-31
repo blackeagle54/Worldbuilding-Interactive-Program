@@ -172,7 +172,7 @@ class ClaudeClient:
         if self._backend == BackendType.SDK:
             yield from self._send_sdk(user_message, system_prompt, conversation_history)
         elif self._backend == BackendType.SUBPROCESS:
-            yield from self._send_subprocess(user_message, system_prompt)
+            yield from self._send_subprocess(user_message, system_prompt, conversation_history)
         else:
             yield from self._send_offline(user_message)
 
@@ -299,23 +299,200 @@ class ClaudeClient:
     # Subprocess backend
     # ------------------------------------------------------------------
 
+    @staticmethod
+    def _serialize_history(history: list[dict], max_messages: int = 20) -> str:
+        """Serialize recent conversation history into a text block.
+
+        The claude CLI does not natively accept multi-turn message arrays,
+        so we flatten the last *max_messages* turns into a readable
+        transcript that is prepended to the user message.
+        """
+        if not history:
+            return ""
+
+        recent = history[-max_messages:]
+        lines: list[str] = []
+        for msg in recent:
+            role = msg.get("role", "unknown").capitalize()
+            content = msg.get("content", "")
+            # Content may be a list of content blocks (tool results, etc.)
+            if isinstance(content, list):
+                parts = []
+                for block in content:
+                    if isinstance(block, dict):
+                        parts.append(block.get("text", block.get("content", str(block))))
+                    else:
+                        parts.append(str(block))
+                content = "\n".join(parts)
+            lines.append(f"[{role}]: {content}")
+
+        return "\n".join(lines)
+
+    def _build_subprocess_prompt(
+        self,
+        user_message: str,
+        system_prompt: str,
+        history: list[dict] | None,
+    ) -> tuple[str, str]:
+        """Build the enriched system prompt and user message for subprocess.
+
+        For the subprocess backend we pre-load ALL available context into
+        the system prompt so that Claude can answer without needing tool
+        calls.  We also serialize conversation history into the user
+        message so Claude has multi-turn awareness.
+
+        Returns (enriched_system_prompt, enriched_user_message).
+        """
+        # --- Enrich the system prompt with tool-equivalent context ---
+        extra_sections: list[str] = []
+
+        # Pre-fetch step guidance (equivalent to get_step_guidance tool)
+        try:
+            if self._engine:
+                guidance = self._engine.with_lock(
+                    "chunk_puller", lambda c: c.pull_guidance(self._current_step)
+                )
+                if isinstance(guidance, dict):
+                    title = guidance.get("title", "")
+                    text = guidance.get("condensed_text", guidance.get("text", ""))
+                    questions = guidance.get("guided_questions", [])
+                    extra_sections.append(
+                        f"DETAILED STEP GUIDANCE (Step {self._current_step}: {title}):\n{text}"
+                    )
+                    if questions:
+                        q_text = "\n".join(f"  - {q}" for q in questions[:8])
+                        extra_sections.append(f"GUIDED QUESTIONS:\n{q_text}")
+        except Exception:
+            logger.debug("subprocess: could not pre-fetch step guidance", exc_info=True)
+
+        # Pre-fetch canon context (equivalent to get_canon_context tool)
+        try:
+            if self._engine:
+                entities = self._engine.with_lock(
+                    "data_manager", lambda d: d.list_entities()
+                )
+                if entities:
+                    lines = []
+                    for ent in entities[:60]:
+                        name = ent.get("name", ent.get("id", "?"))
+                        etype = ent.get("entity_type", "unknown")
+                        status = ent.get("status", "draft")
+                        lines.append(f"  - {name} ({etype}, {status})")
+                    extra_sections.append(
+                        f"ALL CANON ENTITIES ({len(entities)} total):\n"
+                        + "\n".join(lines)
+                    )
+                    if len(entities) > 60:
+                        extra_sections[-1] += f"\n  ... and {len(entities) - 60} more"
+        except Exception:
+            logger.debug("subprocess: could not pre-fetch entities", exc_info=True)
+
+        # Pre-fetch graph stats (equivalent to query_knowledge_graph stats)
+        try:
+            if self._engine:
+                stats = self._engine.with_lock("world_graph", lambda g: g.get_stats())
+                if stats:
+                    extra_sections.append(
+                        f"KNOWLEDGE GRAPH STATS: "
+                        f"{stats.get('node_count', 0)} nodes, "
+                        f"{stats.get('edge_count', 0)} edges, "
+                        f"{stats.get('orphan_count', 0)} orphans"
+                    )
+        except Exception:
+            logger.debug("subprocess: could not pre-fetch graph stats", exc_info=True)
+
+        # Pre-fetch recent decisions (equivalent to bookkeeper context)
+        try:
+            if self._engine:
+                session_data = self._engine.with_lock(
+                    "bookkeeper", lambda b: b.get_current_session()
+                )
+                if session_data and isinstance(session_data, dict):
+                    events = session_data.get("events", [])
+                    recent = events[-8:] if events else []
+                    if recent:
+                        lines = []
+                        for evt in recent:
+                            desc = evt.get("description", evt.get("type", "event"))
+                            lines.append(f"  - {desc}")
+                        extra_sections.append(
+                            "RECENT SESSION DECISIONS:\n" + "\n".join(lines)
+                        )
+        except Exception:
+            logger.debug("subprocess: could not pre-fetch decisions", exc_info=True)
+
+        # Pre-fetch featured sources
+        try:
+            if self._engine:
+                featured = self._engine.with_lock(
+                    "fair_representation", lambda f: f.select_featured(self._current_step)
+                )
+                if featured:
+                    myths = featured.get("featured_mythologies", [])
+                    authors = featured.get("featured_authors", [])
+                    if myths or authors:
+                        parts = []
+                        if myths:
+                            parts.append(f"  Mythologies: {', '.join(myths)}")
+                        if authors:
+                            parts.append(f"  Authors: {', '.join(authors)}")
+                        extra_sections.append(
+                            "FEATURED REFERENCE SOURCES:\n" + "\n".join(parts)
+                        )
+        except Exception:
+            logger.debug("subprocess: could not pre-fetch featured sources", exc_info=True)
+
+        # Compose enriched system prompt
+        enriched_system = system_prompt
+        if extra_sections:
+            enriched_system += (
+                "\n\n--- PRE-LOADED CONTEXT (use this data instead of requesting tools) ---\n"
+                + "\n\n".join(extra_sections)
+            )
+
+        # --- Serialize conversation history into the user message ---
+        history_text = self._serialize_history(history or [])
+        if history_text:
+            enriched_user = (
+                f"CONVERSATION SO FAR:\n{history_text}\n\n"
+                f"---\n\n"
+                f"USER'S CURRENT MESSAGE:\n{user_message}"
+            )
+        else:
+            enriched_user = user_message
+
+        return enriched_system, enriched_user
+
     def _send_subprocess(
         self,
         user_message: str,
         system_prompt: str,
+        history: list[dict] | None = None,
     ) -> Generator[StreamEvent, None, None]:
-        """Send via claude CLI subprocess with streaming JSON output."""
+        """Send via claude CLI subprocess with streaming JSON output.
+
+        The subprocess backend enriches the system prompt with pre-loaded
+        context (entities, graph stats, step guidance, recent decisions)
+        so Claude can respond knowledgeably without tool calls.  It also
+        serializes conversation history into the user message for
+        multi-turn awareness.
+        """
         try:
+            # Build enriched prompt and message for subprocess
+            enriched_system, enriched_user = self._build_subprocess_prompt(
+                user_message, system_prompt, history
+            )
+
             cmd = [
                 "claude",
-                "-p", user_message,
+                "-p", enriched_user,
                 "--output-format", "stream-json",
                 "--verbose",
             ]
             logger.debug("Subprocess cmd: %s", cmd)
 
-            if system_prompt:
-                cmd.extend(["--system-prompt", system_prompt])
+            if enriched_system:
+                cmd.extend(["--system-prompt", enriched_system])
 
             # CREATE_NO_WINDOW prevents a console flash on Windows
             creation_flags = 0

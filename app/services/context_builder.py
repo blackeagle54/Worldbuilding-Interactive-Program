@@ -151,6 +151,9 @@ def build_context(
         condensed_guidance=condensed,
         featured_sources=context["featured_sources"],
         entity_count=entity_count,
+        entities_summary=context["entities_summary"],
+        graph_summary=context["graph_summary"],
+        recent_decisions=context["recent_decisions"],
     )
 
     # --- Token budget tracking ---

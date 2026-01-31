@@ -123,6 +123,9 @@ def build_system_prompt(
     condensed_guidance: str = "",
     featured_sources: dict | None = None,
     entity_count: int = 0,
+    entities_summary: str = "",
+    graph_summary: str = "",
+    recent_decisions: str = "",
 ) -> str:
     """Build a complete system prompt for a given step.
 
@@ -140,6 +143,12 @@ def build_system_prompt(
         Featured mythologies and authors for this step.
     entity_count : int
         Number of existing entities in the world.
+    entities_summary : str
+        Summary of existing entities grouped by type.
+    graph_summary : str
+        Knowledge graph statistics summary.
+    recent_decisions : str
+        Recent bookkeeping decisions made in this session.
 
     Returns
     -------
@@ -166,6 +175,24 @@ def build_system_prompt(
     if condensed_guidance:
         parts.append("STEP GUIDANCE (from source material):")
         parts.append(condensed_guidance)
+        parts.append("")
+
+    # Existing entities detail
+    if entities_summary:
+        parts.append("WORLD STATE -- EXISTING ENTITIES:")
+        parts.append(entities_summary)
+        parts.append("")
+
+    # Knowledge graph stats
+    if graph_summary:
+        parts.append("WORLD STATE -- KNOWLEDGE GRAPH:")
+        parts.append(graph_summary)
+        parts.append("")
+
+    # Recent decisions
+    if recent_decisions:
+        parts.append("SESSION CONTEXT -- RECENT DECISIONS:")
+        parts.append(recent_decisions)
         parts.append("")
 
     # Featured sources
