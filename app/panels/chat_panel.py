@@ -4,6 +4,9 @@ app/panels/chat_panel.py -- Chat & Streaming panel.
 Displays the conversation with Claude, including styled message bubbles,
 basic markdown rendering, streaming token display, tool call indicators,
 and a stop button for cancellation.
+
+Modern chat-focused UI with centered messages, multi-line input,
+and Enter-to-send / Shift+Enter-for-newline behavior.
 """
 
 from __future__ import annotations
@@ -13,13 +16,14 @@ import logging
 import re
 from typing import Any
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QTextCursor
+from PySide6.QtCore import Qt, QEvent
+from PySide6.QtGui import QTextCursor, QKeyEvent
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
-    QLineEdit,
+    QPlainTextEdit,
     QPushButton,
+    QSizePolicy,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -35,65 +39,72 @@ MAX_DISPLAY_MESSAGES = 200  # Trim HTML display to prevent memory bloat
 # CSS for message bubbles inside the QTextEdit
 _CHAT_CSS = """
 body {
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 13px;
-    color: #ddd;
+    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+    font-size: 14px;
+    color: #d0d0e0;
     margin: 0;
-    padding: 4px;
+    padding: 8px;
+    line-height: 1.5;
+}
+.msg-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 8px;
 }
 .msg {
     margin: 6px 0;
-    padding: 8px 12px;
-    border-radius: 8px;
-    max-width: 80%;
-    line-height: 1.4;
+    padding: 12px 16px;
+    border-radius: 12px;
+    line-height: 1.5;
 }
 .user-msg {
-    background-color: #1a3a5c;
-    margin-left: 20%;
+    background-color: #2a4a5e;
+    margin-left: 15%;
     text-align: left;
 }
 .claude-msg {
-    background-color: #2a2a3a;
-    margin-right: 20%;
+    background-color: #262630;
+    margin-right: 15%;
 }
 .system-msg {
-    background-color: #333;
-    color: #999;
+    background-color: transparent;
+    color: #6a6a8a;
     font-style: italic;
     text-align: center;
     font-size: 12px;
+    padding: 8px 16px;
 }
 .tool-msg {
     background-color: #1a2a1a;
     color: #7c7;
-    font-size: 11px;
-    margin-right: 20%;
+    font-size: 12px;
+    margin-right: 15%;
     border-left: 3px solid #4a4;
+    padding: 8px 12px;
 }
 .sender {
     font-weight: bold;
     font-size: 11px;
-    color: #888;
-    margin-bottom: 2px;
+    color: #7a7a9a;
+    margin-bottom: 4px;
 }
 code {
     background-color: #1a1a2e;
-    padding: 1px 4px;
-    border-radius: 3px;
+    padding: 2px 5px;
+    border-radius: 4px;
     font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 12px;
+    font-size: 13px;
 }
 pre {
     background-color: #1a1a2e;
-    padding: 8px;
-    border-radius: 4px;
+    padding: 10px 12px;
+    border-radius: 8px;
     overflow-x: auto;
     font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 12px;
+    font-size: 13px;
 }
-strong { color: #fff; }
-em { color: #bbb; }
+strong { color: #e0e0f0; }
+em { color: #b0b0c8; }
 """
 
 
@@ -122,6 +133,55 @@ def _md_to_html(text: str) -> str:
     text = text.replace("\n", "<br>")
 
     return text
+
+
+class ChatInputEdit(QPlainTextEdit):
+    """Multi-line text input that sends on Enter and inserts newline on Shift+Enter.
+
+    Grows from 2 to 6 visible lines based on content.
+    """
+
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(parent)
+        self._min_lines = 2
+        self._max_lines = 6
+        self._send_callback = None
+        self.setPlaceholderText("Message Claude...")
+        self.setTabChangesFocus(True)
+
+        # Calculate line height for dynamic sizing
+        fm = self.fontMetrics()
+        self._line_height = fm.lineSpacing()
+
+        self._update_height()
+        self.document().contentsChanged.connect(self._update_height)
+
+    def set_send_callback(self, callback) -> None:
+        """Set the callback for when Enter is pressed to send."""
+        self._send_callback = callback
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        """Handle Enter to send, Shift+Enter for newline."""
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+                # Shift+Enter inserts a newline
+                super().keyPressEvent(event)
+            else:
+                # Enter sends the message
+                if self._send_callback:
+                    self._send_callback()
+                event.accept()
+            return
+        super().keyPressEvent(event)
+
+    def _update_height(self) -> None:
+        """Dynamically adjust height based on content lines."""
+        doc = self.document()
+        line_count = max(self._min_lines, min(doc.blockCount(), self._max_lines))
+        # Account for document margins and widget margins
+        doc_margin = doc.documentMargin()
+        content_height = int(line_count * self._line_height + 2 * doc_margin + 4)
+        self.setFixedHeight(content_height)
 
 
 class ChatPanel(QWidget):
@@ -165,46 +225,123 @@ class ChatPanel(QWidget):
 
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(4, 4, 4, 4)
-        layout.setSpacing(4)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
-        # Message display area
+        # Message display area -- takes up all available space
         self._display = QTextEdit()
         self._display.setReadOnly(True)
+        self._display.setObjectName("chatDisplay")
+        self._display.setStyleSheet("""
+            QTextEdit#chatDisplay {
+                background-color: #0f0f1a;
+                border: none;
+                border-radius: 0;
+            }
+        """)
         self._display.document().setDefaultStyleSheet(_CHAT_CSS)
         self._display.setHtml("<body></body>")
         layout.addWidget(self._display, 1)
 
         # Typing indicator
         self._typing_label = QLabel("")
-        self._typing_label.setStyleSheet("color: #888; font-style: italic; font-size: 11px;")
+        self._typing_label.setStyleSheet(
+            "color: #6a6a8a; font-style: italic; font-size: 11px; "
+            "padding: 4px 16px; background: transparent;"
+        )
         self._typing_label.setVisible(False)
         layout.addWidget(self._typing_label)
 
-        # Input row
-        input_row = QHBoxLayout()
-        input_row.setSpacing(4)
+        # Input area container
+        input_container = QWidget()
+        input_container.setObjectName("chatInputContainer")
+        input_container.setStyleSheet("""
+            QWidget#chatInputContainer {
+                background-color: #16213e;
+                border-top: 1px solid #2a2a4a;
+            }
+        """)
+        input_outer = QVBoxLayout(input_container)
+        input_outer.setContentsMargins(12, 8, 12, 8)
+        input_outer.setSpacing(4)
 
-        self._input = QLineEdit()
-        self._input.setPlaceholderText("Type a message to Claude...")
+        # Input row with text area and send button
+        input_row = QHBoxLayout()
+        input_row.setSpacing(8)
+
+        self._input = ChatInputEdit()
+        self._input.set_send_callback(self._on_send)
+        self._input.setObjectName("chatInput")
+        self._input.setStyleSheet("""
+            QPlainTextEdit#chatInput {
+                background-color: #0f0f1a;
+                color: #d0d0e0;
+                border: 1px solid #2a2a4a;
+                border-radius: 12px;
+                padding: 8px 12px;
+                font-size: 14px;
+                font-family: 'Segoe UI', sans-serif;
+            }
+            QPlainTextEdit#chatInput:focus {
+                border-color: #3a5a7e;
+            }
+        """)
         input_row.addWidget(self._input, 1)
 
+        # Button column (send + stop stacked)
+        btn_col = QVBoxLayout()
+        btn_col.setSpacing(4)
+
         self._send_btn = QPushButton("Send")
-        self._send_btn.setMaximumWidth(60)
-        input_row.addWidget(self._send_btn)
+        self._send_btn.setObjectName("chatSendBtn")
+        self._send_btn.setFixedSize(60, 34)
+        self._send_btn.setStyleSheet("""
+            QPushButton#chatSendBtn {
+                background-color: #2a4a5e;
+                color: #d0d0e0;
+                border: none;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: bold;
+            }
+            QPushButton#chatSendBtn:hover {
+                background-color: #3a5a7e;
+            }
+        """)
+        btn_col.addWidget(self._send_btn)
 
         self._stop_btn = QPushButton("Stop")
-        self._stop_btn.setMaximumWidth(50)
-        self._stop_btn.setStyleSheet("background-color: #8B0000;")
+        self._stop_btn.setObjectName("chatStopBtn")
+        self._stop_btn.setFixedSize(60, 34)
+        self._stop_btn.setStyleSheet("""
+            QPushButton#chatStopBtn {
+                background-color: #6B2020;
+                color: #e0b0b0;
+                border: none;
+                border-radius: 8px;
+                font-size: 12px;
+                font-weight: bold;
+            }
+            QPushButton#chatStopBtn:hover {
+                background-color: #8B3030;
+            }
+        """)
         self._stop_btn.setVisible(False)
-        input_row.addWidget(self._stop_btn)
+        btn_col.addWidget(self._stop_btn)
 
-        layout.addLayout(input_row)
+        btn_col.addStretch()
+        input_row.addLayout(btn_col)
 
-        # Backend indicator
+        input_outer.addLayout(input_row)
+
+        # Backend indicator -- small, subtle, in corner of input area
         self._backend_label = QLabel("")
-        self._backend_label.setStyleSheet("color: #666; font-size: 10px;")
-        layout.addWidget(self._backend_label)
+        self._backend_label.setStyleSheet(
+            "color: #4a4a6a; font-size: 10px; background: transparent; padding: 0 4px;"
+        )
+        input_outer.addWidget(self._backend_label, 0, Qt.AlignmentFlag.AlignRight)
+
+        layout.addWidget(input_container)
 
     def set_backend_label(self, text: str) -> None:
         """Show which Claude backend is active."""
@@ -215,7 +352,6 @@ class ChatPanel(QWidget):
     # ------------------------------------------------------------------
 
     def _connect_signals(self) -> None:
-        self._input.returnPressed.connect(self._on_send)
         self._send_btn.clicked.connect(self._on_send)
         self._stop_btn.clicked.connect(self._on_stop)
 
@@ -236,9 +372,10 @@ class ChatPanel(QWidget):
 
         html_text = _md_to_html(text)
         bubble = (
+            f'<div class="msg-container">'
             f'<div class="msg {css_class}">'
             f'<div class="sender">{html.escape(sender)}</div>'
-            f"{html_text}</div>"
+            f"{html_text}</div></div>"
         )
 
         cursor = self._display.textCursor()
@@ -275,7 +412,11 @@ class ChatPanel(QWidget):
 
     def _append_system_message(self, text: str) -> None:
         html_text = html.escape(text)
-        bubble = f'<div class="msg system-msg">{html_text}</div>'
+        bubble = (
+            f'<div class="msg-container">'
+            f'<div class="msg system-msg">{html_text}</div>'
+            f'</div>'
+        )
 
         cursor = self._display.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.End)
@@ -290,7 +431,11 @@ class ChatPanel(QWidget):
         """Show a tool call indicator."""
         display_name = tool_name.replace("_", " ").title()
         html_text = html.escape(f"[Tool: {display_name}] {detail[:150]}")
-        bubble = f'<div class="msg tool-msg">{html_text}</div>'
+        bubble = (
+            f'<div class="msg-container">'
+            f'<div class="msg tool-msg">{html_text}</div>'
+            f'</div>'
+        )
 
         cursor = self._display.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.End)
@@ -393,7 +538,7 @@ class ChatPanel(QWidget):
 
     def _on_send(self) -> None:
         """Handle user sending a message."""
-        text = self._input.text().strip()
+        text = self._input.toPlainText().strip()
         if not text:
             return
 

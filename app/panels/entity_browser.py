@@ -158,7 +158,7 @@ class EntityBrowserPanel(QWidget):
         self._proxy.setSourceModel(self._model)
         self._proxy.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
 
-        # Table view
+        # Table view -- compact for sidebar use
         self._table = QTableView()
         self._table.setModel(self._proxy)
         self._table.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
@@ -168,6 +168,14 @@ class EntityBrowserPanel(QWidget):
         self._table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._table.verticalHeader().setVisible(False)
         self._table.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)
+
+        # Compact row height and font for sidebar
+        self._table.verticalHeader().setDefaultSectionSize(24)
+        self._table.setStyleSheet("""
+            QTableView {
+                font-size: 12px;
+            }
+        """)
 
         # Column sizing
         header = self._table.horizontalHeader()

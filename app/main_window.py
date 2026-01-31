@@ -1,9 +1,11 @@
 """
 app/main_window.py -- Main application window.
 
-Hosts the 4 dock panels (entity browser, knowledge graph, chat, progress),
-a menu bar with View toggles, and status bar.  Layout is saved/restored
-across sessions via QSettings.  Cross-panel sync is wired through EventBus.
+Modern chat-centered layout using QSplitters instead of dock widgets.
+Left sidebar: progress + entities. Center: chat (60-70%). Right sidebar: graph + options.
+Sidebars are collapsible via toolbar toggle buttons.
+Layout is saved/restored across sessions via QSettings.
+Cross-panel sync is wired through EventBus.
 """
 
 from __future__ import annotations
@@ -11,12 +13,14 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from PySide6.QtCore import QSettings, Qt
+from PySide6.QtCore import QByteArray, QSettings, Qt
 from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
 from PySide6.QtWidgets import (
-    QDockWidget,
     QMainWindow,
+    QSplitter,
     QStatusBar,
+    QToolBar,
+    QToolButton,
     QWidget,
 )
 
@@ -40,21 +44,21 @@ _APP_NAME = "WorldbuildingInteractiveProgram"
 
 
 class MainWindow(QMainWindow):
-    """Main application window with dockable panels.
+    """Main application window with chat-centered splitter layout.
 
     Layout
     ------
     Default arrangement::
 
-        +----------+------------------+----------+
-        | Entity   |                  | Progress |
-        | Browser  |  Knowledge Graph | Sidebar  |
-        | (Left)   |  (Center)        | (Right)  |
-        |          |                  |          |
-        +----------+------------------+----------+
-        |            Chat Panel                  |
-        |            (Bottom)                    |
-        +-----------------------------------------+
+        +----------+-----------------------+----------+
+        | Progress |                       | Graph    |
+        | Sidebar  |                       | Panel    |
+        |          |     Chat Panel        |          |
+        +----------+   (center, 60-70%)    +----------+
+        | Entity   |                       | Options  |
+        | Browser  |                       | Panel    |
+        | (left)   |                       | (right)  |
+        +----------+-----------------------+----------+
     """
 
     def __init__(self, project_root: str, parent: QWidget | None = None):
@@ -72,27 +76,14 @@ class MainWindow(QMainWindow):
         self._chat_panel = ChatPanel()
         self._option_panel = OptionComparisonPanel()
 
-        # Central widget -- the knowledge graph fills the center
-        self.setCentralWidget(self._graph_panel)
+        # Build the splitter-based layout
+        self._build_layout()
 
-        # Create dock panels
-        self._entity_dock = self._create_dock(
-            "Entity Browser", self._entity_panel, Qt.DockWidgetArea.LeftDockWidgetArea
-        )
-        self._progress_dock = self._create_dock(
-            "Progress", self._progress_panel, Qt.DockWidgetArea.RightDockWidgetArea
-        )
-        self._chat_dock = self._create_dock(
-            "Chat", self._chat_panel, Qt.DockWidgetArea.BottomDockWidgetArea
-        )
-        self._option_dock = self._create_dock(
-            "Options", self._option_panel, Qt.DockWidgetArea.BottomDockWidgetArea
-        )
-        # Tab the options dock behind the chat dock by default
-        self.tabifyDockWidget(self._chat_dock, self._option_dock)
-
-        # Menu bar
+        # Menu bar (slim)
         self._build_menus()
+
+        # Toolbar with sidebar toggles
+        self._build_toolbar()
 
         # Status bar
         self._status_bar = QStatusBar()
@@ -128,6 +119,108 @@ class MainWindow(QMainWindow):
         self._layout_save_timer.setInterval(60_000)  # every 60 seconds
         self._layout_save_timer.timeout.connect(self._save_layout)
         self._layout_save_timer.start()
+
+    # ------------------------------------------------------------------
+    # Layout construction
+    # ------------------------------------------------------------------
+
+    def _build_layout(self) -> None:
+        """Build the three-column splitter layout with chat in center."""
+        # Left sidebar: Progress on top, Entity Browser below
+        self._left_sidebar = QWidget()
+        self._left_sidebar.setObjectName("leftSidebar")
+        self._left_sidebar.setMinimumWidth(200)
+
+        self._left_splitter = QSplitter(Qt.Orientation.Vertical)
+        self._left_splitter.setObjectName("leftSplitter")
+        self._left_splitter.addWidget(self._progress_panel)
+        self._left_splitter.addWidget(self._entity_panel)
+        self._left_splitter.setSizes([300, 400])
+
+        from PySide6.QtWidgets import QVBoxLayout
+        left_layout = QVBoxLayout(self._left_sidebar)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(0)
+        left_layout.addWidget(self._left_splitter)
+
+        # Right sidebar: Knowledge Graph on top, Option Comparison below
+        self._right_sidebar = QWidget()
+        self._right_sidebar.setObjectName("rightSidebar")
+        self._right_sidebar.setMinimumWidth(200)
+
+        self._right_splitter = QSplitter(Qt.Orientation.Vertical)
+        self._right_splitter.setObjectName("rightSplitter")
+        self._right_splitter.addWidget(self._graph_panel)
+        self._right_splitter.addWidget(self._option_panel)
+        self._right_splitter.setSizes([400, 300])
+
+        from PySide6.QtWidgets import QVBoxLayout as QVL
+        right_layout = QVL(self._right_sidebar)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.setSpacing(0)
+        right_layout.addWidget(self._right_splitter)
+
+        # Chat panel (center) -- min 400px width
+        self._chat_panel.setMinimumWidth(400)
+
+        # Main horizontal splitter
+        self._main_splitter = QSplitter(Qt.Orientation.Horizontal)
+        self._main_splitter.setObjectName("mainSplitter")
+        self._main_splitter.addWidget(self._left_sidebar)
+        self._main_splitter.addWidget(self._chat_panel)
+        self._main_splitter.addWidget(self._right_sidebar)
+
+        # Set stretch factors: sidebars don't stretch, chat does
+        self._main_splitter.setStretchFactor(0, 0)  # left sidebar
+        self._main_splitter.setStretchFactor(1, 1)  # chat (stretches)
+        self._main_splitter.setStretchFactor(2, 0)  # right sidebar
+
+        # Default sizes: 250 | ~remaining | 280
+        self._main_splitter.setSizes([250, 700, 280])
+
+        self.setCentralWidget(self._main_splitter)
+
+    # ------------------------------------------------------------------
+    # Toolbar with sidebar toggles
+    # ------------------------------------------------------------------
+
+    def _build_toolbar(self) -> None:
+        """Build a slim toolbar with sidebar toggle buttons."""
+        self._toolbar = QToolBar("Sidebar Toggles")
+        self._toolbar.setObjectName("mainToolbar")
+        self._toolbar.setMovable(False)
+        self._toolbar.setFloatable(False)
+        self._toolbar.setIconSize(self._toolbar.iconSize())
+
+        # Left sidebar toggle
+        self._left_toggle = QToolButton()
+        self._left_toggle.setText("Left Panel")
+        self._left_toggle.setCheckable(True)
+        self._left_toggle.setChecked(True)
+        self._left_toggle.setToolTip("Toggle left sidebar (Progress + Entities)")
+        self._left_toggle.toggled.connect(self._toggle_left_sidebar)
+        self._toolbar.addWidget(self._left_toggle)
+
+        self._toolbar.addSeparator()
+
+        # Right sidebar toggle
+        self._right_toggle = QToolButton()
+        self._right_toggle.setText("Right Panel")
+        self._right_toggle.setCheckable(True)
+        self._right_toggle.setChecked(True)
+        self._right_toggle.setToolTip("Toggle right sidebar (Graph + Options)")
+        self._right_toggle.toggled.connect(self._toggle_right_sidebar)
+        self._toolbar.addWidget(self._right_toggle)
+
+        self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self._toolbar)
+
+    def _toggle_left_sidebar(self, visible: bool) -> None:
+        """Show or hide the left sidebar."""
+        self._left_sidebar.setVisible(visible)
+
+    def _toggle_right_sidebar(self, visible: bool) -> None:
+        """Show or hide the right sidebar."""
+        self._right_sidebar.setVisible(visible)
 
     # ------------------------------------------------------------------
     # Engine / state injection
@@ -194,29 +287,6 @@ class MainWindow(QMainWindow):
             logger.debug("Failed to build system prompt", exc_info=True)
 
     # ------------------------------------------------------------------
-    # Dock creation helper
-    # ------------------------------------------------------------------
-
-    def _create_dock(
-        self,
-        title: str,
-        widget: QWidget,
-        area: Qt.DockWidgetArea,
-    ) -> QDockWidget:
-        """Create a dock widget and add it to the window."""
-        dock = QDockWidget(title, self)
-        dock.setObjectName(f"dock_{title.lower().replace(' ', '_')}")
-        dock.setWidget(widget)
-        dock.setAllowedAreas(
-            Qt.DockWidgetArea.LeftDockWidgetArea
-            | Qt.DockWidgetArea.RightDockWidgetArea
-            | Qt.DockWidgetArea.BottomDockWidgetArea
-            | Qt.DockWidgetArea.TopDockWidgetArea
-        )
-        self.addDockWidget(area, dock)
-        return dock
-
-    # ------------------------------------------------------------------
     # Menu bar
     # ------------------------------------------------------------------
 
@@ -227,11 +297,20 @@ class MainWindow(QMainWindow):
         # --- View menu ---
         view_menu = menubar.addMenu("&View")
 
-        # Dock toggle actions
-        view_menu.addAction(self._entity_dock.toggleViewAction())
-        view_menu.addAction(self._progress_dock.toggleViewAction())
-        view_menu.addAction(self._chat_dock.toggleViewAction())
-        view_menu.addAction(self._option_dock.toggleViewAction())
+        # Sidebar toggle actions
+        left_action = QAction("Left Sidebar", self)
+        left_action.setCheckable(True)
+        left_action.setChecked(True)
+        left_action.toggled.connect(self._on_menu_toggle_left)
+        view_menu.addAction(left_action)
+        self._menu_left_action = left_action
+
+        right_action = QAction("Right Sidebar", self)
+        right_action.setCheckable(True)
+        right_action.setChecked(True)
+        right_action.toggled.connect(self._on_menu_toggle_right)
+        view_menu.addAction(right_action)
+        self._menu_right_action = right_action
 
         view_menu.addSeparator()
 
@@ -246,6 +325,14 @@ class MainWindow(QMainWindow):
         about_action = QAction("About", self)
         about_action.triggered.connect(self._show_about)
         help_menu.addAction(about_action)
+
+    def _on_menu_toggle_left(self, checked: bool) -> None:
+        """Sync menu action with toolbar toggle for left sidebar."""
+        self._left_toggle.setChecked(checked)
+
+    def _on_menu_toggle_right(self, checked: bool) -> None:
+        """Sync menu action with toolbar toggle for right sidebar."""
+        self._right_toggle.setChecked(checked)
 
     # ------------------------------------------------------------------
     # Keyboard shortcuts
@@ -278,13 +365,12 @@ class MainWindow(QMainWindow):
         self.addAction(esc_action)
 
     def _focus_entity_search(self) -> None:
-        self._entity_dock.setVisible(True)
-        self._entity_dock.raise_()
+        # Make sure left sidebar is visible
+        if not self._left_sidebar.isVisible():
+            self._left_toggle.setChecked(True)
         self._entity_panel.focus_search()
 
     def _focus_chat(self) -> None:
-        self._chat_dock.setVisible(True)
-        self._chat_dock.raise_()
         self._chat_panel.focus_input()
 
     def _save_state(self) -> None:
@@ -304,34 +390,51 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
 
     def _save_layout(self) -> None:
-        """Persist window geometry and dock layout to QSettings."""
+        """Persist window geometry and splitter sizes to QSettings."""
         self._settings.setValue("geometry", self.saveGeometry())
-        self._settings.setValue("windowState", self.saveState())
+        self._settings.setValue("mainSplitter", self._main_splitter.saveState())
+        self._settings.setValue("leftSplitter", self._left_splitter.saveState())
+        self._settings.setValue("rightSplitter", self._right_splitter.saveState())
+        self._settings.setValue("leftVisible", self._left_sidebar.isVisible())
+        self._settings.setValue("rightVisible", self._right_sidebar.isVisible())
 
     def _restore_layout(self) -> None:
-        """Restore window geometry and dock layout from QSettings."""
+        """Restore window geometry and splitter sizes from QSettings."""
         geometry = self._settings.value("geometry")
         if geometry:
             self.restoreGeometry(geometry)
 
-        state = self._settings.value("windowState")
-        if state:
-            self.restoreState(state)
+        main_state = self._settings.value("mainSplitter")
+        if main_state and isinstance(main_state, QByteArray):
+            self._main_splitter.restoreState(main_state)
+
+        left_state = self._settings.value("leftSplitter")
+        if left_state and isinstance(left_state, QByteArray):
+            self._left_splitter.restoreState(left_state)
+
+        right_state = self._settings.value("rightSplitter")
+        if right_state and isinstance(right_state, QByteArray):
+            self._right_splitter.restoreState(right_state)
+
+        left_vis = self._settings.value("leftVisible", True)
+        if isinstance(left_vis, str):
+            left_vis = left_vis.lower() != "false"
+        self._left_toggle.setChecked(bool(left_vis))
+
+        right_vis = self._settings.value("rightVisible", True)
+        if isinstance(right_vis, str):
+            right_vis = right_vis.lower() != "false"
+        self._right_toggle.setChecked(bool(right_vis))
 
     def _reset_layout(self) -> None:
-        """Reset all docks to their default positions."""
-        all_docks = [self._entity_dock, self._progress_dock, self._chat_dock, self._option_dock]
-        for dock in all_docks:
-            self.removeDockWidget(dock)
-
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self._entity_dock)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self._progress_dock)
-        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self._chat_dock)
-        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self._option_dock)
-        self.tabifyDockWidget(self._chat_dock, self._option_dock)
-
-        for dock in all_docks:
-            dock.setVisible(True)
+        """Reset the layout to defaults."""
+        self._main_splitter.setSizes([250, 700, 280])
+        self._left_splitter.setSizes([300, 400])
+        self._right_splitter.setSizes([400, 300])
+        self._left_toggle.setChecked(True)
+        self._right_toggle.setChecked(True)
+        self._left_sidebar.setVisible(True)
+        self._right_sidebar.setVisible(True)
 
         self._status_bar.showMessage("Layout reset to default", 3000)
 

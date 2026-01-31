@@ -65,33 +65,33 @@ class OptionComparisonPanel(QWidget):
 
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(8, 8, 8, 8)
-        layout.setSpacing(8)
+        layout.setContentsMargins(4, 4, 4, 4)
+        layout.setSpacing(4)
 
-        # Header
+        # Header -- compact
         header = QHBoxLayout()
         self._title_label = QLabel("Compare Options")
-        self._title_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        self._title_label.setStyleSheet("font-weight: bold; font-size: 12px;")
         header.addWidget(self._title_label)
 
         header.addStretch()
 
         self._stats_label = QLabel("")
-        self._stats_label.setStyleSheet("color: #888; font-size: 11px;")
+        self._stats_label.setStyleSheet("color: #6a6a8a; font-size: 10px;")
         header.addWidget(self._stats_label)
 
         layout.addLayout(header)
 
-        # Scrollable card area
+        # Scrollable card area -- vertical for sidebar layout
         self._scroll = QScrollArea()
         self._scroll.setWidgetResizable(True)
-        self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self._scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self._scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
 
         self._card_container = QWidget()
-        self._card_layout = QHBoxLayout(self._card_container)
+        self._card_layout = QVBoxLayout(self._card_container)
         self._card_layout.setContentsMargins(0, 0, 0, 0)
-        self._card_layout.setSpacing(12)
+        self._card_layout.setSpacing(6)
         self._scroll.setWidget(self._card_container)
 
         layout.addWidget(self._scroll, 1)
@@ -111,23 +111,26 @@ class OptionComparisonPanel(QWidget):
         self._spinner.setVisible(False)
         layout.addWidget(self._spinner)
 
-        # Button row
+        # Button row -- compact
         btn_row = QHBoxLayout()
-        btn_row.setSpacing(8)
+        btn_row.setSpacing(4)
 
-        self._regen_btn = QPushButton("Regenerate All")
+        self._regen_btn = QPushButton("Regen")
+        self._regen_btn.setStyleSheet("font-size: 11px; padding: 4px 8px;")
         self._regen_btn.clicked.connect(self.regenerate_requested.emit)
         btn_row.addWidget(self._regen_btn)
 
-        self._custom_btn = QPushButton("Custom Entry")
+        self._custom_btn = QPushButton("Custom")
+        self._custom_btn.setStyleSheet("font-size: 11px; padding: 4px 8px;")
         self._custom_btn.clicked.connect(self.custom_entry_requested.emit)
         btn_row.addWidget(self._custom_btn)
 
         btn_row.addStretch()
 
-        self._confirm_btn = QPushButton("Confirm Selection")
+        self._confirm_btn = QPushButton("Confirm")
         self._confirm_btn.setStyleSheet(
-            "background-color: #2E7D32; padding: 6px 20px; font-weight: bold;"
+            "background-color: #2E7D32; padding: 4px 12px; font-weight: bold; "
+            "font-size: 11px; border-radius: 6px;"
         )
         self._confirm_btn.setEnabled(False)
         self._confirm_btn.clicked.connect(self._on_confirm)

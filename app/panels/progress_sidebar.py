@@ -151,7 +151,7 @@ class ProgressSidebarPanel(QWidget):
         # Overall progress bar
         progress_row = QHBoxLayout()
         self._overall_label = QLabel("Overall:")
-        self._overall_label.setStyleSheet("font-weight: bold; font-size: 12px;")
+        self._overall_label.setStyleSheet("font-weight: bold; font-size: 11px;")
         progress_row.addWidget(self._overall_label)
 
         self._overall_progress = QProgressBar()
@@ -159,25 +159,35 @@ class ProgressSidebarPanel(QWidget):
         self._overall_progress.setValue(0)
         self._overall_progress.setTextVisible(True)
         self._overall_progress.setFormat("%v / 52 (%p%)")
-        self._overall_progress.setMaximumHeight(18)
+        self._overall_progress.setMaximumHeight(16)
         progress_row.addWidget(self._overall_progress, 1)
 
         layout.addLayout(progress_row)
 
-        # Tree widget
+        # Tree widget -- compact for sidebar use
         self._tree = QTreeWidget()
         self._tree.setHeaderHidden(True)
-        self._tree.setIndentation(16)
+        self._tree.setIndentation(12)
         self._tree.setAnimated(True)
         self._tree.setRootIsDecorated(True)
+        self._tree.setStyleSheet("""
+            QTreeWidget {
+                font-size: 12px;
+            }
+            QTreeWidget::item {
+                padding: 1px 2px;
+                min-height: 20px;
+            }
+        """)
 
         self._build_tree()
         layout.addWidget(self._tree, 1)
 
-        # Advance button
+        # Advance button -- compact
         self._advance_btn = QPushButton("Advance to Next Step")
         self._advance_btn.setStyleSheet(
-            "background-color: #1565C0; padding: 6px; font-weight: bold;"
+            "background-color: #2a4a5e; padding: 4px 8px; font-weight: bold; "
+            "font-size: 12px; border-radius: 6px;"
         )
         self._advance_btn.clicked.connect(self._on_advance)
         layout.addWidget(self._advance_btn)
