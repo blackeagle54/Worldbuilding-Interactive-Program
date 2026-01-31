@@ -507,6 +507,24 @@ class SQLiteSyncEngine:
         ).fetchall()
         return [dict(r) for r in rows]
 
+    # Allowed tables and columns for structured queries
+    _ALLOWED_TABLES = frozenset({"entities", "cross_references", "canon_claims"})
+    _ALLOWED_COLUMNS = frozenset({
+        "id", "entity_type", "name", "template_id", "status",
+        "step_created", "file_path", "data", "created_at", "updated_at",
+        "source_id", "target_id", "relationship_type", "source_field",
+        "entity_id", "claim", "refs",
+    })
+    _ALLOWED_OPERATORS = frozenset({
+        "=", "!=", "<>", "<", ">", "<=", ">=", "LIKE", "NOT LIKE",
+        "IN", "NOT IN", "IS", "IS NOT", "BETWEEN",
+    })
+    _DANGEROUS_KEYWORDS = frozenset({
+        "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE",
+        "REPLACE", "ATTACH", "DETACH", "REINDEX", "VACUUM",
+        "PRAGMA", "LOAD_EXTENSION",
+    })
+
     def advanced_query(self, sql: str, params: tuple | list | None = None) -> list[dict]:
         """Execute an arbitrary read-only SQL query.
 
@@ -526,28 +544,97 @@ class SQLiteSyncEngine:
         list[dict]
             Query results as a list of dicts.
         """
-        # Safety: only allow SELECT
-        stripped = sql.strip().upper()
-        if not stripped.startswith("SELECT") and not stripped.startswith("WITH"):
+        # Safety: only allow SELECT/WITH
+        stripped = sql.strip()
+        upper = stripped.upper()
+        if not upper.startswith("SELECT") and not upper.startswith("WITH"):
             raise ValueError(
                 "Only SELECT queries are allowed via advanced_query(). "
                 "The provided statement starts with: "
-                f"'{sql.strip()[:20]}...'"
+                f"'{stripped[:20]}...'"
             )
 
-        # Block dangerous keywords even within SELECT (e.g., subqueries with writes)
-        dangerous = {"INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE",
-                     "REPLACE", "ATTACH", "DETACH", "REINDEX", "VACUUM"}
-        tokens = set(stripped.split())
-        found = tokens & dangerous
+        # Strip comments that could hide dangerous keywords
+        import re
+        no_comments = re.sub(r"--[^\n]*", " ", stripped)
+        no_comments = re.sub(r"/\*.*?\*/", " ", no_comments, flags=re.DOTALL)
+
+        # Block dangerous keywords (check against cleaned SQL)
+        tokens = set(no_comments.upper().split())
+        found = tokens & self._DANGEROUS_KEYWORDS
         if found:
             raise ValueError(
                 f"The query contains disallowed keywords: {found}. "
                 "Only pure read queries are permitted."
             )
 
+        # Block semicolons (prevents statement stacking)
+        if ";" in no_comments.rstrip().rstrip(";"):
+            raise ValueError(
+                "Multiple statements are not allowed. "
+                "Only a single SELECT query is permitted."
+            )
+
         if params is None:
             params = ()
+        rows = self._conn.execute(sql, params).fetchall()
+        return [dict(r) for r in rows]
+
+    def query_entities(
+        self,
+        filters=None,
+        order_by=None,
+        limit=100,
+        offset=0,
+    ):
+        """Execute a safe, structured query against the entities table.
+
+        Uses whitelisted column names and parameterised values to prevent
+        SQL injection.  Prefer this over :meth:`advanced_query` when
+        querying entities.
+
+        Parameters
+        ----------
+        filters : list[tuple], optional
+            List of ``(column, operator, value)`` tuples.  Column and
+            operator are validated against whitelists.
+        order_by : str, optional
+            Column name to sort by (must be in whitelist).
+        limit : int
+            Maximum rows to return (default 100, max 1000).
+        offset : int
+            Number of rows to skip.
+
+        Returns
+        -------
+        list[dict]
+        """
+        clauses = []
+        params = []
+
+        for col, op, val in (filters or []):
+            if col not in self._ALLOWED_COLUMNS:
+                raise ValueError(f"Column '{col}' is not in the allowed list")
+            op_upper = op.upper().strip()
+            if op_upper not in self._ALLOWED_OPERATORS:
+                raise ValueError(f"Operator '{op}' is not allowed")
+            clauses.append(f"{col} {op_upper} ?")
+            params.append(val)
+
+        sql = "SELECT * FROM entities"
+        if clauses:
+            sql += " WHERE " + " AND ".join(clauses)
+
+        if order_by:
+            if order_by.lstrip("-") not in self._ALLOWED_COLUMNS:
+                raise ValueError(f"Order column '{order_by}' is not allowed")
+            direction = "DESC" if order_by.startswith("-") else "ASC"
+            col_name = order_by.lstrip("-")
+            sql += f" ORDER BY {col_name} {direction}"
+
+        limit = min(max(1, limit), 1000)
+        sql += f" LIMIT {int(limit)} OFFSET {int(offset)}"
+
         rows = self._conn.execute(sql, params).fetchall()
         return [dict(r) for r in rows]
 
