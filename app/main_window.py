@@ -26,6 +26,7 @@ from app.panels.knowledge_graph import KnowledgeGraphPanel
 from app.panels.progress_sidebar import ProgressSidebarPanel
 from app.services.agent_worker import AgentWorker
 from app.services.claude_client import ClaudeClient
+from app.services.enforcement import EnforcementService
 from app.services.event_bus import EventBus
 from app.services.state_store import StateStore
 
@@ -117,6 +118,10 @@ class MainWindow(QMainWindow):
         """Wire the state store into panels that need it."""
         self._progress_panel.set_state_store(store)
 
+    def inject_enforcement(self, enforcement: EnforcementService) -> None:
+        """Wire the enforcement service for validation and bookkeeping."""
+        self._enforcement = enforcement
+
     def inject_claude(self, client: ClaudeClient) -> None:
         """Wire the Claude client into the chat panel."""
         self._claude_client = client
@@ -150,6 +155,10 @@ class MainWindow(QMainWindow):
             context = build_context(self._engine, step)
             self._chat_panel.set_system_prompt(context["system_prompt"])
             self._claude_client.set_current_step(step)
+
+            # Update enforcement service step
+            if hasattr(self, "_enforcement") and self._enforcement:
+                self._enforcement.set_current_step(step)
         except Exception:
             logger.debug("Failed to build system prompt", exc_info=True)
 

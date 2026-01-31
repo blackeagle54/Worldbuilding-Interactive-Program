@@ -106,6 +106,20 @@ def main() -> int:
     if store is not None:
         window.inject_state_store(store)
 
+    # Initialize enforcement service
+    enforcement = None
+    try:
+        from app.services.enforcement import EnforcementService
+        current_step = store.current_step if store else 1
+        enforcement = EnforcementService(
+            engine_manager=engine,
+            current_step=current_step,
+        )
+        window.inject_enforcement(enforcement)
+        logger.info("Enforcement service initialized")
+    except Exception:
+        logger.exception("Failed to initialize enforcement service")
+
     # Initialize Claude client
     try:
         from app.services.claude_client import ClaudeClient
