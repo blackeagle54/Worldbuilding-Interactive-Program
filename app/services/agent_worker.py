@@ -111,6 +111,12 @@ class AgentWorker(QThread):
             self.tool_result_received.emit(event.tool_name, event.data)
 
         elif event.type == EventType.MESSAGE_COMPLETE:
+            # Log the full response so we can verify Claude used context
+            response_preview = event.data[:500] if event.data else "(empty)"
+            logger.info(
+                "Claude response (%d chars): %s",
+                len(event.data or ""), response_preview,
+            )
             self.finished_signal.emit(event.data)
 
         elif event.type == EventType.ERROR:
