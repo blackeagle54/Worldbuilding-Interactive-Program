@@ -573,7 +573,7 @@ class ChunkPuller:
         self._databases = self._reference_index.get("databases", {})
 
         # Source text path
-        self._source_text_path = str(self.root / "source-text.txt")
+        self._source_text_path = str(self.root / "reference-databases" / "source-text.txt")
 
         # State path
         self._state_path = str(self.root / "user-world" / "state.json")

@@ -1,5 +1,10 @@
 __pycache__/
 *.pyc
-engine/__pycache__/
+.pytest_cache/
 runtime/*.db
 backups/*.zip
+*.log
+*.tmp
+.venv/
+venv/
+nul

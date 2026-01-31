@@ -18,11 +18,32 @@ An interactive worldbuilding tool based on "The Complete Art of World Building" 
 
 ```
 C:\Worldbuilding-Interactive-Program\
-|-- source-text.txt                  # Ellefson book full text (read-only)
-|-- progression-map.md               # 52 steps across 12 phases
-|-- phase2-plan-revised.md           # Full architecture plan
+|-- CLAUDE.md                        # This file -- project context for Claude Code
+|-- .gitignore
 |
-|-- reference-databases/             # 16 reference databases (read-only)
+|-- docs/                            # All research, plans, and tracking
+|   |-- decisions.md                 # All project decisions
+|   |-- progress.md                  # Current progress tracker
+|   |-- phase2-plan.md              # Full architecture plan (Phase 2)
+|   |-- progression-map.md          # 52 steps across 12 phases
+|   |-- project-audit.md            # Full architecture audit
+|   |-- phase3-research.md          # Phase 3 UI framework survey
+|   |-- desktop-framework-research.md  # Deep desktop framework comparison
+|   |-- claude-code-integration-research.md  # Claude Agent SDK research
+|   |-- bookkeeping-research.md     # Phase 2 research docs
+|   |-- consistency-research.md
+|   |-- memory-research.md
+|   |-- orchestration-research.md
+|   |-- retrieval-research.md
+|   |-- rlm-research.md
+|   |-- scale-gaps-research.md
+|   |-- volume1-analysis.md         # Ellefson book analysis (3 volumes)
+|   |-- volume2-analysis.md
+|   |-- volume3-analysis.md
+|
+|-- reference-databases/             # 16 reference databases + source material (read-only)
+|   |-- source-text.txt              # Ellefson book full text
+|   |-- The-Complete-Art-of-World-Building-Randy-Ellefson.docx
 |   |-- mythologies/                 # 10: greek, roman, norse, celtic, chinese,
 |   |                                #     japanese, native-american, mesopotamian, hindu, biblical
 |   |-- authors/                     # 6: tolkien, martin, rothfuss, berg, lovecraft, jordan
@@ -75,11 +96,7 @@ C:\Worldbuilding-Interactive-Program\
 |
 |-- runtime/                         # SQLite database (derived, .gitignored)
 |-- backups/                         # Timestamped backup copies
-|-- tests/                           # Automated test suite (smoke, schema, integration, consistency)
-|
-|-- docs/
-|   |-- decisions.md                 # All project decisions
-|   |-- progress.md                  # Current progress tracker
+|-- tests/                           # Automated test suite (182 tests)
 |
 |-- .claude/
 |   |-- settings.json                # Hook configuration (6 hooks)
