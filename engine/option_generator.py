@@ -140,6 +140,8 @@ class OptionGenerator:
     # Number of random concepts to inject per generation cycle.
     CONCEPT_INJECTION_COUNT = 2
 
+    _UNSET = object()  # sentinel for lazy-loaded properties
+
     def __init__(self, project_root: str):
         self.root = Path(project_root).resolve()
 
@@ -148,55 +150,86 @@ class OptionGenerator:
         self._history_path = self.root / "generation" / "option-history.jsonl"
         self._concept_bank_path = self.root / "generation" / "concept-bank.json"
 
-        # --- Load dependent systems (graceful degradation) ----------------
-
-        # Data Manager
-        self._data_manager = None
-        try:
-            from engine.data_manager import DataManager
-            self._data_manager = DataManager(str(self.root))
-        except Exception:
-            pass
-
-        # Graph Builder
-        self._graph = None
-        try:
-            from engine.graph_builder import WorldGraph
-            self._graph = WorldGraph(str(self.root))
-            self._graph.build_graph()
-        except Exception:
-            pass
-
-        # Chunk Puller
-        self._chunk_puller = None
-        try:
-            from engine.chunk_puller import ChunkPuller
-            self._chunk_puller = ChunkPuller(str(self.root))
-        except Exception:
-            pass
-
-        # Fair Representation
-        self._fair_rep = None
-        try:
-            from engine.fair_representation import FairRepresentationManager
-            self._fair_rep = FairRepresentationManager(str(self._state_path))
-        except Exception:
-            pass
-
-        # Bookkeeper (optional -- used in record_choice)
-        self._bookkeeper = None
-        try:
-            from engine.bookkeeper import BookkeepingManager
-            bookkeeping_root = self.root / "bookkeeping"
-            if bookkeeping_root.exists():
-                self._bookkeeper = BookkeepingManager(str(bookkeeping_root))
-        except Exception:
-            pass
+        # Lazy-loaded subsystems (initialised on first access)
+        self.__data_manager = self._UNSET
+        self.__graph = self._UNSET
+        self.__chunk_puller = self._UNSET
+        self.__fair_rep = self._UNSET
+        self.__bookkeeper = self._UNSET
 
         # --- Load static data ---------------------------------------------
 
         self._concept_bank: dict = self._load_concept_bank()
         self._all_concepts: list[str] = self._flatten_concepts()
+
+    # ------------------------------------------------------------------
+    # Lazy-loaded subsystem properties
+    # ------------------------------------------------------------------
+
+    @property
+    def _data_manager(self):
+        if self.__data_manager is self._UNSET:
+            try:
+                from engine.data_manager import DataManager
+                self.__data_manager = DataManager(str(self.root))
+            except Exception:
+                import logging
+                logging.getLogger(__name__).exception("Failed to load DataManager")
+                self.__data_manager = None
+        return self.__data_manager
+
+    @property
+    def _graph(self):
+        if self.__graph is self._UNSET:
+            try:
+                from engine.graph_builder import WorldGraph
+                self.__graph = WorldGraph(str(self.root))
+                self.__graph.build_graph()
+            except Exception:
+                import logging
+                logging.getLogger(__name__).exception("Failed to load WorldGraph")
+                self.__graph = None
+        return self.__graph
+
+    @property
+    def _chunk_puller(self):
+        if self.__chunk_puller is self._UNSET:
+            try:
+                from engine.chunk_puller import ChunkPuller
+                self.__chunk_puller = ChunkPuller(str(self.root))
+            except Exception:
+                import logging
+                logging.getLogger(__name__).exception("Failed to load ChunkPuller")
+                self.__chunk_puller = None
+        return self.__chunk_puller
+
+    @property
+    def _fair_rep(self):
+        if self.__fair_rep is self._UNSET:
+            try:
+                from engine.fair_representation import FairRepresentationManager
+                self.__fair_rep = FairRepresentationManager(str(self._state_path))
+            except Exception:
+                import logging
+                logging.getLogger(__name__).exception("Failed to load FairRepresentationManager")
+                self.__fair_rep = None
+        return self.__fair_rep
+
+    @property
+    def _bookkeeper(self):
+        if self.__bookkeeper is self._UNSET:
+            try:
+                from engine.bookkeeper import BookkeepingManager
+                bookkeeping_root = self.root / "bookkeeping"
+                if bookkeeping_root.exists():
+                    self.__bookkeeper = BookkeepingManager(str(bookkeeping_root))
+                else:
+                    self.__bookkeeper = None
+            except Exception:
+                import logging
+                logging.getLogger(__name__).exception("Failed to load BookkeepingManager")
+                self.__bookkeeper = None
+        return self.__bookkeeper
 
     # ------------------------------------------------------------------
     # Concept bank loading

@@ -57,6 +57,12 @@ class WorldGraph:
         # Cache of loaded template schemas keyed by template $id
         self._schema_cache: dict[str, dict] = {}
 
+        # Reverse index: target_id -> [(source_id, field_name, rel_type), ...]
+        # Tracks all cross-reference targets so that when a new entity is added,
+        # we can instantly find which existing entities reference it without
+        # re-reading all files from disk.
+        self._pending_inbound: dict[str, list[tuple[str, str, str]]] = {}
+
     # ------------------------------------------------------------------
     # Full rebuild
     # ------------------------------------------------------------------
@@ -73,6 +79,7 @@ class WorldGraph:
         :meth:`add_relationship`.
         """
         self.graph.clear()
+        self._pending_inbound.clear()
 
         if not self.entities_dir.exists():
             return
@@ -101,7 +108,10 @@ class WorldGraph:
                 status=meta.get("status", "draft"),
             )
 
-        # Pass 2: extract cross-references and create edges
+        # Pass 2: extract cross-references and create edges.
+        # References to entities not yet in the graph are stored in the
+        # reverse index so they can be resolved instantly when the target
+        # entity is later added via add_entity().
         for entity_id, data in entity_files.items():
             template_id = data.get("_meta", {}).get("template_id", "")
             if not template_id:
@@ -112,15 +122,17 @@ class WorldGraph:
 
             refs = self._extract_cross_references(data, schema)
             for target_id, field_name, rel_type in refs:
-                # Only create edge if the target node exists in the graph
-                # (avoids dangling edges to entities that were deleted or
-                # not yet created).
                 if target_id in self.graph:
                     self.graph.add_edge(
                         entity_id,
                         target_id,
                         relationship_type=rel_type,
                         source_field=field_name,
+                    )
+                else:
+                    # Target doesn't exist yet -- record for future resolution
+                    self._pending_inbound.setdefault(target_id, []).append(
+                        (entity_id, field_name, rel_type)
                     )
 
     # ------------------------------------------------------------------
@@ -164,11 +176,14 @@ class WorldGraph:
                             relationship_type=rel_type,
                             source_field=field_name,
                         )
+                    else:
+                        # Target doesn't exist yet -- store in reverse index
+                        self._pending_inbound.setdefault(target_id, []).append(
+                            (entity_id, field_name, rel_type)
+                        )
 
-        # Check whether any existing entities reference *this* entity
-        # by re-scanning their data.  This ensures that inbound edges
-        # appear immediately when a referenced-before-created entity is
-        # finally added.
+        # Resolve any pending inbound edges for this entity using the
+        # reverse index (O(1) lookup instead of O(n) file scan).
         self._add_inbound_edges_for(entity_id)
 
     def add_relationship(
@@ -616,44 +631,19 @@ class WorldGraph:
     # ------------------------------------------------------------------
 
     def _add_inbound_edges_for(self, entity_id: str) -> None:
-        """Scan all entities already in the graph to find any that reference
-        *entity_id*, and add inbound edges that were previously skipped
-        because *entity_id* did not yet exist as a node.
+        """Resolve pending inbound edges for *entity_id* using the reverse index.
 
-        This is called by :meth:`add_entity` to ensure edges are created
-        even when the referenced entity is added after the referencing one.
+        When entities are added, any outbound references to not-yet-existing
+        targets are stored in ``_pending_inbound``.  When the target is later
+        added, this method creates the edges in O(k) where k is the number of
+        pending references (instead of the previous O(n) full-scan approach).
         """
-        for node in list(self.graph.nodes()):
-            if node == entity_id:
-                continue
-
-            node_attrs = self.graph.nodes[node]
-            file_path_rel = node_attrs.get("file_path", "")
-            if not file_path_rel:
-                continue
-
-            file_path_abs = self.root / file_path_rel
-            if not file_path_abs.exists():
-                continue
-
-            data = _safe_read_json(str(file_path_abs))
-            if not data:
-                continue
-
-            template_id = data.get("_meta", {}).get("template_id", "")
-            if not template_id:
-                continue
-
-            schema = self._get_template_schema(template_id)
-            if not schema:
-                continue
-
-            refs = self._extract_cross_references(data, schema)
-            for target_id, field_name, rel_type in refs:
-                if target_id == entity_id and not self.graph.has_edge(node, entity_id):
-                    self.graph.add_edge(
-                        node,
-                        entity_id,
-                        relationship_type=rel_type,
-                        source_field=field_name,
-                    )
+        pending = self._pending_inbound.pop(entity_id, [])
+        for source_id, field_name, rel_type in pending:
+            if source_id in self.graph and not self.graph.has_edge(source_id, entity_id):
+                self.graph.add_edge(
+                    source_id,
+                    entity_id,
+                    relationship_type=rel_type,
+                    source_field=field_name,
+                )
