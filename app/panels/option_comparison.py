@@ -11,8 +11,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QTimer, Signal
 from PySide6.QtWidgets import (
+    QGraphicsOpacityEffect,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -197,6 +198,20 @@ class OptionComparisonPanel(QWidget):
             card.selected.connect(self._on_card_selected)
             self._card_layout.addWidget(card)
             self._cards.append(card)
+
+        # Staggered fade-in animation for each card
+        self._card_anims: list[QPropertyAnimation] = []  # prevent GC
+        for i, card in enumerate(self._cards):
+            effect = QGraphicsOpacityEffect(card)
+            effect.setOpacity(0.0)
+            card.setGraphicsEffect(effect)
+            anim = QPropertyAnimation(effect, b"opacity", card)
+            anim.setStartValue(0.0)
+            anim.setEndValue(1.0)
+            anim.setDuration(350)
+            anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+            QTimer.singleShot(i * 100, anim.start)
+            self._card_anims.append(anim)
 
         self._stats_label.setText(
             f"{valid_count}/{len(options)} valid options"

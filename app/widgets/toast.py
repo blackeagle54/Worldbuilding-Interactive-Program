@@ -134,12 +134,35 @@ class ToastManager:
         self._reposition()
         toast.show()
 
+        # Slide-in animation from off-screen right
+        final_pos = toast.pos()
+        start_pos = QPoint(final_pos.x() + toast.width() + self._margin, final_pos.y())
+        toast.move(start_pos)
+        anim = QPropertyAnimation(toast, b"pos", toast)
+        anim.setStartValue(start_pos)
+        anim.setEndValue(final_pos)
+        anim.setDuration(300)
+        anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+        anim.start()
+        toast._slide_in_anim = anim  # prevent garbage collection
+
     def _dismiss(self, toast: Toast) -> None:
         if toast in self._active:
             self._active.remove(toast)
-            toast.close()
-            toast.deleteLater()
-            self._reposition()
+
+            # Slide-out animation before closing
+            start_pos = toast.pos()
+            end_pos = QPoint(start_pos.x() + toast.width() + self._margin, start_pos.y())
+            anim = QPropertyAnimation(toast, b"pos", toast)
+            anim.setStartValue(start_pos)
+            anim.setEndValue(end_pos)
+            anim.setDuration(300)
+            anim.setEasingCurve(QEasingCurve.Type.InCubic)
+            anim.finished.connect(toast.close)
+            anim.finished.connect(toast.deleteLater)
+            anim.finished.connect(self._reposition)
+            anim.start()
+            toast._slide_out_anim = anim  # prevent garbage collection
 
     def _reposition(self) -> None:
         """Stack active toasts from the bottom-right of the parent."""

@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QIcon
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -244,6 +244,21 @@ class ProgressSidebarPanel(QWidget):
             if parent:
                 parent.setExpanded(True)
             self._tree.scrollToItem(item)
+
+            # Briefly flash/highlight the new step with bold font
+            bold_font = QFont()
+            bold_font.setBold(True)
+            bold_font.setPointSize(bold_font.pointSize() + 1)
+            item.setFont(0, bold_font)
+            item.setBackground(0, QBrush(QColor("#1565C0")))
+
+            def _revert_highlight(item_ref=item, step_ref=step):
+                normal_font = QFont()
+                normal_font.setBold(False)
+                item_ref.setFont(0, normal_font)
+                item_ref.setBackground(0, QBrush(QColor("transparent")))
+
+            QTimer.singleShot(1000, _revert_highlight)
 
     # ------------------------------------------------------------------
     # Display update
