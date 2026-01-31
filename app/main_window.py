@@ -23,11 +23,13 @@ from PySide6.QtWidgets import (
 from app.panels.chat_panel import ChatPanel
 from app.panels.entity_browser import EntityBrowserPanel
 from app.panels.knowledge_graph import KnowledgeGraphPanel
+from app.panels.option_comparison import OptionComparisonPanel
 from app.panels.progress_sidebar import ProgressSidebarPanel
 from app.services.agent_worker import AgentWorker
 from app.services.claude_client import ClaudeClient
 from app.services.enforcement import EnforcementService
 from app.services.event_bus import EventBus
+from app.services.session_manager import SessionManager
 from app.services.state_store import StateStore
 
 logger = logging.getLogger(__name__)
@@ -67,6 +69,7 @@ class MainWindow(QMainWindow):
         self._entity_panel = EntityBrowserPanel()
         self._progress_panel = ProgressSidebarPanel()
         self._chat_panel = ChatPanel()
+        self._option_panel = OptionComparisonPanel()
 
         # Central widget -- the knowledge graph fills the center
         self.setCentralWidget(self._graph_panel)
@@ -81,6 +84,11 @@ class MainWindow(QMainWindow):
         self._chat_dock = self._create_dock(
             "Chat", self._chat_panel, Qt.DockWidgetArea.BottomDockWidgetArea
         )
+        self._option_dock = self._create_dock(
+            "Options", self._option_panel, Qt.DockWidgetArea.BottomDockWidgetArea
+        )
+        # Tab the options dock behind the chat dock by default
+        self.tabifyDockWidget(self._chat_dock, self._option_dock)
 
         # Menu bar
         self._build_menus()
@@ -91,7 +99,7 @@ class MainWindow(QMainWindow):
         self._status_bar.showMessage("Ready")
 
         # Connect EventBus status messages
-        bus = EventBus.instance()
+        self._bus = bus = EventBus.instance()
         bus.status_message.connect(self._on_status_message)
         bus.error_occurred.connect(self._on_error)
 
@@ -100,6 +108,9 @@ class MainWindow(QMainWindow):
 
         # Rebuild system prompt when step changes
         bus.step_changed.connect(lambda _: self._update_system_prompt())
+
+        # Option selection -> open entity form with selected data
+        self._option_panel.option_selected.connect(self._on_option_selected)
 
         # Restore layout from previous session
         self._restore_layout()
@@ -121,6 +132,12 @@ class MainWindow(QMainWindow):
     def inject_enforcement(self, enforcement: EnforcementService) -> None:
         """Wire the enforcement service for validation and bookkeeping."""
         self._enforcement = enforcement
+        self._option_panel.set_enforcement(enforcement)
+
+    def inject_session_manager(self, session_mgr: SessionManager) -> None:
+        """Wire the session manager for auto-save and step advancement."""
+        self._session_mgr = session_mgr
+        self._progress_panel.set_session_manager(session_mgr)
 
     def inject_claude(self, client: ClaudeClient) -> None:
         """Wire the Claude client into the chat panel."""
@@ -200,6 +217,7 @@ class MainWindow(QMainWindow):
         view_menu.addAction(self._entity_dock.toggleViewAction())
         view_menu.addAction(self._progress_dock.toggleViewAction())
         view_menu.addAction(self._chat_dock.toggleViewAction())
+        view_menu.addAction(self._option_dock.toggleViewAction())
 
         view_menu.addSeparator()
 
@@ -236,15 +254,17 @@ class MainWindow(QMainWindow):
 
     def _reset_layout(self) -> None:
         """Reset all docks to their default positions."""
-        # Remove and re-add all docks
-        for dock in [self._entity_dock, self._progress_dock, self._chat_dock]:
+        all_docks = [self._entity_dock, self._progress_dock, self._chat_dock, self._option_dock]
+        for dock in all_docks:
             self.removeDockWidget(dock)
 
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self._entity_dock)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self._progress_dock)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self._chat_dock)
+        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self._option_dock)
+        self.tabifyDockWidget(self._chat_dock, self._option_dock)
 
-        for dock in [self._entity_dock, self._progress_dock, self._chat_dock]:
+        for dock in all_docks:
             dock.setVisible(True)
 
         self._status_bar.showMessage("Layout reset to default", 3000)
@@ -257,6 +277,44 @@ class MainWindow(QMainWindow):
         """Sync entity selection across all panels."""
         self._entity_panel.select_entity(entity_id)
         self._graph_panel.select_entity(entity_id)
+
+    def open_entity_detail(self, entity_id: str, template_id: str = "") -> None:
+        """Open the entity detail dialog for a given entity."""
+        from app.panels.entity_detail import EntityDetailView
+        dialog = EntityDetailView(
+            entity_id=entity_id,
+            template_id=template_id,
+            engine_manager=getattr(self, "_engine", None),
+            enforcement=getattr(self, "_enforcement", None),
+            parent=self,
+        )
+        dialog.entity_saved.connect(lambda eid: self._bus.entity_updated.emit(eid))
+        dialog.exec()
+
+    def _on_option_selected(self, option_id: str, option_data: dict) -> None:
+        """Handle an option being selected from the comparison panel."""
+        template_data = option_data.get("template_data", {})
+        template_id = template_data.get("$id", "")
+        # Merge option title/description into template data
+        if "name" not in template_data and option_data.get("title"):
+            template_data["name"] = option_data["title"]
+        if "description" not in template_data and option_data.get("description"):
+            template_data["description"] = option_data["description"]
+        self.open_new_entity(template_id, template_data)
+
+    def open_new_entity(self, template_id: str, entity_data: dict | None = None) -> None:
+        """Open the entity detail dialog for creating a new entity."""
+        from app.panels.entity_detail import EntityDetailView
+        dialog = EntityDetailView(
+            entity_id="",
+            template_id=template_id,
+            engine_manager=getattr(self, "_engine", None),
+            enforcement=getattr(self, "_enforcement", None),
+            entity_data=entity_data,
+            parent=self,
+        )
+        dialog.entity_saved.connect(lambda eid: self._bus.entity_created.emit(eid))
+        dialog.exec()
 
     # ------------------------------------------------------------------
     # Event handlers

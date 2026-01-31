@@ -132,6 +132,18 @@ def main() -> int:
     except Exception:
         logger.exception("Failed to initialize Claude client")
 
+    # Initialize session manager
+    session_mgr = None
+    if engine is not None and store is not None:
+        try:
+            from app.services.session_manager import SessionManager
+            session_mgr = SessionManager(engine, store)
+            window.inject_session_manager(session_mgr)
+            session_mgr.start_session()
+            logger.info("Session manager started")
+        except Exception:
+            logger.exception("Failed to initialize session manager")
+
     window.show()
     logger.info("Main window displayed")
 
@@ -140,6 +152,12 @@ def main() -> int:
 
     # Shutdown
     logger.info("Shutting down...")
+    if session_mgr is not None:
+        try:
+            session_mgr.end_session()
+        except Exception:
+            logger.exception("Error during session shutdown")
+
     try:
         store = StateStore.instance()
         store.shutdown()

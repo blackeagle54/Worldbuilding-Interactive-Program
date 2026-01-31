@@ -11,12 +11,13 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QIcon
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QProgressBar,
+    QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -116,9 +117,12 @@ _COLOR_LOCKED = QColor("#666666")    # gray
 class ProgressSidebarPanel(QWidget):
     """52-step progression tracker with phase grouping."""
 
+    advance_requested = Signal()
+
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self._store: StateStore | None = None
+        self._session_mgr = None
         self._bus = EventBus.instance()
         self._phase_items: dict[str, QTreeWidgetItem] = {}
         self._step_items: dict[int, QTreeWidgetItem] = {}
@@ -130,6 +134,10 @@ class ProgressSidebarPanel(QWidget):
         self._store = store
         store.step_changed.connect(self._on_external_step_changed)
         self.refresh()
+
+    def set_session_manager(self, session_mgr) -> None:
+        """Inject the SessionManager for step advancement."""
+        self._session_mgr = session_mgr
 
     # ------------------------------------------------------------------
     # UI setup
@@ -166,6 +174,14 @@ class ProgressSidebarPanel(QWidget):
         self._build_tree()
         layout.addWidget(self._tree, 1)
 
+        # Advance button
+        self._advance_btn = QPushButton("Advance to Next Step")
+        self._advance_btn.setStyleSheet(
+            "background-color: #1565C0; padding: 6px; font-weight: bold;"
+        )
+        self._advance_btn.clicked.connect(self._on_advance)
+        layout.addWidget(self._advance_btn)
+
     def _build_tree(self) -> None:
         """Populate the tree with phases and steps."""
         self._tree.clear()
@@ -196,6 +212,14 @@ class ProgressSidebarPanel(QWidget):
 
     def _connect_signals(self) -> None:
         self._tree.itemClicked.connect(self._on_item_clicked)
+        self._tree.itemDoubleClicked.connect(self._on_item_clicked)
+
+    def _on_advance(self) -> None:
+        """Handle Advance button click."""
+        if self._session_mgr:
+            self._session_mgr.advance_step()
+        else:
+            self.advance_requested.emit()
 
     def _on_item_clicked(self, item: QTreeWidgetItem, _column: int) -> None:
         """Handle click on a step (not a phase header)."""
