@@ -74,4 +74,8 @@ Each progression step delivers a guided experience with three layers:
 - **Top recommendation: PySide6 (Qt)** — scored 97/weighted, native knowledge graph via QGraphicsView, async via qasync, dark theme via qdarktheme, PyInstaller for .exe distribution
 - Runner-up: Dear PyGui (scored 79) — built-in node editor, GPU-accelerated, but smaller ecosystem
 - Third: NiceGUI native (scored 77) — web-in-window approach, fragile packaging on Windows
-- **AWAITING USER DECISION on framework choice before implementation begins**
+- **DECIDED: PySide6 (Qt)** chosen as the desktop framework
+- Key libraries: PySide6 (Qt widgets), qasync (async event loop), qdarktheme (dark mode), PyInstaller (.exe packaging)
+- Knowledge graph visualization via QGraphicsView + node editor libraries
+- Claude Agent SDK for backend integration (streaming, no API keys)
+- Next step: implementation planning
