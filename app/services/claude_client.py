@@ -217,7 +217,7 @@ class ClaudeClient:
                 accumulated_text = ""
 
                 with client.messages.stream(
-                    model="claude-opus-4-0-20250514",
+                    model="claude-opus-4-20250514",
                     max_tokens=4096,
                     system=system_prompt,
                     messages=messages,
@@ -328,227 +328,6 @@ class ClaudeClient:
 
         return "\n".join(lines)
 
-    def _build_subprocess_prompt(
-        self,
-        user_message: str,
-        system_prompt: str,
-        history: list[dict] | None,
-    ) -> tuple[str, str]:
-        """Build the enriched system prompt and user message for subprocess.
-
-        For the subprocess backend we pre-load ALL available context into
-        the system prompt so that Claude can answer without needing tool
-        calls.  We also serialize conversation history into the user
-        message so Claude has multi-turn awareness.
-
-        Returns (enriched_system_prompt, enriched_user_message).
-        """
-        # --- Enrich the system prompt with tool-equivalent context ---
-        extra_sections: list[str] = []
-        loaded_sections: list[str] = []  # Track what loaded for diagnostics
-
-        # Pre-fetch step guidance (equivalent to get_step_guidance tool)
-        try:
-            if self._engine:
-                guidance = self._engine.with_lock(
-                    "chunk_puller", lambda c: c.pull_guidance(self._current_step)
-                )
-                if isinstance(guidance, dict):
-                    # Step title
-                    step_info = guidance.get("step", {})
-                    title = step_info.get("title", f"Step {self._current_step}")
-
-                    # Layer 1: condensed book guidance
-                    layer1_text = guidance.get("layer1_book", "")
-                    if isinstance(layer1_text, dict):
-                        # layer1_book is a dict with quotes and teaching_summary
-                        teaching = layer1_text.get("teaching_summary", "")
-                        quotes = layer1_text.get("quotes", [])
-                        layer1_parts = []
-                        if teaching:
-                            layer1_parts.append(teaching)
-                        for q in quotes[:3]:
-                            qt = q.get("text", "")
-                            if len(qt) > 300:
-                                qt = qt[:300] + "..."
-                            layer1_parts.append(f'  - "{qt}"')
-                        layer1_text = "\n".join(layer1_parts)
-
-                    extra_sections.append(
-                        f"DETAILED STEP GUIDANCE (Step {self._current_step}: {title}):\n{layer1_text}"
-                    )
-
-                    # Layer 2: reference content from databases
-                    layer2 = guidance.get("layer2_references", {})
-                    if isinstance(layer2, dict):
-                        ref_parts = []
-                        for ref in layer2.get("featured_mythologies", []):
-                            content = ref.get("content", "")
-                            if content:
-                                db_name = ref.get("database_name", ref.get("database", ""))
-                                section = ref.get("section", "")
-                                if len(content) > 1000:
-                                    content = content[:1000] + "..."
-                                ref_parts.append(f"  [{db_name} -- {section}]\n  {content}")
-                        for ref in layer2.get("featured_authors", []):
-                            content = ref.get("content", "")
-                            if content:
-                                db_name = ref.get("database_name", ref.get("database", ""))
-                                section = ref.get("section", "")
-                                if len(content) > 1000:
-                                    content = content[:1000] + "..."
-                                ref_parts.append(f"  [{db_name} -- {section}]\n  {content}")
-                        if ref_parts:
-                            extra_sections.append(
-                                "REFERENCE DATABASE CONTENT:\n" + "\n\n".join(ref_parts)
-                            )
-
-                    # Layer 3: actionable guidance
-                    layer3 = guidance.get("layer3_actionable", {})
-                    if isinstance(layer3, dict):
-                        layer3_parts = []
-                        questions = layer3.get("guided_questions", [])
-                        if questions:
-                            q_text = "\n".join(f"  - {q}" for q in questions[:8])
-                            layer3_parts.append(f"GUIDED QUESTIONS:\n{q_text}")
-                        req_fields = layer3.get("required_fields", [])
-                        if req_fields:
-                            layer3_parts.append(
-                                f"REQUIRED FIELDS: {', '.join(req_fields[:10])}"
-                            )
-                        tmpl_id = layer3.get("template_id")
-                        if tmpl_id:
-                            tmpl_display = tmpl_id if isinstance(tmpl_id, str) else ", ".join(tmpl_id)
-                            layer3_parts.append(f"TEMPLATE: {tmpl_display}")
-                        if layer3_parts:
-                            extra_sections.append("\n".join(layer3_parts))
-        except Exception:
-            logger.debug("subprocess: could not pre-fetch step guidance", exc_info=True)
-        else:
-            if isinstance(guidance, dict):
-                loaded_sections.append(f"step_guidance(step={self._current_step})")
-                _l2 = guidance.get("layer2_references", {})
-                if isinstance(_l2, dict) and (_l2.get("featured_mythologies") or _l2.get("featured_authors")):
-                    loaded_sections.append("references(loaded)")
-
-        # Pre-fetch canon context (equivalent to get_canon_context tool)
-        try:
-            if self._engine:
-                entities = self._engine.with_lock(
-                    "data_manager", lambda d: d.list_entities()
-                )
-                if entities:
-                    lines = []
-                    for ent in entities[:60]:
-                        name = ent.get("name", ent.get("id", "?"))
-                        etype = ent.get("entity_type", "unknown")
-                        status = ent.get("status", "draft")
-                        lines.append(f"  - {name} ({etype}, {status})")
-                    extra_sections.append(
-                        f"ALL CANON ENTITIES ({len(entities)} total):\n"
-                        + "\n".join(lines)
-                    )
-                    if len(entities) > 60:
-                        extra_sections[-1] += f"\n  ... and {len(entities) - 60} more"
-        except Exception:
-            logger.debug("subprocess: could not pre-fetch entities", exc_info=True)
-        else:
-            if entities:
-                loaded_sections.append(f"entities({len(entities)})")
-
-        # Pre-fetch graph stats (equivalent to query_knowledge_graph stats)
-        try:
-            if self._engine:
-                stats = self._engine.with_lock("world_graph", lambda g: g.get_stats())
-                if stats:
-                    extra_sections.append(
-                        f"KNOWLEDGE GRAPH STATS: "
-                        f"{stats.get('node_count', 0)} nodes, "
-                        f"{stats.get('edge_count', 0)} edges, "
-                        f"{stats.get('orphan_count', 0)} orphans"
-                    )
-        except Exception:
-            logger.debug("subprocess: could not pre-fetch graph stats", exc_info=True)
-        else:
-            if stats:
-                loaded_sections.append("graph_stats")
-
-        # Pre-fetch recent decisions (equivalent to bookkeeper context)
-        try:
-            if self._engine:
-                session_data = self._engine.with_lock(
-                    "bookkeeper", lambda b: b.get_current_session()
-                )
-                if session_data and isinstance(session_data, dict):
-                    events = session_data.get("events", [])
-                    recent = events[-8:] if events else []
-                    if recent:
-                        lines = []
-                        for evt in recent:
-                            desc = evt.get("description", evt.get("type", "event"))
-                            lines.append(f"  - {desc}")
-                        extra_sections.append(
-                            "RECENT SESSION DECISIONS:\n" + "\n".join(lines)
-                        )
-        except Exception:
-            logger.debug("subprocess: could not pre-fetch decisions", exc_info=True)
-        else:
-            if recent:
-                loaded_sections.append(f"decisions({len(recent)})")
-
-        # Pre-fetch featured sources
-        try:
-            if self._engine:
-                featured = self._engine.with_lock(
-                    "fair_representation", lambda f: f.select_featured(self._current_step)
-                )
-                if featured:
-                    myths = featured.get("featured_mythologies", [])
-                    authors = featured.get("featured_authors", [])
-                    if myths or authors:
-                        parts = []
-                        if myths:
-                            parts.append(f"  Mythologies: {', '.join(myths)}")
-                        if authors:
-                            parts.append(f"  Authors: {', '.join(authors)}")
-                        extra_sections.append(
-                            "FEATURED REFERENCE SOURCES:\n" + "\n".join(parts)
-                        )
-        except Exception:
-            logger.debug("subprocess: could not pre-fetch featured sources", exc_info=True)
-        else:
-            if myths or authors:
-                loaded_sections.append(f"featured({len(myths)}myth+{len(authors)}auth)")
-
-        # Compose enriched system prompt
-        enriched_system = system_prompt
-        if extra_sections:
-            enriched_system += (
-                "\n\n--- PRE-LOADED CONTEXT (use this data instead of requesting tools) ---\n"
-                + "\n\n".join(extra_sections)
-            )
-
-        logger.info(
-            "Subprocess prompt built: %d extra sections [%s], "
-            "system_prompt=%d chars, enriched=%d chars, user_msg=%d chars",
-            len(extra_sections),
-            ", ".join(loaded_sections) if loaded_sections else "NONE",
-            len(system_prompt), len(enriched_system), len(user_message),
-        )
-
-        # --- Serialize conversation history into the user message ---
-        history_text = self._serialize_history(history or [])
-        if history_text:
-            enriched_user = (
-                f"CONVERSATION SO FAR:\n{history_text}\n\n"
-                f"---\n\n"
-                f"USER'S CURRENT MESSAGE:\n{user_message}"
-            )
-        else:
-            enriched_user = user_message
-
-        return enriched_system, enriched_user
-
     def _send_subprocess(
         self,
         user_message: str,
@@ -557,29 +336,44 @@ class ClaudeClient:
     ) -> Generator[StreamEvent, None, None]:
         """Send via claude CLI subprocess with streaming JSON output.
 
-        The subprocess backend enriches the system prompt with pre-loaded
-        context (entities, graph stats, step guidance, recent decisions)
-        so Claude can respond knowledgeably without tool calls.  It also
-        serializes conversation history into the user message for
-        multi-turn awareness.
+        The system prompt (already built by context_builder with all
+        world state, references, guidance, etc.) is combined with the
+        user message and piped via stdin to avoid Windows' ~32K
+        command-line length limit.
         """
         try:
-            # Build enriched prompt and message for subprocess
-            enriched_system, enriched_user = self._build_subprocess_prompt(
-                user_message, system_prompt, history
+            # Serialize conversation history into the user message
+            history_text = self._serialize_history(history or [])
+            parts: list[str] = []
+
+            # Prepend system prompt into the message (avoids cmd-line
+            # length limit; context_builder already built it with all
+            # world state, references, guidance, decisions, etc.)
+            if system_prompt:
+                parts.append(f"SYSTEM INSTRUCTIONS:\n{system_prompt}")
+
+            if history_text:
+                parts.append(f"CONVERSATION SO FAR:\n{history_text}")
+
+            parts.append(f"USER'S CURRENT MESSAGE:\n{user_message}")
+
+            full_prompt = "\n\n---\n\n".join(parts)
+
+            logger.info(
+                "Subprocess sending: prompt=%d chars (system=%d, history=%d msgs, "
+                "user=%d chars)",
+                len(full_prompt), len(system_prompt),
+                len(history or []), len(user_message),
             )
 
+            # Use `-p` without argument to read from stdin
             cmd = [
                 "claude",
-                "-p", enriched_user,
+                "-p",
                 "--output-format", "stream-json",
                 "--verbose",
-                "--model", "claude-opus-4-0-20250514",
+                "--model", "claude-opus-4-20250514",
             ]
-            logger.debug("Subprocess cmd: %s", cmd)
-
-            if enriched_system:
-                cmd.extend(["--system-prompt", enriched_system])
 
             # CREATE_NO_WINDOW prevents a console flash on Windows
             creation_flags = 0
@@ -588,6 +382,7 @@ class ClaudeClient:
 
             proc = subprocess.Popen(
                 cmd,
+                stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
@@ -595,6 +390,10 @@ class ClaudeClient:
                 errors="replace",
                 creationflags=creation_flags,
             )
+
+            # Send prompt via stdin (no cmd-line length limit)
+            proc.stdin.write(full_prompt)
+            proc.stdin.close()
 
             try:
                 accumulated_text = ""

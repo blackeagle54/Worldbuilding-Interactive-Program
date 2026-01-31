@@ -14,7 +14,7 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 # Approximate token budget for context (leaving room for user message + response)
-MAX_CONTEXT_CHARS = 30_000  # ~7500 tokens -- Claude's 200K context can handle this
+MAX_CONTEXT_CHARS = 80_000  # ~20K tokens -- well within Opus's 200K token context
 
 
 def build_context(
