@@ -17,8 +17,11 @@ Usage:
 """
 
 import json
+import logging
 import os
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 try:
     import networkx as nx
@@ -398,13 +401,14 @@ class WorldGraph:
                     return sorted(community)
         except Exception:
             # Fallback: return the connected component containing entity_id
-            pass
+            logger.debug("Community detection unavailable, falling back to connected component", exc_info=True)
 
         # Fallback: return the connected component
         try:
             component = nx.node_connected_component(undirected, entity_id)
             return sorted(component)
         except Exception:
+            logger.debug("Connected component lookup failed for %s", entity_id, exc_info=True)
             return [entity_id]
 
     def get_orphans(self) -> list[str]:

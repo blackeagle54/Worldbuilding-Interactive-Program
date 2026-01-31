@@ -76,8 +76,8 @@ def main():
             # Truncate the condensed preview
             if len(next_step_condensed) > 300:
                 next_step_condensed = next_step_condensed[:300] + "..."
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[check_completion] ChunkPuller step info: {e}")
 
     # --- Calculate completion for this step ---
     total_minimum = 0
@@ -111,8 +111,8 @@ def main():
         deps = cp.get_step_dependencies(current_step)
         dependencies_met = deps.get("dependencies_met", True)
         missing_deps = deps.get("missing_dependencies", [])
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[check_completion] Dependency check: {e}")
 
     # --- Determine completion status ---
     if total_minimum == 0:

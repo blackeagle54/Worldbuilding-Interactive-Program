@@ -51,11 +51,14 @@ Dependencies: Python standard library only (json, pathlib, random, datetime, re)
 """
 
 import json
+import logging
 import os
 import random
 import re
 from datetime import datetime, timezone
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -173,8 +176,7 @@ class OptionGenerator:
                 from engine.data_manager import DataManager
                 self.__data_manager = DataManager(str(self.root))
             except Exception:
-                import logging
-                logging.getLogger(__name__).exception("Failed to load DataManager")
+                logger.exception("Failed to load DataManager")
                 self.__data_manager = None
         return self.__data_manager
 
@@ -186,8 +188,7 @@ class OptionGenerator:
                 self.__graph = WorldGraph(str(self.root))
                 self.__graph.build_graph()
             except Exception:
-                import logging
-                logging.getLogger(__name__).exception("Failed to load WorldGraph")
+                logger.exception("Failed to load WorldGraph")
                 self.__graph = None
         return self.__graph
 
@@ -198,8 +199,7 @@ class OptionGenerator:
                 from engine.chunk_puller import ChunkPuller
                 self.__chunk_puller = ChunkPuller(str(self.root))
             except Exception:
-                import logging
-                logging.getLogger(__name__).exception("Failed to load ChunkPuller")
+                logger.exception("Failed to load ChunkPuller")
                 self.__chunk_puller = None
         return self.__chunk_puller
 
@@ -210,8 +210,7 @@ class OptionGenerator:
                 from engine.fair_representation import FairRepresentationManager
                 self.__fair_rep = FairRepresentationManager(str(self._state_path))
             except Exception:
-                import logging
-                logging.getLogger(__name__).exception("Failed to load FairRepresentationManager")
+                logger.exception("Failed to load FairRepresentationManager")
                 self.__fair_rep = None
         return self.__fair_rep
 
@@ -226,8 +225,7 @@ class OptionGenerator:
                 else:
                     self.__bookkeeper = None
             except Exception:
-                import logging
-                logging.getLogger(__name__).exception("Failed to load BookkeepingManager")
+                logger.exception("Failed to load BookkeepingManager")
                 self.__bookkeeper = None
         return self.__bookkeeper
 
@@ -392,7 +390,7 @@ class OptionGenerator:
                     type_counts[etype] = type_counts.get(etype, 0) + 1
                 result["entity_count_by_type"] = type_counts
             except Exception:
-                pass
+                logger.exception("Failed to gather canon entities from DataManager")
 
         # Gather from graph
         if self._graph:
@@ -428,7 +426,7 @@ class OptionGenerator:
                         })
                 result["related_entities"] = related_details
             except Exception:
-                pass
+                logger.exception("Failed to gather related entities from graph")
 
         # Fallback: if no graph, try state.json directly
         if not result["all_entities"]:
@@ -469,9 +467,10 @@ class OptionGenerator:
                         if claim_text:
                             claims.append(claim_text)
                 except Exception:
+                    logger.warning("Failed to extract claims for entity %s", eid)
                     continue
         except Exception:
-            pass
+            logger.exception("Failed to gather canon claims")
 
         return claims
 
@@ -557,7 +556,7 @@ class OptionGenerator:
                 guidance["references_summary"] = "; ".join(ref_parts)
 
         except Exception:
-            pass
+            logger.exception("Failed to gather step guidance")
 
         return guidance
 
@@ -580,7 +579,7 @@ class OptionGenerator:
                 self._fair_rep.save_state()
                 return assignments
             except Exception:
-                pass
+                logger.exception("Failed to assign sources via FairRepresentationManager")
 
         # Fallback: simple random assignment from known database lists
         mythologies = [
@@ -642,7 +641,7 @@ class OptionGenerator:
                 desc = parts[1].strip() if len(parts) > 1 else name
                 fields[name] = {"description": desc, "required": False}
         except Exception:
-            pass
+            logger.exception("Failed to extract template fields")
 
         return fields
 
@@ -960,7 +959,7 @@ class OptionGenerator:
                     rationale=rationale,
                 )
             except Exception:
-                pass  # Bookkeeper failure should not block recording
+                logger.warning("Bookkeeper failed to record choice", exc_info=True)
 
         return record
 
@@ -1005,7 +1004,7 @@ class OptionGenerator:
                     + ", ".join(f"{name} ({count}x)" for name, count in least_used)
                 )
             except Exception:
-                pass
+                logger.exception("Failed to get generation summary stats")
 
         return "\n".join(lines)
 
@@ -1021,14 +1020,14 @@ class OptionGenerator:
             try:
                 self._data_manager.reload_state()
             except Exception:
-                pass
+                logger.exception("Failed to reload DataManager state")
 
         # Rebuild graph
         if self._graph:
             try:
                 self._graph.build_graph()
             except Exception:
-                pass
+                logger.exception("Failed to rebuild graph")
 
         # Reload concept bank
         self._concept_bank = self._load_concept_bank()

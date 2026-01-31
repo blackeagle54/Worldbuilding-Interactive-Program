@@ -60,7 +60,8 @@ def main():
         # Get final stats before closing
         db_stats = sync.get_stats()
         sync.close()
-    except Exception:
+    except Exception as e:
+        print(f"[end_session] SQLite stats: {e}")
         db_stats = {}
 
     # --- Count entities by status ---

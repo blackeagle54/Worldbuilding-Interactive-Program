@@ -99,8 +99,8 @@ def main():
                 "entity_count": entity_count,
                 "reason": "pre_compact",
             })
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[save_checkpoint] Bookkeeper: {e}")
 
     # --- Print summary for compaction context ---
     print()

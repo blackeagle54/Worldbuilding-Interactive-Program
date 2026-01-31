@@ -27,12 +27,15 @@ Usage:
 """
 
 import json
+import logging
 import os
 import glob
 import shutil
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -101,6 +104,7 @@ class ErrorRecoveryManager:
             self._bookkeeper = BookkeepingManager(str(self.bookkeeping_dir))
             return self._bookkeeper
         except Exception:
+            logger.warning("BookkeepingManager unavailable", exc_info=True)
             return None
 
     def _get_template_registry(self) -> dict:
@@ -146,7 +150,7 @@ class ErrorRecoveryManager:
                     "timestamp": _now_iso(),
                 })
             except Exception:
-                pass  # Recovery system must not fail due to logging
+                logger.debug("Failed to log recovery action to bookkeeper", exc_info=True)
 
     def _backup_file(self, file_path: str) -> str | None:
         """Create a timestamped backup of a file before modifying it.
@@ -833,7 +837,7 @@ class ErrorRecoveryManager:
                             f"Re-encoded {basename} from latin-1 to utf-8."
                         )
                     except Exception:
-                        pass
+                        logger.warning("Failed to re-encode %s from latin-1", basename, exc_info=True)
                 continue
 
             # Invalid JSON

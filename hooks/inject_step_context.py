@@ -57,8 +57,8 @@ def main():
         if condensed:
             parts.append(condensed)
             parts.append("")
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[inject_step_context] ChunkPuller: {e}")
 
     # --- Featured reference sources from FairRepresentationManager ---
     try:
@@ -77,8 +77,8 @@ def main():
             if featured_auths:
                 parts.append(f"  Authors: {', '.join(featured_auths)}")
             parts.append("")
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[inject_step_context] FairRepresentation: {e}")
 
     # --- Relevant entities from SQLite ---
     try:
@@ -117,8 +117,8 @@ def main():
             parts.append("")
 
         sync.close()
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[inject_step_context] SQLite query: {e}")
 
     # --- Pending consistency warnings ---
     try:
@@ -136,8 +136,8 @@ def main():
             if len(open_contradictions) > 5:
                 parts.append(f"  ... and {len(open_contradictions) - 5} more")
             parts.append("")
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[inject_step_context] Bookkeeper: {e}")
 
     # --- Print the context block ---
     output = "\n".join(parts).strip()

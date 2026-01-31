@@ -23,9 +23,12 @@ Usage:
 """
 
 import json
+import logging
 import os
 import re
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 from engine.utils import safe_read_json as _safe_read_json
 
@@ -966,7 +969,7 @@ class ChunkPuller:
 
             return featured_myths, featured_auths, brief_myths, brief_auths
         except Exception:
-            pass
+            logger.exception("Failed to use FairRepresentationManager for source selection")
 
         # Fallback: simple rotation based on step number
         all_myths = self._get_all_db_names("mythology")
