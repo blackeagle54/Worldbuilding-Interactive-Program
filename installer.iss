@@ -1,11 +1,21 @@
 ; Inno Setup Script for Worldbuilding Interactive Program
 ; Build with: iscc installer.iss
 
+; Read version dynamically from the VERSION file so this stays in sync.
+; If the preprocessor read fails, fall back to a hardcoded value.
+#define VersionFile FileOpen(SourcePath + "\VERSION")
+#if VersionFile
+  #define MyAppVersion Trim(FileRead(VersionFile))
+  #expr FileClose(VersionFile)
+#else
+  ; Fallback -- keep this in sync with the VERSION file when updating.
+  #define MyAppVersion "0.3.0"
+#endif
+
 #define MyAppName "Worldbuilding Interactive Program"
-#define MyAppVersion "0.3.0"
 #define MyAppPublisher "WorldbuildingApp"
 #define MyAppExeName "WorldbuildingApp.exe"
-#define MyAppURL "https://github.com/worldbuilding-app/worldbuilding-interactive-program"
+#define MyAppURL "https://github.com/blackeagle54/Worldbuilding-Interactive-Program"
 
 [Setup]
 AppId={{A7B3C4D5-E6F7-8901-A2B3-C4D5E6F78901}

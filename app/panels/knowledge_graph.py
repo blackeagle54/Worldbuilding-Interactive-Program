@@ -18,6 +18,8 @@ from __future__ import annotations
 
 import logging
 import math
+import random
+import time
 from typing import Any
 
 from PySide6.QtCore import QPointF, QRectF, Qt, QTimer
@@ -234,6 +236,40 @@ class KnowledgeGraphPanel(QWidget):
         self._selected_node: EntityNode | None = None
         self._setup_ui()
         self._connect_signals()
+
+        # Run layout benchmark in debug/dev mode
+        if logger.isEnabledFor(logging.DEBUG):
+            self._benchmark_layout(100)
+            self._benchmark_layout(500)
+
+    def _benchmark_layout(self, n: int) -> None:
+        """Benchmark NetworkX spring_layout with *n* fake nodes and random edges.
+
+        Creates a synthetic graph, times the layout computation, and logs the
+        result.  Target: 100 nodes in <1 s.
+        """
+        try:
+            import networkx as nx
+        except ImportError:
+            logger.debug("NetworkX not available -- skipping benchmark")
+            return
+
+        rng = random.Random(0)
+        G = nx.Graph()
+        G.add_nodes_from(range(n))
+        # Add ~2*n random edges to make the graph reasonably connected
+        for _ in range(2 * n):
+            u, v = rng.randint(0, n - 1), rng.randint(0, n - 1)
+            if u != v:
+                G.add_edge(u, v)
+
+        start = time.perf_counter()
+        nx.spring_layout(G, scale=SCALE_FACTOR, seed=42)
+        elapsed = time.perf_counter() - start
+        logger.debug(
+            "spring_layout benchmark: %d nodes, %d edges -> %.3f s",
+            n, G.number_of_edges(), elapsed,
+        )
 
     def set_engine(self, engine_manager: Any) -> None:
         """Inject the EngineManager after construction."""

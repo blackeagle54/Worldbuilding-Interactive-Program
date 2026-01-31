@@ -41,7 +41,7 @@ def _read_version() -> str:
 
 
 _CURRENT_VERSION = _read_version()
-_GITHUB_REPO = "worldbuilding-app/worldbuilding-interactive-program"
+_GITHUB_REPO = "blackeagle54/Worldbuilding-Interactive-Program"
 _API_URL = f"https://api.github.com/repos/{_GITHUB_REPO}/releases/latest"
 
 
