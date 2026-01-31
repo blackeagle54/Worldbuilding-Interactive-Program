@@ -24,6 +24,8 @@ from app.panels.chat_panel import ChatPanel
 from app.panels.entity_browser import EntityBrowserPanel
 from app.panels.knowledge_graph import KnowledgeGraphPanel
 from app.panels.progress_sidebar import ProgressSidebarPanel
+from app.services.agent_worker import AgentWorker
+from app.services.claude_client import ClaudeClient
 from app.services.event_bus import EventBus
 from app.services.state_store import StateStore
 
@@ -95,6 +97,9 @@ class MainWindow(QMainWindow):
         # Cross-panel entity selection sync
         bus.entity_selected.connect(self._on_entity_selected)
 
+        # Rebuild system prompt when step changes
+        bus.step_changed.connect(lambda _: self._update_system_prompt())
+
         # Restore layout from previous session
         self._restore_layout()
 
@@ -104,12 +109,49 @@ class MainWindow(QMainWindow):
 
     def inject_engine(self, engine_manager: Any) -> None:
         """Wire the engine into panels that need it."""
+        self._engine = engine_manager
         self._entity_panel.set_engine(engine_manager)
         self._graph_panel.set_engine(engine_manager)
 
     def inject_state_store(self, store: StateStore) -> None:
         """Wire the state store into panels that need it."""
         self._progress_panel.set_state_store(store)
+
+    def inject_claude(self, client: ClaudeClient) -> None:
+        """Wire the Claude client into the chat panel."""
+        self._claude_client = client
+        self._agent_worker = AgentWorker(client, parent=self)
+        self._chat_panel.set_worker(self._agent_worker)
+
+        # Show backend status
+        backend_name = client.backend.name.lower()
+        if client.is_online:
+            self._chat_panel.set_backend_label(f"Claude: {backend_name}")
+        else:
+            self._chat_panel.set_backend_label("Claude: offline")
+
+        # Build initial system prompt
+        self._update_system_prompt()
+
+    def _update_system_prompt(self) -> None:
+        """Rebuild the system prompt from current step context."""
+        if not hasattr(self, "_engine") or self._engine is None:
+            return
+        if not hasattr(self, "_claude_client"):
+            return
+
+        try:
+            from app.services.context_builder import build_context
+            from app.services.state_store import StateStore
+
+            store = StateStore.instance()
+            step = store.current_step
+
+            context = build_context(self._engine, step)
+            self._chat_panel.set_system_prompt(context["system_prompt"])
+            self._claude_client.set_current_step(step)
+        except Exception:
+            logger.debug("Failed to build system prompt", exc_info=True)
 
     # ------------------------------------------------------------------
     # Dock creation helper

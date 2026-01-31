@@ -106,6 +106,18 @@ def main() -> int:
     if store is not None:
         window.inject_state_store(store)
 
+    # Initialize Claude client
+    try:
+        from app.services.claude_client import ClaudeClient
+        claude_client = ClaudeClient(
+            engine_manager=engine,
+            current_step=store.current_step if store else 1,
+        )
+        window.inject_claude(claude_client)
+        logger.info("Claude client initialized (backend: %s)", claude_client.backend.name)
+    except Exception:
+        logger.exception("Failed to initialize Claude client")
+
     window.show()
     logger.info("Main window displayed")
 
