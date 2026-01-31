@@ -197,7 +197,7 @@ class TestLazyLoading:
 
     def test_unknown_module_raises_keyerror(self, em):
         """Accessing an unknown module should raise KeyError."""
-        with pytest.raises(KeyError, match="Unknown module"):
+        with pytest.raises(KeyError, match="nonexistent_module"):
             em._get_module("nonexistent_module")
 
     def test_get_lock_unknown_module_raises(self, em):

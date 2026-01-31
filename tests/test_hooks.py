@@ -259,14 +259,14 @@ class TestSessionStart:
         import hooks.session_start as ss
         with patch.object(ss, "PROJECT_ROOT", temp_world):
             # Mock engine modules to avoid side effects
-            with patch("hooks.session_start.SQLiteSyncEngine") as mock_sqlite:
+            with patch("engine.sqlite_sync.SQLiteSyncEngine") as mock_sqlite:
                 mock_sqlite.return_value.full_sync.return_value = 2
-                with patch("hooks.session_start.WorldGraph") as mock_wg:
+                with patch("engine.graph_builder.WorldGraph") as mock_wg:
                     mock_wg.return_value.build_graph.return_value = None
                     mock_wg.return_value.get_stats.return_value = {
                         "node_count": 2, "edge_count": 1, "orphan_count": 0
                     }
-                    with patch("hooks.session_start.BookkeepingManager") as mock_bk:
+                    with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                         mock_bk.return_value.get_session_summaries.return_value = []
                         mock_bk.return_value.start_session.return_value = "sess-001"
                         ss.main()
@@ -279,11 +279,11 @@ class TestSessionStart:
         """main() should handle SQLite sync failure gracefully."""
         import hooks.session_start as ss
         with patch.object(ss, "PROJECT_ROOT", temp_world):
-            with patch("hooks.session_start.SQLiteSyncEngine", side_effect=Exception("SQLite error")):
-                with patch("hooks.session_start.WorldGraph") as mock_wg:
+            with patch("engine.sqlite_sync.SQLiteSyncEngine", side_effect=Exception("SQLite error")):
+                with patch("engine.graph_builder.WorldGraph") as mock_wg:
                     mock_wg.return_value.build_graph.return_value = None
                     mock_wg.return_value.get_stats.return_value = {}
-                    with patch("hooks.session_start.BookkeepingManager") as mock_bk:
+                    with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                         mock_bk.return_value.get_session_summaries.return_value = []
                         mock_bk.return_value.start_session.return_value = None
                         ss.main()
@@ -295,12 +295,12 @@ class TestSessionStart:
         """main() should show draft entities in the summary."""
         import hooks.session_start as ss
         with patch.object(ss, "PROJECT_ROOT", temp_world):
-            with patch("hooks.session_start.SQLiteSyncEngine") as mock_sqlite:
+            with patch("engine.sqlite_sync.SQLiteSyncEngine") as mock_sqlite:
                 mock_sqlite.return_value.full_sync.return_value = 2
-                with patch("hooks.session_start.WorldGraph") as mock_wg:
+                with patch("engine.graph_builder.WorldGraph") as mock_wg:
                     mock_wg.return_value.build_graph.return_value = None
                     mock_wg.return_value.get_stats.return_value = {}
-                    with patch("hooks.session_start.BookkeepingManager") as mock_bk:
+                    with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                         mock_bk.return_value.get_session_summaries.return_value = []
                         mock_bk.return_value.start_session.return_value = None
                         ss.main()
@@ -314,9 +314,9 @@ class TestSessionStart:
 
         import hooks.session_start as ss
         with patch.object(ss, "PROJECT_ROOT", root):
-            with patch("hooks.session_start.SQLiteSyncEngine", side_effect=Exception("no db")):
-                with patch("hooks.session_start.WorldGraph", side_effect=Exception("no graph")):
-                    with patch("hooks.session_start.BookkeepingManager", side_effect=Exception("no bk")):
+            with patch("engine.sqlite_sync.SQLiteSyncEngine", side_effect=Exception("no db")):
+                with patch("engine.graph_builder.WorldGraph", side_effect=Exception("no graph")):
+                    with patch("engine.bookkeeper.BookkeepingManager", side_effect=Exception("no bk")):
                         ss.main()
         captured = capsys.readouterr()
         assert "SESSION START" in captured.out
@@ -334,9 +334,9 @@ class TestEndSession:
         """main() should print the session end banner."""
         import hooks.end_session as es
         with patch.object(es, "PROJECT_ROOT", temp_world):
-            with patch("hooks.end_session.BookkeepingManager") as mock_bk:
+            with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                 mock_bk.return_value.session_active = False
-                with patch("hooks.end_session.SQLiteSyncEngine") as mock_sqlite:
+                with patch("engine.sqlite_sync.SQLiteSyncEngine") as mock_sqlite:
                     mock_sqlite.return_value.get_stats.return_value = {
                         "total_cross_references": 3,
                         "total_canon_claims": 5,
@@ -350,8 +350,8 @@ class TestEndSession:
         """main() should handle bookkeeper failure gracefully."""
         import hooks.end_session as es
         with patch.object(es, "PROJECT_ROOT", temp_world):
-            with patch("hooks.end_session.BookkeepingManager", side_effect=Exception("BK error")):
-                with patch("hooks.end_session.SQLiteSyncEngine") as mock_sqlite:
+            with patch("engine.bookkeeper.BookkeepingManager", side_effect=Exception("BK error")):
+                with patch("engine.sqlite_sync.SQLiteSyncEngine") as mock_sqlite:
                     mock_sqlite.return_value.get_stats.return_value = {}
                     es.main()
         captured = capsys.readouterr()
@@ -362,9 +362,9 @@ class TestEndSession:
         """main() should handle SQLite failure gracefully."""
         import hooks.end_session as es
         with patch.object(es, "PROJECT_ROOT", temp_world):
-            with patch("hooks.end_session.BookkeepingManager") as mock_bk:
+            with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                 mock_bk.return_value.session_active = False
-                with patch("hooks.end_session.SQLiteSyncEngine", side_effect=Exception("db error")):
+                with patch("engine.sqlite_sync.SQLiteSyncEngine", side_effect=Exception("db error")):
                     es.main()
         captured = capsys.readouterr()
         assert "SESSION END" in captured.out
@@ -373,9 +373,9 @@ class TestEndSession:
         """main() should show entity type breakdown."""
         import hooks.end_session as es
         with patch.object(es, "PROJECT_ROOT", temp_world):
-            with patch("hooks.end_session.BookkeepingManager") as mock_bk:
+            with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                 mock_bk.return_value.session_active = False
-                with patch("hooks.end_session.SQLiteSyncEngine") as mock_sqlite:
+                with patch("engine.sqlite_sync.SQLiteSyncEngine") as mock_sqlite:
                     mock_sqlite.return_value.get_stats.return_value = {}
                     es.main()
         captured = capsys.readouterr()
@@ -393,19 +393,19 @@ class TestInjectStepContext:
         """main() should print the worldbuilding context header."""
         import hooks.inject_step_context as isc
         with patch.object(isc, "PROJECT_ROOT", temp_world):
-            with patch("hooks.inject_step_context.ChunkPuller") as mock_cp:
+            with patch("engine.chunk_puller.ChunkPuller") as mock_cp:
                 mock_cp.return_value.pull_condensed.return_value = "Step guidance text"
-                with patch("hooks.inject_step_context.FairRepresentationManager") as mock_frm:
+                with patch("engine.fair_representation.FairRepresentationManager") as mock_frm:
                     mock_frm.return_value.select_featured.return_value = {
                         "featured_mythologies": ["Greek"],
                         "featured_authors": ["Tolkien"],
                     }
                     mock_frm.return_value.save_state.return_value = None
-                    with patch("hooks.inject_step_context.SQLiteSyncEngine") as mock_sqlite:
+                    with patch("engine.sqlite_sync.SQLiteSyncEngine") as mock_sqlite:
                         mock_sqlite.return_value.query_by_step.return_value = []
                         mock_sqlite.return_value.get_stats.return_value = {"total_entities": 0}
                         mock_sqlite.return_value.close.return_value = None
-                        with patch("hooks.inject_step_context.BookkeepingManager") as mock_bk:
+                        with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                             mock_bk.return_value.get_contradictions.return_value = []
                             isc.main()
         captured = capsys.readouterr()
@@ -416,10 +416,10 @@ class TestInjectStepContext:
         """main() should handle ChunkPuller failure gracefully."""
         import hooks.inject_step_context as isc
         with patch.object(isc, "PROJECT_ROOT", temp_world):
-            with patch("hooks.inject_step_context.ChunkPuller", side_effect=Exception("chunk error")):
-                with patch("hooks.inject_step_context.FairRepresentationManager", side_effect=Exception("frm error")):
-                    with patch("hooks.inject_step_context.SQLiteSyncEngine", side_effect=Exception("db error")):
-                        with patch("hooks.inject_step_context.BookkeepingManager", side_effect=Exception("bk error")):
+            with patch("engine.chunk_puller.ChunkPuller", side_effect=Exception("chunk error")):
+                with patch("engine.fair_representation.FairRepresentationManager", side_effect=Exception("frm error")):
+                    with patch("engine.sqlite_sync.SQLiteSyncEngine", side_effect=Exception("db error")):
+                        with patch("engine.bookkeeper.BookkeepingManager", side_effect=Exception("bk error")):
                             isc.main()
         captured = capsys.readouterr()
         assert "[WORLDBUILDING CONTEXT]" in captured.out
@@ -428,16 +428,16 @@ class TestInjectStepContext:
         """main() should display featured mythologies and authors."""
         import hooks.inject_step_context as isc
         with patch.object(isc, "PROJECT_ROOT", temp_world):
-            with patch("hooks.inject_step_context.ChunkPuller") as mock_cp:
+            with patch("engine.chunk_puller.ChunkPuller") as mock_cp:
                 mock_cp.return_value.pull_condensed.return_value = ""
-                with patch("hooks.inject_step_context.FairRepresentationManager") as mock_frm:
+                with patch("engine.fair_representation.FairRepresentationManager") as mock_frm:
                     mock_frm.return_value.select_featured.return_value = {
                         "featured_mythologies": ["Norse", "Egyptian"],
                         "featured_authors": [],
                     }
                     mock_frm.return_value.save_state.return_value = None
-                    with patch("hooks.inject_step_context.SQLiteSyncEngine", side_effect=Exception("skip")):
-                        with patch("hooks.inject_step_context.BookkeepingManager", side_effect=Exception("skip")):
+                    with patch("engine.sqlite_sync.SQLiteSyncEngine", side_effect=Exception("skip")):
+                        with patch("engine.bookkeeper.BookkeepingManager", side_effect=Exception("skip")):
                             isc.main()
         captured = capsys.readouterr()
         assert "FEATURED SOURCES" in captured.out
@@ -447,10 +447,10 @@ class TestInjectStepContext:
         """main() should show existing entity information when available."""
         import hooks.inject_step_context as isc
         with patch.object(isc, "PROJECT_ROOT", temp_world):
-            with patch("hooks.inject_step_context.ChunkPuller") as mock_cp:
+            with patch("engine.chunk_puller.ChunkPuller") as mock_cp:
                 mock_cp.return_value.pull_condensed.return_value = ""
-                with patch("hooks.inject_step_context.FairRepresentationManager", side_effect=Exception("skip")):
-                    with patch("hooks.inject_step_context.SQLiteSyncEngine") as mock_sqlite:
+                with patch("engine.fair_representation.FairRepresentationManager", side_effect=Exception("skip")):
+                    with patch("engine.sqlite_sync.SQLiteSyncEngine") as mock_sqlite:
                         mock_sqlite.return_value.query_by_step.return_value = [
                             {"name": "Thorin", "entity_type": "gods", "status": "draft"}
                         ]
@@ -459,7 +459,7 @@ class TestInjectStepContext:
                             "by_type": {"gods": 3, "settlements": 2},
                         }
                         mock_sqlite.return_value.close.return_value = None
-                        with patch("hooks.inject_step_context.BookkeepingManager", side_effect=Exception("skip")):
+                        with patch("engine.bookkeeper.BookkeepingManager", side_effect=Exception("skip")):
                             isc.main()
         captured = capsys.readouterr()
         assert "EXISTING ENTITIES" in captured.out
@@ -468,11 +468,11 @@ class TestInjectStepContext:
         """main() should show pending consistency warnings."""
         import hooks.inject_step_context as isc
         with patch.object(isc, "PROJECT_ROOT", temp_world):
-            with patch("hooks.inject_step_context.ChunkPuller") as mock_cp:
+            with patch("engine.chunk_puller.ChunkPuller") as mock_cp:
                 mock_cp.return_value.pull_condensed.return_value = ""
-                with patch("hooks.inject_step_context.FairRepresentationManager", side_effect=Exception("skip")):
-                    with patch("hooks.inject_step_context.SQLiteSyncEngine", side_effect=Exception("skip")):
-                        with patch("hooks.inject_step_context.BookkeepingManager") as mock_bk:
+                with patch("engine.fair_representation.FairRepresentationManager", side_effect=Exception("skip")):
+                    with patch("engine.sqlite_sync.SQLiteSyncEngine", side_effect=Exception("skip")):
+                        with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                             mock_bk.return_value.get_contradictions.return_value = [
                                 {"description": "Name conflict", "severity": "warning"},
                             ]
@@ -492,7 +492,7 @@ class TestSaveCheckpoint:
         """main() should create a checkpoint JSON file in sessions dir."""
         import hooks.save_checkpoint as sc
         with patch.object(sc, "PROJECT_ROOT", temp_world):
-            with patch("hooks.save_checkpoint.BookkeepingManager") as mock_bk:
+            with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                 mock_bk.return_value.session_active = False
                 sc.main()
 
@@ -504,7 +504,7 @@ class TestSaveCheckpoint:
         """The checkpoint file should contain a state_snapshot."""
         import hooks.save_checkpoint as sc
         with patch.object(sc, "PROJECT_ROOT", temp_world):
-            with patch("hooks.save_checkpoint.BookkeepingManager") as mock_bk:
+            with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                 mock_bk.return_value.session_active = False
                 sc.main()
 
@@ -520,7 +520,7 @@ class TestSaveCheckpoint:
         """main() should print a summary to stdout."""
         import hooks.save_checkpoint as sc
         with patch.object(sc, "PROJECT_ROOT", temp_world):
-            with patch("hooks.save_checkpoint.BookkeepingManager") as mock_bk:
+            with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                 mock_bk.return_value.session_active = False
                 sc.main()
         captured = capsys.readouterr()
@@ -531,7 +531,7 @@ class TestSaveCheckpoint:
         """When a bookkeeper session is active, a checkpoint event should be logged."""
         import hooks.save_checkpoint as sc
         with patch.object(sc, "PROJECT_ROOT", temp_world):
-            with patch("hooks.save_checkpoint.BookkeepingManager") as mock_bk:
+            with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                 mock_bk.return_value.session_active = True
                 sc.main()
                 mock_bk.return_value.log_event.assert_called_once()
@@ -542,7 +542,7 @@ class TestSaveCheckpoint:
         """main() should handle bookkeeper errors gracefully."""
         import hooks.save_checkpoint as sc
         with patch.object(sc, "PROJECT_ROOT", temp_world):
-            with patch("hooks.save_checkpoint.BookkeepingManager", side_effect=Exception("BK error")):
+            with patch("engine.bookkeeper.BookkeepingManager", side_effect=Exception("BK error")):
                 sc.main()
         captured = capsys.readouterr()
         assert "PRE-COMPACTION CHECKPOINT SAVED" in captured.out
@@ -551,7 +551,7 @@ class TestSaveCheckpoint:
         """main() should also copy the raw state.json as a snapshot."""
         import hooks.save_checkpoint as sc
         with patch.object(sc, "PROJECT_ROOT", temp_world):
-            with patch("hooks.save_checkpoint.BookkeepingManager") as mock_bk:
+            with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                 mock_bk.return_value.session_active = False
                 sc.main()
 
@@ -566,7 +566,7 @@ class TestSaveCheckpoint:
 
         import hooks.save_checkpoint as sc
         with patch.object(sc, "PROJECT_ROOT", root):
-            with patch("hooks.save_checkpoint.BookkeepingManager") as mock_bk:
+            with patch("engine.bookkeeper.BookkeepingManager") as mock_bk:
                 mock_bk.return_value.session_active = False
                 sc.main()
         captured = capsys.readouterr()

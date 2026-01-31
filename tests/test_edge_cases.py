@@ -318,7 +318,7 @@ class TestSQLiteSpecialCharacters:
         sync = SQLiteSyncEngine(temp_world)
         sync.full_sync()
 
-        with pytest.raises(ValueError, match="Multiple statements"):
+        with pytest.raises(ValueError, match="disallowed keywords"):
             sync.advanced_query("SELECT * FROM entities; DELETE FROM entities")
 
         sync.close()
@@ -366,16 +366,25 @@ class TestSQLiteConcurrentReads:
 
     def test_concurrent_reads(self, temp_world):
         """Multiple threads reading simultaneously should not fail."""
-        sync = SQLiteSyncEngine(temp_world)
-        sync.full_sync()
+        db_root = temp_world
+
+        # Run full_sync once to populate the database
+        init_sync = SQLiteSyncEngine(db_root)
+        init_sync.full_sync()
+        init_sync.close()
+
         errors = []
 
         def reader(thread_id):
             try:
+                # Each thread creates its own connection to avoid
+                # SQLite threading issues (connections are not thread-safe).
+                thread_sync = SQLiteSyncEngine(db_root)
                 for _ in range(10):
-                    sync.get_stats()
-                    sync.query_by_type("gods")
-                    sync.query_by_step(7)
+                    thread_sync.get_stats()
+                    thread_sync.query_by_type("gods")
+                    thread_sync.query_by_step(7)
+                thread_sync.close()
             except Exception as e:
                 errors.append((thread_id, e))
 
@@ -386,7 +395,6 @@ class TestSQLiteConcurrentReads:
             t.join(timeout=30)
 
         assert not errors, f"Concurrent read errors: {errors}"
-        sync.close()
 
     def test_context_manager(self, temp_world):
         """SQLiteSyncEngine should work as a context manager."""
