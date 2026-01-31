@@ -29,13 +29,7 @@ import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
-try:
-    import jsonschema
-except ImportError:
-    raise ImportError(
-        "The 'jsonschema' package is required but not installed. "
-        "Install it with: pip install jsonschema"
-    )
+from engine.models.factory import ModelFactory as _ModelFactory
 
 
 # ---------------------------------------------------------------------------
@@ -82,7 +76,6 @@ def _now_iso() -> str:
 
 from engine.utils import safe_read_json as _safe_read_json
 from engine.utils import safe_write_json as _safe_write_json
-from engine.utils import clean_schema_for_validation as _clean_schema_for_validation
 
 
 # ---------------------------------------------------------------------------
@@ -1001,6 +994,14 @@ class DataManager:
         self._schema_cache: dict[str, dict] = {}
         # Load state
         self._state: dict = self._load_state()
+        # Lazy-loaded Pydantic model factory
+        self._model_factory: _ModelFactory | None = None
+
+    def _get_model_factory(self) -> _ModelFactory:
+        """Return the shared Pydantic ModelFactory (lazy-loaded)."""
+        if self._model_factory is None:
+            self._model_factory = _ModelFactory(str(self.root))
+        return self._model_factory
 
     # ------------------------------------------------------------------
     # Internal loaders
@@ -1222,16 +1223,14 @@ class DataManager:
         Raises
         ------
         ValueError
-            If the template cannot be found.
-        jsonschema.ValidationError
-            If *data* does not pass schema validation (raised as a
-            ``ValueError`` with a friendly message).
+            If the template cannot be found or *data* does not pass
+            schema validation.
         """
         # Load the template schema
         schema = self._get_template_schema(template_id)
 
         # Validate data against the schema
-        errors = self._validate_data(data, schema)
+        errors = self._validate_data(data, schema, template_id=template_id)
         if errors:
             friendly = self._format_validation_errors(errors, template_id)
             raise ValueError(friendly)
@@ -1348,12 +1347,8 @@ class DataManager:
             if key not in ("_meta", "id", "canon_claims"):
                 merged[key] = value
 
-        # Validate merged data (exclude _meta / internal fields for validation)
-        validation_data = {
-            k: v for k, v in merged.items()
-            if not k.startswith("_") and k not in ("id", "canon_claims")
-        }
-        errors = self._validate_data(validation_data, schema)
+        # Validate merged data
+        errors = self._validate_data(merged, schema, template_id=template_id)
         if errors:
             friendly = self._format_validation_errors(errors, template_id)
             raise ValueError(friendly)
@@ -1363,7 +1358,11 @@ class DataManager:
         merged["_meta"]["updated_at"] = now
 
         # Re-extract canon claims
-        merged["canon_claims"] = _extract_canon_claims(validation_data, schema)
+        canon_data = {
+            k: v for k, v in merged.items()
+            if not k.startswith("_") and k not in ("id", "canon_claims")
+        }
+        merged["canon_claims"] = _extract_canon_claims(canon_data, schema)
 
         # --- Lore Sync: regenerate or preserve _prose ---
         # If the update data explicitly sets custom _prose, honour it
@@ -1539,13 +1538,9 @@ class DataManager:
         except ValueError as exc:
             return [str(exc)]
 
-        # Strip internal fields before validation
-        validation_data = {
-            k: v for k, v in entity.items()
-            if not k.startswith("_") and k not in ("id", "canon_claims")
-        }
-        errors = self._validate_data(validation_data, schema)
-        return [self._humanize_error(e) for e in errors]
+        # Validate using Pydantic model factory
+        errors = self._validate_data(entity, schema, template_id=template_id)
+        return errors
 
     def search_entities(self, query: str) -> list[dict]:
         """Search entity names, tags, and descriptions for a keyword.
@@ -1598,52 +1593,40 @@ class DataManager:
     # Validation helpers
     # ------------------------------------------------------------------
 
-    def _validate_data(self, data: dict, schema: dict) -> list:
-        """Validate *data* against a JSON Schema.
+    def _validate_data(self, data: dict, schema: dict, template_id: str = "") -> list[str]:
+        """Validate *data* against its template via Pydantic.
 
-        Returns a list of ``jsonschema.ValidationError`` instances (empty
-        if the data is valid).
+        Returns a list of human-readable error strings (empty if valid).
         """
-        # Build a validation-only copy of the schema.  We remove custom
-        # fields that are not part of standard JSON Schema (step, phase,
-        # source_chapter, x-cross-references, x-cross-reference, $id that
-        # collides with jsonschema's internal use) to prevent validation
-        # noise.
-        clean_schema = _clean_schema_for_validation(schema)
+        if not template_id:
+            template_id = schema.get("$id", "")
 
-        validator_cls = jsonschema.Draft202012Validator
-        validator = validator_cls(clean_schema)
-        return list(validator.iter_errors(data))
+        if not template_id:
+            return []  # Cannot validate without a template
+
+        # Build a full entity dict for the model factory (it expects
+        # the same shape as a file on disk, with _meta present).
+        entity_for_validation = dict(data)
+        if "_meta" not in entity_for_validation:
+            entity_for_validation["_meta"] = {"template_id": template_id}
+
+        factory = self._get_model_factory()
+        result = factory.validate_entity(entity_for_validation, template_id)
+        return result.errors
 
     @staticmethod
-    def _format_validation_errors(errors: list, template_id: str) -> str:
-        """Format a list of validation errors into a single friendly message."""
+    def _format_validation_errors(errors: list[str], template_id: str) -> str:
+        """Format a list of validation error strings into a single friendly message."""
         lines = [
             f"The data for template '{template_id}' has some issues that need fixing:\n"
         ]
         for i, err in enumerate(errors, 1):
-            lines.append(f"  {i}. {DataManager._humanize_error(err)}")
+            lines.append(f"  {i}. {err}")
         lines.append(
             "\nPlease correct these issues and try again. "
             "If you are unsure what a field expects, check the template description."
         )
         return "\n".join(lines)
-
-    @staticmethod
-    def _humanize_error(error) -> str:
-        """Convert a ``jsonschema.ValidationError`` into plain English."""
-        path = " -> ".join(str(p) for p in error.absolute_path) if error.absolute_path else "(root)"
-        msg = error.message
-        # Make common messages friendlier
-        if "'required'" in str(error.validator) or error.validator == "required":
-            return f"Missing required field at {path}: {msg}"
-        if error.validator == "type":
-            return f"Wrong data type at '{path}': {msg}"
-        if error.validator == "enum":
-            return f"Invalid value at '{path}': {msg}"
-        if error.validator == "minItems":
-            return f"Not enough items at '{path}': {msg}"
-        return f"Issue at '{path}': {msg}"
 
     # ------------------------------------------------------------------
     # Cross-reference extraction

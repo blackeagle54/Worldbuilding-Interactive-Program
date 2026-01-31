@@ -30,16 +30,8 @@ import re
 from collections import Counter
 from pathlib import Path
 
-try:
-    import jsonschema
-except ImportError:
-    raise ImportError(
-        "The 'jsonschema' package is required but not installed. "
-        "Install it with: pip install jsonschema"
-    )
-
+from engine.models.factory import ModelFactory as _ModelFactory
 from engine.utils import safe_read_json as _safe_read_json
-from engine.utils import clean_schema_for_validation as _clean_schema_for_validation
 
 
 def _tokenize(text: str) -> list[str]:
@@ -105,6 +97,14 @@ class ConsistencyChecker:
         self._schema_cache: dict[str, dict] = {}
         # Cache of all existing entities (loaded lazily)
         self._entity_cache: dict[str, dict] | None = None
+        # Lazy-loaded Pydantic model factory
+        self._model_factory: _ModelFactory | None = None
+
+    def _get_model_factory(self) -> _ModelFactory:
+        """Return the shared Pydantic ModelFactory (lazy-loaded)."""
+        if self._model_factory is None:
+            self._model_factory = _ModelFactory(str(self.root))
+        return self._model_factory
 
     # ------------------------------------------------------------------
     # Internal loaders
@@ -266,7 +266,7 @@ class ConsistencyChecker:
     # ------------------------------------------------------------------
 
     def check_schema(self, entity_data: dict, template_id: str) -> dict:
-        """Layer 1: Validate entity data against its JSON Schema template.
+        """Layer 1: Validate entity data against its Pydantic model.
 
         This is instant and free. It checks:
         - Required fields are present
@@ -277,8 +277,8 @@ class ConsistencyChecker:
         Parameters
         ----------
         entity_data : dict
-            The entity's field values (excluding ``_meta``, ``id``,
-            ``canon_claims`` -- just the user-facing data).
+            The entity's field values.  May include ``_meta``, ``id``,
+            etc. -- they are handled transparently.
         template_id : str
             The ``$id`` of the template schema to validate against.
 
@@ -287,108 +287,9 @@ class ConsistencyChecker:
         dict
             ``{"passed": bool, "errors": [human-readable strings]}``
         """
-        schema = self._get_template_schema(template_id)
-        if schema is None:
-            return {
-                "passed": False,
-                "errors": [
-                    f"Could not find the template '{template_id}'. "
-                    f"This usually means the template file is missing or "
-                    f"its name has changed. Please check that the template "
-                    f"exists in the templates/ directory."
-                ],
-            }
-
-        # Strip internal fields before validation
-        validation_data = {
-            k: v for k, v in entity_data.items()
-            if not k.startswith("_") and k not in ("id", "canon_claims")
-        }
-
-        # Clean the schema of custom extension fields
-        clean_schema = _clean_schema_for_validation(schema)
-
-        # Run jsonschema validation
-        validator_cls = jsonschema.Draft202012Validator
-        validator = validator_cls(clean_schema)
-        raw_errors = list(validator.iter_errors(validation_data))
-
-        if not raw_errors:
-            return {"passed": True, "errors": []}
-
-        # Convert to human-readable messages
-        human_errors = []
-        for err in raw_errors:
-            human_errors.append(self._humanize_schema_error(err, entity_data))
-
-        return {"passed": False, "errors": human_errors}
-
-    @staticmethod
-    def _humanize_schema_error(error, entity_data: dict) -> str:
-        """Convert a jsonschema ValidationError into plain English.
-
-        No Python tracebacks, no JSON jargon. Explains what happened,
-        why it matters, and what the user can do.
-        """
-        entity_name = entity_data.get("name", "this entity")
-        path = " -> ".join(str(p) for p in error.absolute_path) if error.absolute_path else ""
-
-        if error.validator == "required":
-            # Extract the missing field name from the error message
-            missing = error.message
-            return (
-                f"'{entity_name}' is missing a required piece of information: {missing}. "
-                f"This field needs to be filled in before the entity can be saved."
-            )
-
-        if error.validator == "type":
-            if path:
-                return (
-                    f"The field '{path}' for '{entity_name}' has the wrong kind of value. "
-                    f"{error.message}. Please check the value and try again."
-                )
-            return (
-                f"A field for '{entity_name}' has the wrong kind of value: "
-                f"{error.message}."
-            )
-
-        if error.validator == "enum":
-            if path:
-                return (
-                    f"The field '{path}' for '{entity_name}' has an invalid choice. "
-                    f"{error.message}. Please pick one of the allowed options."
-                )
-            return (
-                f"A field for '{entity_name}' has an invalid choice: "
-                f"{error.message}."
-            )
-
-        if error.validator == "minItems":
-            if path:
-                return (
-                    f"The field '{path}' for '{entity_name}' does not have enough entries. "
-                    f"{error.message}."
-                )
-            return (
-                f"A list field for '{entity_name}' does not have enough entries: "
-                f"{error.message}."
-            )
-
-        if error.validator == "minLength":
-            if path:
-                return (
-                    f"The field '{path}' for '{entity_name}' is too short. "
-                    f"Please provide a more complete value."
-                )
-            return f"A text field for '{entity_name}' is too short."
-
-        # Generic fallback -- still friendly
-        if path:
-            return (
-                f"There is an issue with the field '{path}' for '{entity_name}': "
-                f"{error.message}."
-            )
-        return f"There is an issue with '{entity_name}': {error.message}."
+        factory = self._get_model_factory()
+        result = factory.validate_entity(entity_data, template_id)
+        return result.to_dict()
 
     # ------------------------------------------------------------------
     # Layer 2: Rule-Based Cross-Reference Checks

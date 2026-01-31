@@ -394,16 +394,23 @@ class ModelFactory:
         """Run Pydantic validation and collect errors."""
         from pydantic import ValidationError
 
-        # Strip internal fields that are not part of the template schema
-        # (_meta is handled by WorldEntity, canon_claims likewise)
         try:
             entity = model.model_validate(entity_data)
-            return ValidationResult(passed=True, errors=[], entity=entity)
         except ValidationError as exc:
             errors = []
             for err in exc.errors():
                 errors.append(_humanize_pydantic_error(err, entity_data))
             return ValidationResult(passed=False, errors=errors, entity=None)
+
+        # Pydantic structural validation passed.  Now check required fields
+        # (they are typed Optional with default=None so Pydantic won't reject
+        # them, but the JSON Schema lists them as required).
+        required_fields = getattr(model, "_required_fields", set())
+        errors = _check_required_fields(entity_data, required_fields)
+        if errors:
+            return ValidationResult(passed=False, errors=errors, entity=None)
+
+        return ValidationResult(passed=True, errors=[], entity=entity)
 
     # ------------------------------------------------------------------
     # Bulk operations
@@ -462,6 +469,52 @@ class ValidationResult:
 # ------------------------------------------------------------------
 # Error humanization
 # ------------------------------------------------------------------
+
+def _check_required_fields(entity_data: dict, required_fields: set[str]) -> list[str]:
+    """Check that required fields are present and non-empty.
+
+    Mirrors JSON Schema ``required`` semantics: the field must be present
+    in the data dict.  We also treat ``None`` as missing since our Pydantic
+    models default required fields to ``None``.
+    """
+    errors: list[str] = []
+    entity_name = entity_data.get("name", entity_data.get("id", "this entity"))
+
+    # Strip _meta and internal fields for checking
+    check_data = {
+        k: v for k, v in entity_data.items()
+        if not k.startswith("_") and k not in ("id", "canon_claims")
+    }
+
+    for field in sorted(required_fields):
+        if field in ("id", "name"):
+            # 'name' is on WorldEntity base, check at top level
+            if field == "name":
+                val = entity_data.get("name")
+                if val is None or (isinstance(val, str) and not val.strip()):
+                    errors.append(
+                        f"The field 'name' is required for '{entity_name}' "
+                        f"but was not provided."
+                    )
+            continue
+
+        val = check_data.get(field)
+        if val is None:
+            # Check if the field exists at top level (might be _meta-stripped)
+            if field not in entity_data:
+                errors.append(
+                    f"The field '{field}' is required for '{entity_name}' "
+                    f"but was not provided."
+                )
+            # If field is in entity_data but None, still flag it
+            elif entity_data.get(field) is None:
+                errors.append(
+                    f"The field '{field}' is required for '{entity_name}' "
+                    f"but was not provided."
+                )
+
+    return errors
+
 
 def _humanize_pydantic_error(err: dict, entity_data: dict) -> str:
     """Convert a single Pydantic error dict to a human-friendly message.

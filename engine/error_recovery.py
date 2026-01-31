@@ -54,7 +54,6 @@ def _now_stamp() -> str:
 
 from engine.utils import safe_read_json as _safe_read_json
 from engine.utils import safe_write_json as _safe_write_json
-from engine.utils import clean_schema_for_validation as _clean_schema_for_validation
 
 
 # ---------------------------------------------------------------------------
@@ -303,15 +302,16 @@ class ErrorRecoveryManager:
         passed = 0
 
         try:
-            import jsonschema
-        except ImportError:
+            from engine.models.factory import ModelFactory
+            factory = ModelFactory(str(self.root))
+        except Exception as exc:
             return {
                 "status": "degraded",
                 "files_checked": 0,
                 "files_passed": 0,
                 "issues": [{
                     "entity_id": None,
-                    "message": "jsonschema package not installed; cannot validate schemas.",
+                    "message": f"Pydantic model factory unavailable: {exc}",
                 }],
             }
 
@@ -328,27 +328,11 @@ class ErrorRecoveryManager:
                 continue
 
             checked += 1
-            schema = self._get_template_schema(template_id)
-            if schema is None:
-                issues.append({
-                    "entity_id": entity_id,
-                    "file": path,
-                    "message": f"Template '{template_id}' not found for entity '{entity_id}'.",
-                })
-                continue
-
-            # Clean schema for validation (remove custom extension fields)
-            clean_schema = _clean_schema_for_validation(schema)
-            validation_data = {
-                k: v for k, v in data.items()
-                if not k.startswith("_") and k not in ("id", "canon_claims")
-            }
 
             try:
-                validator = jsonschema.Draft202012Validator(clean_schema)
-                errors = list(validator.iter_errors(validation_data))
-                if errors:
-                    error_msgs = [e.message for e in errors[:3]]
+                result = factory.validate_entity(data, template_id)
+                if not result.passed:
+                    error_msgs = result.errors[:3]
                     issues.append({
                         "entity_id": entity_id,
                         "file": path,
