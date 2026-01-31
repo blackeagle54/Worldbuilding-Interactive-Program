@@ -26,7 +26,7 @@ import shutil
 import subprocess
 import sys
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VENV_DIR = os.path.join(ROOT, ".build-venv")
 DIST_DIR = os.path.join(ROOT, "dist")
 BUILD_DIR = os.path.join(ROOT, "build")
@@ -92,7 +92,8 @@ def step_build(python: str) -> None:
         if os.path.isdir(d):
             _safe_rmtree(d, os.path.basename(d))
 
-    run([python, "-m", "PyInstaller", "worldbuilding.spec", "--noconfirm"])
+    spec_file = os.path.join(ROOT, "packaging", "worldbuilding.spec")
+    run([python, "-m", "PyInstaller", spec_file, "--noconfirm"])
 
 
 def step_cleanup() -> None:
@@ -133,7 +134,7 @@ def step_installer() -> None:
         print("  Install Inno Setup and ensure iscc.exe is on your PATH to build the installer.")
         return
 
-    iss_file = os.path.join(ROOT, "installer.iss")
+    iss_file = os.path.join(ROOT, "packaging", "installer.iss")
     if not os.path.isfile(iss_file):
         print(f"  installer.iss not found at {iss_file}, skipping.")
         return

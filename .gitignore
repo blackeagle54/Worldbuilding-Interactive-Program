@@ -8,3 +8,9 @@ backups/*.zip
 .venv/
 venv/
 nul
+dist/
+build/
+.build-venv/
+installer_output/
+*.egg-info/
+.env

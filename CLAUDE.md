@@ -24,22 +24,19 @@ C:\Worldbuilding-Interactive-Program\
 |-- docs/                            # All research, plans, and tracking
 |   |-- decisions.md                 # All project decisions
 |   |-- progress.md                  # Current progress tracker
-|   |-- phase2-plan.md              # Full architecture plan (Phase 2)
-|   |-- progression-map.md          # 52 steps across 12 phases
 |   |-- project-audit.md            # Full architecture audit
-|   |-- phase3-research.md          # Phase 3 UI framework survey
-|   |-- desktop-framework-research.md  # Deep desktop framework comparison
-|   |-- claude-code-integration-research.md  # Claude Agent SDK research
-|   |-- bookkeeping-research.md     # Phase 2 research docs
-|   |-- consistency-research.md
-|   |-- memory-research.md
-|   |-- orchestration-research.md
-|   |-- retrieval-research.md
-|   |-- rlm-research.md
-|   |-- scale-gaps-research.md
-|   |-- volume1-analysis.md         # Ellefson book analysis (3 volumes)
-|   |-- volume2-analysis.md
-|   |-- volume3-analysis.md
+|   |-- engine-code-audit.md        # Engine code audit
+|   |-- research/                   # Research documents
+|   |   |-- bookkeeping-research.md, consistency-research.md, ...
+|   |   |-- research-agent-sdk-integration.md, research-pyside6-architecture.md, ...
+|   |-- plans/                      # Project plans
+|   |   |-- phase2-plan.md          # Full architecture plan (Phase 2)
+|   |   |-- phase3-implementation-plan.md
+|   |   |-- progression-map.md      # 52 steps across 12 phases
+|   |-- analysis/                   # Book analysis
+|   |   |-- volume1-analysis.md     # Ellefson book analysis (3 volumes)
+|   |   |-- volume2-analysis.md
+|   |   |-- volume3-analysis.md
 |
 |-- reference-databases/             # 16 reference databases + source material (read-only)
 |   |-- source-text.txt              # Ellefson book full text
@@ -94,6 +91,12 @@ C:\Worldbuilding-Interactive-Program\
 |   |-- option-history.jsonl         # All previously generated options and themes
 |   |-- concept-bank.json            # Evocative words for random creative injection
 |
+|-- packaging/                       # Build and installer scripts
+|   |-- build_release.py             # Build automation script
+|   |-- worldbuilding.spec           # PyInstaller spec file
+|   |-- installer.iss                # Inno Setup installer script
+|-- scripts/                         # Utility scripts
+|   |-- create_icon.py               # Compass rose icon generator
 |-- runtime/                         # SQLite database (derived, .gitignored)
 |-- backups/                         # Timestamped backup copies
 |-- tests/                           # Automated test suite (182 tests)
@@ -107,7 +110,7 @@ C:\Worldbuilding-Interactive-Program\
 
 | Module | Class/Purpose |
 |---|---|
-| `data_manager.py` | `DataManager` -- Entity CRUD, schema validation with jsonschema, ID generation (slug + 4-hex), canon_claims extraction, prose generation |
+| `data_manager.py` | `DataManager` -- Entity CRUD, schema validation with pydantic, ID generation (slug + 4-hex), canon_claims extraction, prose generation |
 | `bookkeeper.py` | `BookkeepingManager` -- Append-only event log, derived indexes, session summaries. Event types: session_started, decision_made, draft_created, status_changed, entity_revised, cross_reference_created, contradiction_found/resolved, step_status_changed, session_ended |
 | `graph_builder.py` | `GraphBuilder` -- NetworkX directed graph from entity cross-references. Provides neighbor queries, path finding, community detection, orphan detection |
 | `chunk_puller.py` | `ChunkPuller` -- Produces three-layer guidance: (1) book quotes from source-text.txt, (2) synthesized references from all 16 DBs with fair rotation, (3) actionable template output with existing canon awareness |
@@ -149,7 +152,7 @@ C:\Worldbuilding-Interactive-Program\
 
 ## Dependencies
 
-- `jsonschema` -- JSON Schema validation
+- `pydantic` -- Data validation and schema enforcement
 - `networkx` -- In-memory knowledge graph
 - `pytest` -- Test suite (dev only)
 - Python 3.13 standard library (sqlite3, json, datetime, shutil, hashlib)

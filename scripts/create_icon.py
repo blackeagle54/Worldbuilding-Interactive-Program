@@ -146,7 +146,8 @@ def draw_compass_rose(size=512):
 
 def main():
     import os
-    out_dir = "C:/Worldbuilding-Interactive-Program/app/resources"
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    out_dir = os.path.join(root, "app", "resources")
     os.makedirs(out_dir, exist_ok=True)
 
     # Render at high resolution then scale down for quality

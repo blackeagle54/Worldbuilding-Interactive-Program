@@ -3,7 +3,7 @@
 
 ; Read version dynamically from the VERSION file so this stays in sync.
 ; If the preprocessor read fails, fall back to a hardcoded value.
-#define VersionFile FileOpen(SourcePath + "\VERSION")
+#define VersionFile FileOpen(SourcePath + "\..\VERSION")
 #if VersionFile
   #define MyAppVersion Trim(FileRead(VersionFile))
   #expr FileClose(VersionFile)
@@ -29,13 +29,13 @@ DefaultGroupName={#MyAppName}
 ; Per-user install, no admin required
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputDir=installer_output
+OutputDir=..\installer_output
 OutputBaseFilename=WorldbuildingSetup-{#MyAppVersion}
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 DisableProgramGroupPage=yes
-SetupIconFile=app\resources\icon.ico
+SetupIconFile=..\app\resources\icon.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -45,7 +45,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 ; Include the entire PyInstaller output directory
-Source: "dist\WorldbuildingApp\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\WorldbuildingApp\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

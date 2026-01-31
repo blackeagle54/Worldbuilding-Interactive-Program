@@ -12,7 +12,7 @@ import os
 import sys
 
 # Project root
-ROOT = os.path.dirname(os.path.abspath(SPEC))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(SPEC)))
 
 # Data files to bundle (source, dest_in_bundle)
 datas = [
